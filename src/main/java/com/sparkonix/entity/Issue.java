@@ -35,7 +35,7 @@ public class Issue implements Serializable {
 	private static final long serialVersionUID = -1014068216430547375L;
 
 	public static enum ISSUE_STATUS {
-		OPEN, ASSIGNED, CLOSED
+		OPEN, ASSIGNED, CLOSED, INPROGRESS
 	};
 
 	@Id

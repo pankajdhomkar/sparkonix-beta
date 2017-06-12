@@ -3,6 +3,7 @@ package com.sparkonix.dao;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -31,6 +32,9 @@ public class CompanyDetailDAO extends AbstractDAO<CompanyDetail> {
 		return list(namedQuery("com.sparkonix.entity.CompanyDetail.findAll"));
 	}
 
+	public List<CompanyDetail> findManufacturerName(long id){
+		return list(namedQuery("com.sparkonix.entity.CompanyDetail.findManufacturerName").setParameter("MANID", id));
+	}
 	/**
 	 * get list of {@link CompanyDetail} by onBoarded & companyType
 	 * 

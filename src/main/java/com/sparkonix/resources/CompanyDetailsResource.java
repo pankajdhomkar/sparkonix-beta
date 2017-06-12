@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -13,14 +14,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.hibernate.annotations.Any;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.sparkonix.dao.CompanyDetailDAO;
 import com.sparkonix.dao.CompanyLocationDAO;
 import com.sparkonix.dao.MachineDAO;
 import com.sparkonix.dao.PhoneDeviceDAO;
+import com.sparkonix.dao.ResellerDAO;
 import com.sparkonix.dao.UserDAO;
 import com.sparkonix.entity.CompanyDetail;
+import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.User;
 import com.sparkonix.entity.dto.CustomerDetailsDTO;
 import com.sparkonix.entity.dto.ManResDTO;
@@ -31,6 +36,8 @@ import com.sparkonix.utils.SendMail;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
+import net.sourceforge.argparse4j.annotation.Arg;
+
 @Path("/companydetails")
 @Produces(MediaType.APPLICATION_JSON)
 public class CompanyDetailsResource {
@@ -40,16 +47,19 @@ public class CompanyDetailsResource {
 	private final MachineDAO machineDAO;
 	private final PhoneDeviceDAO phoneDeviceDAO;
 	private final UserDAO userDAO;
-
+	private final ResellerDAO resellerDAO; 
+	
+	
 	private final Logger log = Logger.getLogger(CompanyDetailsResource.class.getName());
 
 	public CompanyDetailsResource(CompanyDetailDAO companyDetailDAO, CompanyLocationDAO companyLocationDAO,
-			MachineDAO machineDAO, PhoneDeviceDAO phoneDeviceDAO, UserDAO userDAO) {
+			MachineDAO machineDAO, PhoneDeviceDAO phoneDeviceDAO, UserDAO userDAO, ResellerDAO resellerDAO) {
 		this.companyDetailDAO = companyDetailDAO;
 		this.companyLocationDAO = companyLocationDAO;
 		this.machineDAO = machineDAO;
 		this.phoneDeviceDAO = phoneDeviceDAO;
 		this.userDAO = userDAO;
+		this.resellerDAO = resellerDAO;
 	}
 
 	@POST
@@ -57,8 +67,9 @@ public class CompanyDetailsResource {
 	public Response createCompanyDetail(@Auth User authUser, CompanyDetail companyDetail) {
 		try {
 			//synchronized(CompanyDetail.class){
+			System.out.println("Company Type---------"+companyDetail.getCompanyType());
 			if (companyDetail.getCompanyType().equals("CUSTOMER")) {
-
+				System.out.println("Company Pan Number------"+companyDetail.getPan());
 				if (companyDetail.getPan().length() != 10) {
 					return Response.status(Status.BAD_REQUEST)
 							.entity(JsonUtils.getErrorJson("Enter 10 digit in company PAN.")).build();
@@ -83,12 +94,12 @@ public class CompanyDetailsResource {
 					json.addProperty("entity", gson.toJson(companyDetailDAO.save(companyDetail)));
 
 					// send email to super admin
-					JsonObject jsonObj = MailUtils.getAddCompanyMail(companyDetail, authUser);
+					//JsonObject jsonObj = MailUtils.getAddCompanyMail(companyDetail, authUser);
 					//new SendMail(jsonObj).run();
-					Thread t1 = new Thread(new SendMail(jsonObj));
-					t1.start();
+					//Thread t1 = new Thread(new SendMail(jsonObj));
+					//t1.start();
 					
-					log.info("Email sent to super admin");
+					//log.info("Email sent to super admin");
 
 					return Response.status(Status.OK).entity(json.toString()).build();
 					// return
@@ -143,21 +154,52 @@ public class CompanyDetailsResource {
 					.build();
 		}
 	}
+	
 
 	@GET
 	@Path("/{companyType}")
 	@UnitOfWork
 	public Response listCompanyDetailsByCompanyType(@Auth User authUser, @PathParam("companyType") String companyType) {
 		try {
-			log.info("In listCompanyDetailsByCompanyType");
-			return Response.status(Status.OK)
-					.entity(JsonUtils.getJson(companyDetailDAO.findAllByCompanyType(companyType))).build();
+			if (companyType.equalsIgnoreCase("MANUFACTURER")) {
+				log.info("In listCompanyDetailsByCompanyType");
+				System.out.println("---" + JsonUtils.getJson(companyDetailDAO.findAllByCompanyType(companyType)));
+				return Response.status(Status.OK)
+						.entity(JsonUtils.getJson(companyDetailDAO.findAllByCompanyType(companyType))).build();
+			}else{
+				log.info("In listReseller");
+				
+				return Response.status(Status.OK)
+						.entity(JsonUtils.getJson(resellerDAO.findAll())).build();
+			}
 		} catch (Exception e) {
 			log.severe("Unable to find Company Details by Company Type" + e);
+			System.out.println("-----------------------------------------------"+e);
 			return Response.status(Status.BAD_REQUEST)
 					.entity(JsonUtils.getErrorJson("Unable to find Company Details by Company Type")).build();
 		}
 	}
+	
+	//Added new for the getting a manufacturer's reseller 
+	@GET
+	@Path("/reseller/{manufacturerId}")
+	@UnitOfWork
+	public Response listCompanyDetailsByResellersOfManufacturer(@Auth User authUser, @PathParam("manufacturerId") long manufacturerId){
+		try {
+			System.out.println("---------------------------------------------------------------");
+			System.out.println("ID---" + manufacturerId);
+			log.info("In listReseller");
+			return Response.status(Status.OK)
+					.entity(JsonUtils.getJson(resellerDAO.findAllById(manufacturerId))).build();
+		}catch (Exception e) {
+			// TODO: handle exception
+			log.severe("Unable to find Resellers" + e);
+			return Response.status(Status.BAD_REQUEST)
+					.entity(JsonUtils.getErrorJson("Unable to find Resellers")).build();
+		}
+	}
+	
+
 
 	@GET
 	@UnitOfWork
@@ -166,7 +208,6 @@ public class CompanyDetailsResource {
 			@PathParam("userRole") String userRole, @PathParam("companyType") String companyType) {
 		try {
 			log.info("In listCompanyDetailsOnBoardedById");
-
 			// used for manage customer view page
 			if (companyType.equalsIgnoreCase("CUSTOMER")) {
 				// get count of location+machines+operators
@@ -204,7 +245,7 @@ public class CompanyDetailsResource {
 			}
 
 			// used for Manufacturers and Resellers view page
-			if (companyType.equalsIgnoreCase("MANUFACTURER") || companyType.equalsIgnoreCase("RESELLER")) {
+			if (companyType.equalsIgnoreCase("MANUFACTURER") /*|| companyType.equalsIgnoreCase("RESELLER")*/) {
 
 				// show all to super admin
 				if (userRole.equals("SUPERADMIN")) {
@@ -219,6 +260,23 @@ public class CompanyDetailsResource {
 									.getJson(companyDetailDAO.findAllByOnBoardedAndType(onBoardedById, companyType)))
 							.build();
 				}
+			}else{
+				//This for viewing reseller
+				// show all to super admin
+				if (userRole.equals("SUPERADMIN")) {
+					System.out.println("dsfasfasdfasdfr"+resellerDAO.findAll());
+					return Response.status(Status.OK)
+							.entity(JsonUtils.getJson(resellerDAO.findAll())).build();
+
+				} else if (userRole.equals("SALESTEAM")
+						|| userRole.equals(User.ROLE_TYPE.MANUFACTURERADMIN.toString())) {
+//					System.out.println("wwwwwwwwwwwwww"+resellerDAO.findAllByOnBoarded(onBoardedById));
+					// show only onBoarded by him
+					return Response.status(Status.OK)
+							.entity(JsonUtils
+									.getJson(resellerDAO.findAllByOnBoarded(onBoardedById)))
+							.build();
+				}
 			}
 		} catch (Exception e) {
 			log.severe("Unable to find Company Details by onBoardedID " + e);
@@ -228,7 +286,7 @@ public class CompanyDetailsResource {
 		return null;
 	}
 
-	/**
+	/*
 	 * used for adding new Manufacturer/Reseller by salesteam/superadmin
 	 * 
 	 * @param authUser
@@ -242,34 +300,90 @@ public class CompanyDetailsResource {
 	@UnitOfWork
 	@Path("addmanres")
 	public Response createCompanyDetailForManRes(@Auth User authUser, ManResDTO manResDTO) {
-
-		CompanyDetail manResDetail = manResDTO.getManResDetail();
+		
+		System.out.println(manResDTO.getCompanyType());
+		
+		CompanyDetail manDetail = manResDTO.getManResDetail();
 		User manResWebAdmin = manResDTO.getWebAdminUser();
-
-		if (manResDetail.getPan().length() != 10) {
+		Reseller resDetail = manResDTO.getReseller();
+		
+		System.out.println("------------Company Type------------------"+manResDTO.getCompanyType());
+		if (manDetail.getPan().length() != 10) {
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Enter 10 digit in company PAN."))
 					.build();
 		}
-
-		CompanyDetail dbCompanyDetail = companyDetailDAO.findCompanyDetailByPanAndCompanyType(manResDetail.getPan(),
-				manResDetail.getCompanyType());
+		
+		
+		CompanyDetail dbCompanyDetail = companyDetailDAO.findCompanyDetailByPanAndCompanyType(manDetail.getPan(),
+				manResDTO.getCompanyType());
 		User dbUser = null;
+		System.out.println("--------"+manDetail.getPan());
+				
+		Reseller dbResellerDetail = resellerDAO.findResellerDetailByPan(manDetail.getPan());
 		if (manResWebAdmin != null) {
 			dbUser = userDAO.findByEmail(manResWebAdmin.getEmail());
 		}
 		if (dbCompanyDetail != null) {
 			return Response.status(Status.BAD_REQUEST)
 					.entity(JsonUtils.getErrorJson(
-							"A " + manResDetail.getCompanyType().toLowerCase() + " already exists with this PAN."))
+							"A " + manDetail.getCompanyType().toLowerCase() + " already exists with this PAN."))
 					.build();
-		} else if (dbUser != null) {
+		} else if(dbResellerDetail != null){
+			return Response.status(Status.BAD_REQUEST)
+					.entity(JsonUtils.getErrorJson(
+							"A " + manDetail.getCompanyType().toLowerCase() + " already exists with this PAN."))
+					.build();
+		}else if (dbUser != null) {
 			return Response.status(Status.BAD_REQUEST)
 					.entity(JsonUtils.getErrorJson("A web admin already exists with this email.")).build();
 		}
 		try {
 			// save CompanyDetail
-			CompanyDetail newCompanyDetail = companyDetailDAO.save(manResDetail);
-
+			if(manResDTO.getCompanyType().equalsIgnoreCase("MANUFACTURER")){
+				
+				CompanyDetail newCompanyDetail = companyDetailDAO.save(manDetail);
+				System.out.println("Kattapaaa"+newCompanyDetail.getCompanyName());
+				if (manResWebAdmin != null) {
+					manResWebAdmin.setRole(User.ROLE_TYPE.MANUFACTURERADMIN.toString());
+					manResWebAdmin.setCompanyDetailsId(newCompanyDetail.getId());
+					// save User
+					userDAO.save(manResWebAdmin);
+				}
+				// send email to super admin
+				JsonObject jsonObj = MailUtils.getAddCompanyMail(newCompanyDetail, authUser);
+				//new SendMail(jsonObj).run();
+				Thread t2 = new Thread(new SendMail(jsonObj));
+				t2.start();
+				log.info("Email sent to super admin");
+			}else{
+				
+				resDetail.setCompanyName(manDetail.getCompanyName()); // Company Name
+				resDetail.setPan(manDetail.getPan()); //Pan
+				resDetail.setCustSupportName(manDetail.getCustSupportName()); //Contact Person
+				resDetail.setCustSupportPhone(manDetail.getCustSupportPhone());//fld_contact_person_number
+				resDetail.setCustSupportEmail(manDetail.getCustSupportEmail());//fld_contact_person_email
+				resDetail.setCurSubscriptionType(manDetail.getCurSubscriptionType());//fld_subscription_type
+				resDetail.setCurSubscriptionStatus(manDetail.getCurSubscriptionStatus());//fld_subscription_status
+				resDetail.setCurSubscriptionStartDate(manDetail.getCurSubscriptionStartDate());//fld_subscription_start_date
+				resDetail.setCurSubscriptionEndDate(manDetail.getCurSubscriptionEndDate());//fld_subscription_end_date
+				resDetail.setOnBoardedBy(manDetail.getOnBoardedBy());//fld_on_boarded_by
+				
+				Reseller newReseller = resellerDAO.save(resDetail);
+				if (manResWebAdmin != null) {
+					manResWebAdmin.setRole(User.ROLE_TYPE.RESELLERADMIN.toString());
+					manResWebAdmin.setCompanyDetailsId(newReseller.getId());
+					// save User
+					userDAO.save(manResWebAdmin);
+				}
+				// send email to super admin
+				JsonObject jsonObj = MailUtils.getAddCompanyMailReseller(newReseller, authUser);
+				//new SendMail(jsonObj).run();
+				Thread t2 = new Thread(new SendMail(jsonObj));
+				t2.start();
+				log.info("Email sent to super admin");
+			}
+//			
+			/*CompanyDetail newCompanyDetail = companyDetailDAO.save(manDetail);
 			if (manResWebAdmin != null) {
 				String role = null;
 				if (newCompanyDetail.getCompanyType().equals(CompanyDetail.COMPANY_TYPE.MANUFACTURER.toString())) {
@@ -285,23 +399,24 @@ public class CompanyDetailsResource {
 				// save User
 				userDAO.save(manResWebAdmin);
 			}
+		
 
 			// send email to super admin
 			JsonObject jsonObj = MailUtils.getAddCompanyMail(newCompanyDetail, authUser);
 			//new SendMail(jsonObj).run();
 			Thread t2 = new Thread(new SendMail(jsonObj));
 			t2.start();
-			log.info("Email sent to super admin");
+			log.info("Email sent to super admin");*/
 
 			return Response.status(Status.OK)
 					.entity(JsonUtils.getSuccessJson(
-							"A " + newCompanyDetail.getCompanyType().toLowerCase() + " has been created successfully."))
+							"A " + manDetail.getCompanyType().toLowerCase() + " has been created successfully."))
 					.build();
 		} catch (Exception e) {
 			log.severe("Failed to create company detail. Reason: " + e.getMessage());
 			return Response.status(Status.BAD_REQUEST)
 					.entity(JsonUtils.getErrorJson("Failed to create company detail.")).build();
 		}
-
+		
 	}
 }

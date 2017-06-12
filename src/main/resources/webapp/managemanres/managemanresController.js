@@ -5,6 +5,7 @@ angular.module('sparkonixWebApp').controller('manageManResController',
 
 function manageManResController($scope, $state, restAPIService, dialogs,
 		$rootScope) {
+	
 	// ------------- PUBLIC VARIABLES ----------------
 	$scope.activeTabNumber = 1;
 	$scope.manufacturers = [];
@@ -39,12 +40,15 @@ function manageManResController($scope, $state, restAPIService, dialogs,
 		});
 		// get resellers
 		var promise2;
+		console.log("ROLE--",$rootScope.user.role);
 		if ($rootScope.user.role == "SALESTEAM"
 				|| $rootScope.user.role == "MANUFACTURERADMIN"
 				|| $rootScope.user.role == "RESELLERADMIN") {
+			console.log("HERE-------------");
 			promise2 = restAPIService.companyDetailsByOnBoarded(
 					$rootScope.user.id, $rootScope.user.role, "RESELLER")
 					.query();
+			console.log("Response of reseller-->",promise2);
 
 		} else if ($rootScope.user.role == "SUPERADMIN") {
 			promise2 = restAPIService.companyDetailsByCompanyTypeResource(
@@ -60,29 +64,42 @@ function manageManResController($scope, $state, restAPIService, dialogs,
 	}
 
 	// ------------- PUBLIC FUNCTIONS ----------------
-	$scope.addNewManRes = function() {
+	$scope.addNewManRes = function(role) {
 		$scope.parent = false;
 		$scope.mode = "add";
 		$scope.isRequired = true;
+		if(role == 1){
+			$scope.role = "MANUFACTURERADMIN";
+		}else{
+			$scope.role = "RESELLERADMIN";
+		}
 		$state.go('home.managemanres.addmanres');
 	}
 
-	$scope.editManRes = function(manResId) {
+	//This for edit
+	$scope.editManRes = function(manResId, companyT) {
 		$scope.parent = false;
 		$scope.mode = "edit";
 		$scope.isRequired = false;
 		$scope.ngDisabled = false;
-
+		$scope.companyType = companyT;
 		$scope.manResId = manResId;
 		$state.go('home.managemanres.addmanres');
 	}
 
-	$scope.viewManRes = function(manResId) {
+	$scope.deleteManufacturer = function(manResId){
+		
+	}
+	
+	$scope.viewManRes = function(manResId,companyT) {
 		$scope.parent = false;
 		$scope.mode = "view";
 		$scope.manResId = manResId;
-		$state.go('home.managemanres.viewmanres');
+		$scope.companyType = companyT;
+		console.log("call from manager controller");
+		$state.go('home.managemanres.viewmanres');	
 	}
+
 	$scope.setTab = function(tabId) {
 		$scope.activeTabNumber = tabId;
 	};
@@ -95,4 +112,5 @@ function manageManResController($scope, $state, restAPIService, dialogs,
 		$scope.setTab($rootScope.tabValueManRes);
 	}
 
+	
 }

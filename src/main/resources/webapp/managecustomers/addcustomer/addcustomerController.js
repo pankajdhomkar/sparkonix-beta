@@ -18,6 +18,10 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	$scope.mobilenumbers = [];
 	$scope.manufacturersList = [];
 	$scope.resellersList = [];
+	//----This two arrays for getting a name of resller and manufacturer when reseller is login
+	$scope.getResellerData = {}; // For reseller information
+	$scope.getManufacturerData = {}; // For manufacturer name 
+	//------------------------------------------------------------
 	$scope.companyLocationsDropdown = [];
 	$scope.phoneDevicesData = [];
 	$scope.curSubscriptionTypes = [ "BASIC", "PREMIUM" ];
@@ -38,8 +42,9 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	// $scope.newMachineObj = {};
 	$scope.sampleFilePath = "/assets/BulkMachineSample.xlsx";
 	$scope.sampleFileName = "BulkMachineSample.xlsx"
-	$scope.machine={};	
-
+	$scope.machine={};
+	$scope.id = 0; // get the manufacturer id so we can find appropriate reseller
+	
 	$scope.opened = {};
 	$scope.open = function($event) {
 
@@ -60,7 +65,6 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	// load all man/res list
 	getManResList();
 	// begin();
-
 	if ($scope.mode == "add") {
 		$scope.activeTabNumber = 1;
 		$scope.saveButtonText = "Submit";
@@ -75,10 +79,22 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		}, {
 			title : 'Machines',
 			click : ''
-		}, {
+		}/*, {
 			title : 'Authorized	Operators',
 			click : ''
-		} ];
+		}*/ ];
+		console.log("IN Add-------------------------------",$rootScope.user);
+		if($rootScope.user.role == "MANUFACTURERADMIN"){
+			console.log("1---------------------");
+			console.log("Manufacturer show only reseller dropdown-->"+$rootScope.user.companyDetailsId);
+			$scope.id = $rootScope.user.companyDetailsId;
+			console.log("get the id "+$scope.id);
+			getListResellerofManufacturer($scope.id);
+		}
+		if($rootScope.user.role == "RESELLERADMIN"){
+			console.log("Manufacturer show only reseller dropdown-->",$rootScope.user);
+			getResellerName();
+		}
 
 	} else if ($scope.mode == "edit") {
 		$scope.activeTabNumber = $scope.setTabId;
@@ -92,10 +108,10 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		}, {
 			title : 'Machines',
 			click : $scope.setTab
-		}, {
+		}/*, {
 			title : 'Authorized	Operators',
 			click : $scope.setTab
-		} ];
+		}*/ ];
 
 		$scope.paneltitles = [ "Edit company details",
 				"Edit locations of the machines", "Edit machine details",
@@ -104,16 +120,37 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 		// fetch & set customer detail data
 		$scope.companyDetail = $scope.customer;
-
+		
 		// fetch & set factory location data
 		getFactoryLocations();
-
+		console.log("1-before manufacturer list");
 		// fetch manufacturer dropdown list
 		getCompanyDetailListByType("manufacturer");
-
-		// fetch reseller dropdown list
-		getCompanyDetailListByType("reseller");
-
+		console.log("2-after manufacturer list");
+//		// fetch reseller dropdown list
+//		getCompanyDetailListByType("reseller");
+		console.log("3-before if of manuf");
+//		getListResellerofManufacturer($scope.id);
+		if($rootScope.user.role == "MANUFACTURERADMIN"){
+			console.log("4 - in if of manuf");
+			console.log("Manufacturer show only reseller dropdown-->"+$rootScope.user.companyDetailsId);
+			$scope.id = $rootScope.user.companyDetailsId;
+			console.log("get the id "+$scope.id);
+			getListResellerofManufacturer($scope.id);
+		}
+		if($rootScope.user.role == "RESELLERADMIN"){
+			console.log("Manufacturer show only reseller dropdown-->",$rootScope.user);
+			getResellerName();
+		}
+		//This if case for check weather the reseller login an who is a manufacturer of him
+//		if($rootScope.user.role == "RESELLERADMIN"){
+//			console.log("6- resell in if");
+//			console.log("Manufacturer show only reseller dropdown-->"+$rootScope.user.companyDetailsId);
+//			//$scope.id = $rootScope.user.companyDetailsId;
+//			//console.log("get the id "+$scope.id);
+//			//getListResellerofManufacturer($scope.id);
+//		}
+//		console.log("7 - after resell if");
 		// fetch location dropdown list by onBoardedBy
 		getCompanyLocationsListByOnBoarded();
 
@@ -150,6 +187,36 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		});
 	}
 
+	function getResellerName(){// This method for the getting a reseller name
+		
+		console.log("GET ID------------>",$rootScope.user.companyDetailsId);
+		
+		var promise3 = restAPIService.companyResellerName($rootScope.user.companyDetailsId,
+				"RESELLER").query();
+			promise3.$promise.then(function(response) {
+				console.log("resposne--",response);
+			$scope.getResellerData = response.reseller;
+//			console.log("GET Reseller Data----------->",$scope.getResellerData);
+			getManufacturerName($scope.getResellerData.fld_manufid);
+		}, function(error) {
+			dialogs.error("Error", error.data.error, {
+				'size' : 'sm'
+			});
+		});
+	}
+	
+	function getManufacturerName(id){//This method for getting a manufacturer name
+		var promise = restAPIService.companyManufacturerName(id,
+		"MANUFACTURER").query();
+		promise.$promise.then(function(response) {
+			console.log("Response of manufacturer",response);
+			$scope.getManufacturerData = response.manResDetail;
+		}, function(error) {
+			dialogs.error("Error", error.data.error, {
+				'size' : 'sm'
+			});
+		});
+	}
 	function getCompanyDetailListByType(companyType) {
 		var promise = restAPIService.companyDetailsByCompanyTypeResource(
 				companyType).query();
@@ -159,17 +226,40 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			if (companyType == "manufacturer") {
 				$scope.manufacturersList = response;
 			}
-			if (companyType == "reseller") {
-				$scope.resellersList = response;
-			}
-
+//			if (companyType == "reseller") {
+//				$scope.resellersList = response;
+//			}
+//			console.log("List-->"+$scope.manufacturerId);
+//			getListResellerofManufacturer($scope.id);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
 			});
 		});
 	}
+// getting the id from the user
+	$scope.getIdofMan = function(){
+		//console.log(angular.element("#w")[0].value);
+		var count = angular.element("#w")[0].value;
+		$scope.id = $scope.manufacturersList[count].id;
+		getListResellerofManufacturer($scope.id);
+	}
 
+	function getListResellerofManufacturer(manufacurerId){
+		console.log("ID--------->"+manufacurerId);
+		var promise = restAPIService.companyDetailsResllerByManufactrer(manufacurerId).query();
+		console.log("Method Start------->");
+		// dropdwon should display Reseller while adding new machine
+		promise.$promise.then(function(response) {
+		$scope.resellersList = response;
+		console.log("Method in Reseller list------->"+$scope.resellersList);
+		},function(error) {
+			dialogs.error("Error", error.data.error, {
+				'size' : 'sm'
+			});
+		});
+		console.log("Method End------->");
+	}
 	function getCompanyLocationsListByOnBoarded() {
 		var promise;
 
@@ -260,6 +350,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			$scope.companyDetail.companyType = "CUSTOMER";
 			$scope.companyDetail.onBoardedBy = Number($rootScope.user.id);
 
+			
 			var customerObj = restAPIService.companyDetailsResource().save(
 					$scope.companyDetail);
 			customerObj.$promise.then(function(response) {
@@ -289,11 +380,13 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				// fetch manufacturer dropdown list
 				getCompanyDetailListByType("manufacturer");
 
-				// fetch reseller dropdown list
-				getCompanyDetailListByType("reseller");
+				//Instead of this get the manufacturer id and get its reseller according to that
+				
+				//getListResellerofManufacturer($scope.machine.manufacturerId);
 
-				// fetch reseller dropdown list
-				getCompanyDetailListByType("reseller");
+
+//				// fetch reseller dropdown list
+//				getCompanyDetailListByType("reseller");
 				dialogs.notify("Success", response.message, {
 					'size' : 'sm'
 				});
@@ -322,8 +415,14 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 					$scope.companyDetail.curSubscriptionStartDate="";
 					$scope.companyDetail.curSubscriptionEndDate="";
 				}
+				
+				$scope.manDto = {};
+				$scope.manDto.manResDetail = $scope.customer;
+				$scope.manDto.reseller = null;
+				$scope.manDto.companyType = $scope.companyDetail.companyType;
+				
 				var promise = restAPIService.companyDetailResource(
-						companyDetailId).update($scope.customer);
+						companyDetailId,$scope.companyDetail.companyType).update($scope.manDto);
 				promise.$promise.then(function(response) {
 					dialogs.notify("Success", response.success, {
 						'size' : 'sm'
@@ -341,11 +440,11 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			if (cuurentTab == 2) {
 				$scope.setTab($scope.activeTabNumber + 1);
 			}
-			if (cuurentTab == 3) {
+			/*if (cuurentTab == 3) {
 
 				$scope.setTab($scope.activeTabNumber + 1);
 			} 
-
+*/
 		}
 	};
 
@@ -382,7 +481,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		$scope.activeTabNumber = tabId;
 		$scope.panelTitle = $scope.paneltitles[tabId - 1];
 		 
-		if (tabId == 4) {
+		if (tabId == 3) {
 			$scope.saveButtonText = "Submit";
 		} else {
 			$scope.saveButtonText = "Save and Next";
@@ -455,7 +554,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			$state.go("home.managecustomers.addcustomer");
 		}
 	}
-
+//---------------------------------------------------------------------------------------------------------------------
 	/** **************** add/edit machine ************************************* */
 	$scope.addNewMachine = function() {
 		$scope.machineModalTitle = "Add Machine";
@@ -537,15 +636,21 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	}
 
 	$scope.onSaveMachine = function() {
+		console.log("-----Submit button click-----");
+		console.log("modal machine mode---",$scope.modalMachineMode);
 		if ($scope.modalMachineMode == "add") {
 			//disable submit btn
 			angular.element(document.getElementById('btnSaveMachine'))[0].disabled = true;
 			
 			if ($rootScope.user.role == "MANUFACTURERADMIN"){
+				//-----------------------------------------1--------------------------
 				$scope.machine.manufacturerId=$rootScope.user.companyDetailsId;
+				console.log("Id of role---"+$scope.machine.manufacturerId+"name"+$scope.machine.name);
 			}
 			if ($rootScope.user.role == "RESELLERADMIN"){
 				$scope.machine.resellerId=$rootScope.user.companyDetailsId;
+				$scope.machine.manufacturerId = $scope.getResellerData.fld_manufid;
+				console.log("manuf id--",$scope.machine.manufacturerId);
 			} 
 			 
 			$scope.machine.onBoardedBy = $rootScope.user.id;
@@ -570,7 +675,8 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				$scope.machine.curSubscriptionStartDate = "";
 				$scope.machine.curSubscriptionEndDate= "";
 			}
-
+			
+			console.log("Machine information --->",$scope.machine);
 			var machineObj = restAPIService.machinesResource().save(
 					$scope.machine);
 			machineObj.$promise.then(function(response) {
@@ -588,6 +694,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 			}, function(error) {
 				angular.element(document.getElementById('btnSaveMachine'))[0].disabled = false;
+				console.log("-----Error-----comes");
 				dialogs.error("Error", error.data.error, {
 					'size' : 'sm'
 				});
@@ -597,7 +704,9 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			angular.element(document.getElementById('btnSaveMachine'))[0].disabled = true;
 			
 			if ($rootScope.user.role == "MANUFACTURERADMIN"){
+				//=----------------------------------2---------------------------
 				$scope.machine.manufacturerId=$rootScope.user.companyDetailsId;
+				console.log("Id in edit--"+$scope.machine.manufacturerId+"--name--"+$scope.machine.name);
 			}
 			if ($rootScope.user.role == "RESELLERADMIN"){
 				$scope.machine.resellerId=$rootScope.user.companyDetailsId;
@@ -616,18 +725,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
 			}
 			
-			/*if ($scope.qrcode != null) {
-				if (($scope.qrcode.part1 != undefined || ($scope.qrcode.part1).length != 0) 
-						|| ($scope.qrcode.part2 != undefined || ($scope.qrcode.part2).length != 0)
-						|| ($scope.qrcode.part3 != undefined || ($scope.qrcode.part3).length != 0)) {
-					$scope.machine.qrCode = $scope.qrcode.part1 + "-"
-							+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
-				}
-
-			} else {
-				$scope.qrcode = null;
-			}*/
-			
+		
 			if ($scope.machine.curAmcStatus == "INACTIVE") {
 				$scope.machine.curAmcStartDate = "";
 				$scope.machine.curAmcEndDate = "";
@@ -661,7 +759,8 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 		}
 	}
-
+//-------------------------------------------------------------------------------------------------------------------
+	
 	/**
 	 * **************** add/edit phone devices[OPERATOR]
 	 * *************************************
@@ -1157,13 +1256,13 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		}
 	}
 
+	// This function for getting qrcode list from server
 	function getAssignedQrCodeList() {
 		var promise = restAPIService.qrcodesResource().query();
 		promise.$promise.then(function(response) {
 			$scope.assignedQrCodeList = response;
 		}, function(error) {
 			console.log(error.data.error);
-
 		});
 
 	}
@@ -1172,7 +1271,6 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		var promise = restAPIService.companyDetailsResource().query();
 		promise.$promise.then(function(response) {
 			$scope.manResList = response;
-
 		}, function(error) {
 			console.log(error.data.error);
 

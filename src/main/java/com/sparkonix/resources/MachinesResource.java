@@ -64,12 +64,23 @@ public class MachinesResource {
 							.entity(JsonUtils.getErrorJson("This is not valid AttendMe QR code")).build();
 				} else {
 					log.info("This is valid AttendMe QR code");
+					System.out.println("Status -------------->"+qrCode.getStatus());
 					if (qrCode.getStatus().equals(QRCode.QRCODE_STATUS.ASSIGNED.toString())) {
 						log.severe("This QR code is not available.");
 						return Response.status(Status.BAD_REQUEST)
 								.entity(JsonUtils.getErrorJson("This QR code is not available")).build();
 					} else {
+						System.out.println("Before machine save------"+machine.getId());
+						
 						Machine newMachine = machineDAO.save(machine);
+						
+						System.out.println("machine save------"+newMachine.getId());
+						System.out.println("id-1 id -----"+newMachine.getId());
+						System.out.println("id-2 customer id-----"+newMachine.getCustomerId());
+						System.out.println("id-3 manu id-----"+newMachine.getManufacturerId());
+						System.out.println("id-4 reseller id-----"+newMachine.getResellerId());
+						System.out.println("id-5 location id-----"+newMachine.getLocationId());
+						
 						if (newMachine != null) {
 							log.info("QR code has been assigned to machine");
 							// update qr code as assigned
@@ -88,16 +99,27 @@ public class MachinesResource {
 			} else {
 				log.severe("QR code is null");
 				// add machine without QR code
+				
+				
 				Machine newMachine = machineDAO.save(machine);
+				
+				System.out.println("id-1 id -----"+machine.getId());
+				System.out.println("id-2 customer id-----"+machine.getCustomerId());
+				System.out.println("id-3 manu id-----"+machine.getManufacturerId());
+				System.out.println("id-4 reseller id-----"+machine.getResellerId());
+				System.out.println("id-5 location id-----"+machine.getLocationId());
+				
+				
 				if (newMachine != null) {
+					System.out.println("2-----------------------");
 					log.info("New machine successfully added.");
 					return Response.status(Status.OK).entity(JsonUtils.getJson(newMachine)).build();
 				} else {
+					System.out.println("3-----------------------");
 					log.info("New machine not added.");
 					return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("New machine not added"))
 							.build();
 				}
-
 			}
 		} catch (Exception e) {
 			log.severe("Unable to add machine. Error: " + e);
@@ -106,6 +128,7 @@ public class MachinesResource {
 
 	}
 
+	//function machinesByCustomerId(customerId)  calls this method in back end 
 	@GET
 	@UnitOfWork
 	@Path("/all/{customerId}")

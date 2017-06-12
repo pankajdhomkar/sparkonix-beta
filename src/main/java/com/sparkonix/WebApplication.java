@@ -14,8 +14,10 @@ import com.sparkonix.dao.MachineAmcServiceHistoryDAO;
 import com.sparkonix.dao.MachineDAO;
 import com.sparkonix.dao.MachineDocumentDAO;
 import com.sparkonix.dao.MachineSubscriptionHistoryDAO;
+import com.sparkonix.dao.PasswordResetTokenDAO;
 import com.sparkonix.dao.PhoneDeviceDAO;
 import com.sparkonix.dao.QRCodeDAO;
+import com.sparkonix.dao.ResellerDAO;
 import com.sparkonix.dao.SubscriptionHistoryDAO;
 import com.sparkonix.dao.UnregisterOperatorDAO;
 import com.sparkonix.dao.UserDAO;
@@ -27,8 +29,10 @@ import com.sparkonix.entity.Machine;
 import com.sparkonix.entity.MachineAmcHistory;
 import com.sparkonix.entity.MachineAmcServiceHistory;
 import com.sparkonix.entity.MachineDocument;
+import com.sparkonix.entity.PasswordResetToken;
 import com.sparkonix.entity.PhoneDevice;
 import com.sparkonix.entity.QRCode;
+import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.SubscriptionHistory;
 import com.sparkonix.entity.UnregisterOperator;
 import com.sparkonix.entity.User;
@@ -88,7 +92,7 @@ public class WebApplication extends Application<WebConfiguration> {
 	private final HibernateBundle<WebConfiguration> hibernateBundle = new HibernateBundle<WebConfiguration>(
 			ClosedIssue.class, CompanyDetail.class, CompanyLocation.class, Issue.class, Machine.class,
 			MachineAmcHistory.class, MachineAmcServiceHistory.class, MachineDocument.class, PhoneDevice.class,
-			SubscriptionHistory.class, com.sparkonix.entity.User.class, QRCode.class,UnregisterOperator.class) {
+			SubscriptionHistory.class, com.sparkonix.entity.User.class, QRCode.class,UnregisterOperator.class, com.sparkonix.entity.PasswordResetToken.class,Reseller.class) {
 		@Override
 		public DataSourceFactory getDataSourceFactory(WebConfiguration configuration) {
 			return configuration.getDataSourceFactory();
@@ -118,7 +122,10 @@ public class WebApplication extends Application<WebConfiguration> {
 		((DefaultServerFactory) configuration.getServerFactory()).setJerseyRootPath("/api/*");
 
 		final ClosedIssueDAO closedIssueDAO = new ClosedIssueDAO(hibernateBundle.getSessionFactory());
+		 // Used for adding/editing and fetching manufacturer
 		final CompanyDetailDAO companyDetailDAO = new CompanyDetailDAO(hibernateBundle.getSessionFactory());
+		// Used for adding/editing/ fetching manufacturer
+		final ResellerDAO resellerDAO = new ResellerDAO(hibernateBundle.getSessionFactory());
 		final CompanyLocationDAO companyLocationDAO = new CompanyLocationDAO(hibernateBundle.getSessionFactory());
 		final IssueDAO issueDAO = new IssueDAO(hibernateBundle.getSessionFactory());
 		final MachineDAO machineDAO = new MachineDAO(hibernateBundle.getSessionFactory());
@@ -135,7 +142,7 @@ public class WebApplication extends Application<WebConfiguration> {
 		final QRCodeDAO qrcodeDAO = new QRCodeDAO(hibernateBundle.getSessionFactory());
 		
 		final UnregisterOperatorDAO unregisterOperatorDAO = new UnregisterOperatorDAO(hibernateBundle.getSessionFactory());
-		
+		final PasswordResetTokenDAO passwordResetTokenDAO = new PasswordResetTokenDAO(hibernateBundle.getSessionFactory());
 		
 		// for uploading multipart/form-data
 		environment.jersey().register(MultiPartFeature.class);
@@ -155,15 +162,17 @@ public class WebApplication extends Application<WebConfiguration> {
 		environment.jersey().register(new ClosedIssueResource(closedIssueDAO));
 		environment.jersey().register(new ClosedIssuesResource(closedIssueDAO));
 
-		environment.jersey().register(new CompanyDetailResource(companyDetailDAO, userDAO));
+		environment.jersey().register(new CompanyDetailResource(companyDetailDAO, userDAO, resellerDAO));
+		//this for Adding new company reseller and manufacturer
 		environment.jersey().register(
-				new CompanyDetailsResource(companyDetailDAO, companyLocationDAO, machineDAO, phoneDeviceDAO, userDAO));
+				new CompanyDetailsResource(companyDetailDAO, companyLocationDAO, machineDAO, phoneDeviceDAO, userDAO, resellerDAO));
 
 		environment.jersey().register(new CompanyLocationResource(companyLocationDAO));
 		environment.jersey().register(new CompanyLocationsResource(companyLocationDAO));
 
 		environment.jersey()
-				.register(new IssueResource(issueDAO, phoneDeviceDAO, machineDAO, companyDetailDAO, userDAO));
+				.register(new IssueResource(issueDAO, phoneDeviceDAO, machineDAO, companyDetailDAO, userDAO, resellerDAO));
+		
 		environment.jersey().register(new IssuesResource(issueDAO, phoneDeviceDAO, machineDAO, companyDetailDAO,
 				userDAO, companyLocationDAO));
 
@@ -194,7 +203,7 @@ public class WebApplication extends Application<WebConfiguration> {
 		environment.jersey().register(new SubscriptionHistoryResource(subscriptionHistoryDAO));
 		environment.jersey().register(new SubscriptionHistoriesResource(subscriptionHistoryDAO));
 
-		environment.jersey().register(new UserResource(userDAO));
+		environment.jersey().register(new UserResource(userDAO, passwordResetTokenDAO));
 		environment.jersey().register(new UsersResource(userDAO));
 
 		environment.jersey().register(new QRCodeResource(qrcodeDAO, machineDAO));

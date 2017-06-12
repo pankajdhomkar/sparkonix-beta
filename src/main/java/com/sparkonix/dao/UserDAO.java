@@ -29,7 +29,7 @@ public class UserDAO extends AbstractDAO<User> {
 
 	public User findUserByUsernameAndPassword(String username, String password) {
 		return uniqueResult(namedQuery("com.sparkonix.entity.User.findUserByUsernameAndPassword")
-				.setParameter("USERNAME", username).setParameter("PASSWORD", password));
+				.setParameter("USERNAME", username.toLowerCase()).setParameter("PASSWORD", password));
 	}
 
 	public User checkSuperAdminByUsername(String superadminUsername) {

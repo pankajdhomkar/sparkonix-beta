@@ -392,11 +392,13 @@
 		<dropColumn columnName="machine_support_assistance"
 			schemaName="public" tableName="issues" />
 	</changeSet>
+
 	<changeSet author="indexnine" id="8">
 		<addColumn tableName="issues">
 			<column name="machine_support_assistance" type="varchar(255)" />
 		</addColumn>
 	</changeSet>
+
 	<changeSet author="indexnine" id="9">
 		<addColumn tableName="issues">
 			<column name="machine_model_number" type="varchar(100)" />
@@ -408,18 +410,22 @@
 			<column name="machine_installation_date" type="timestamp" />
 		</addColumn>
 	</changeSet>
+
 	<changeSet author="indexnine" id="10">
 		<addColumn tableName="issues">
 			<column name="technician_name" type="varchar(255)" />
 		</addColumn>
 	</changeSet>
+
 	<changeSet author="indexnine" id="11">
 		<dropForeignKeyConstraint baseTableName="machine_amc_service_history"
 			constraintName="fk_machine_amc_history_machine_amc_service_history" />
 	</changeSet>
+
+	<!-- Unregister Operator table -->
 	<changeSet author="symphony" id="12">
-	<createTable tableName="unregister_operator">
-			<column name="id" type="bigint">
+		<createTable tableName="unregister_operator">
+			<column name="id" type="bigint" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" />
 			</column>
 			<column name="fld_mobile_number" type="varchar(20)" />
@@ -428,4 +434,45 @@
 			<column name="fld_fcm_token" type="varchar(255)" />
 		</createTable>
 	</changeSet>
+
+	<!-- reset password token table -->
+	<changeSet author="symphony" id="13">
+		<createTable tableName="reset_password_token">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="token" type="text">
+			</column>
+			<column name="second_token" type="text">
+			</column>
+			<column name="email" type="text">
+			</column>
+			<column name="expiry_date" type="timestamp" />
+		</createTable>
+	</changeSet>
+
+	<!-- Reseller table -->
+	<changeSet author="symphony" id="19">
+		<createTable tableName="reseller">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="fld_manufid" type="bigint">
+				<constraints nullable="false" />
+			</column>
+			<column name="company_name" type="text" />
+			<column name="pan" type="text" />
+			<column name="cust_support_name" type="text" />
+			<column name="cust_support_phone" type="text" />
+			<column name="cust_support_email" type="text" />
+			<column name="cur_subscription_type" type="text" />
+			<column name="cur_subscription_status" type="text" />
+			<column name="cur_subscription_startdate" type="timestamp" />
+			<column name="cur_subscription_enddate" type="timestamp" />
+			<column name="on_boarded_by" type="bigint" />
+		</createTable>
+	</changeSet>
+	
+	
+
 </databaseChangeLog>

@@ -84,16 +84,17 @@ public class MachineResource {
 				log.severe("User authorization failed");
 				return Response.status(Status.UNAUTHORIZED).build();
 			}
-			
+			// This object for getting a details of user
 			PhoneDevice operator = phoneDeviceDAO.getOperatorByPhoneNumber(authUser.getEmail());
 
 			if (operator == null) {
-				
+				//if the operator id null then phone device stored in unreg. table  
 				Machine machine = machineDAO.getMachineByQrCode(qrCode);
-				//System.out.println("---------------------------------------------------------" + machine.getCustomerId());
+				System.out.println("---------------------------------------------------------" + machine.getCustomerId());
 				if(machine != null){
 					UnregisterOperator operator2 = unregisterOperatorDAO.getOperatorByPhoneNumber1(authUser.getEmail());
-					if(operator2 != null){
+					// this comment for if where it scan any machine code by customer android app and raise a issue
+//					if(operator2 != null){
 						operator = new PhoneDevice();
 						operator.setPhoneNumber(operator2.getFld_mobile_number());
 						operator.setFcmToken(operator2.getFldFcmToken_unregister());
@@ -125,12 +126,13 @@ public class MachineResource {
 						machineDetailsDTO.setLastServiceDate(lastServiceDate);
 
 						return Response.status(Status.OK).entity(JsonUtils.getJson(machineDetailsDTO)).build();
-					}else{
-						log.severe("This operator can scan machines, which only belongs to his company.");
-						return Response.status(Status.BAD_REQUEST).entity(JsonUtils
-								.getErrorJson("This operator can scan machines, which only belongs to his company"))
-								.build();
-					}
+						//// this comment for if where it scan any machine code by customer android app and raise a issue
+//					}else{
+//						log.severe("This operator can scan machines, which only belongs to his company.");
+//						return Response.status(Status.BAD_REQUEST).entity(JsonUtils
+//								.getErrorJson("This operator can scan machines, which only belongs to his company"))
+//								.build();
+//					}
 					
 				}else{
 					log.severe("No machine found.");
@@ -147,13 +149,14 @@ public class MachineResource {
 							.entity(JsonUtils.getErrorJson("Not valid AttendMe QR Code")).build();
 				} else {
 					log.info("Machine found.");
+					// this comment for if where it scan any machine code by customer android app and raise a issue
 					// operator can only scan machine of their customer_id
-					if (operator.getCustomerId() != machine.getCustomerId()) {
+					/*if (operator.getCustomerId() != machine.getCustomerId()) {
 						log.severe("This operator can scan machines, which only belongs to his company.");
 						return Response.status(Status.BAD_REQUEST).entity(JsonUtils
 								.getErrorJson("This operator can scan machines, which only belongs to his company"))
 								.build();
-					} else {
+					} else {*/
 						log.info("This Operator belongs to company, which has this machine");
 
 						CompanyDetail manufacturerObj = companyDetailDAO
@@ -184,7 +187,7 @@ public class MachineResource {
 					}
 
 				}
-			}
+//			}
 		} catch (Exception e) {
 			log.severe("Unable to find Machine by QR Code" + e);
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Not valid AttendMe QR Code"))

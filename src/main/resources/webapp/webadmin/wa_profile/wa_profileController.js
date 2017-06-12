@@ -6,23 +6,49 @@ angular.module('sparkonixWebApp').controller('waProfileController',
 function waProfileController($scope, $rootScope, restAPIService, dialogs,
 		$state) {
 	$scope.companyDetails = {};
+	$scope.manufacturerName = "TEST";
 	$scope.resetPasswordDTO = {};
-
+	$scope.userRole = "";
 	getCompanyDetails();
+	$scope.ManResDTO = {};
 
 	function getCompanyDetails() {
 		var promise1;
-		if ($rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
-
+		$scope.userRole = $rootScope.user.role;
+		console.log("Role-"+$scope.userRole);
+		if ($scope.userRole == "MANUFACTURERADMIN") {
 			// use .get() to fetch single record
 			// use .query() to fetch multiple record
+			console.log("type===" + $rootScope.user.role);
+			 
 			promise1 = restAPIService.companyDetailResource(
-					$rootScope.user.companyDetailsId).get();
+					$rootScope.user.companyDetailsId,"MANUFACTURER").get();
 
 			promise1.$promise.then(function(response) {
-				$scope.companyDetails = response;
+				console.log("Response print company name-->", response);
+				$scope.companyDetails = response.manResDetail;				
+				
+				$scope.ManResDTO = response;
+				
+				$scope.ManResDTO.companyType = "MANUFACTURER";
 
+			}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
+			});
+		} else if ($scope.userRole == "RESELLERADMIN") {
+			
+			console.log("type====" + $rootScope.user.role);
+			promise1 = restAPIService.companyDetailResource(
+					$rootScope.user.companyDetailsId, "RESELLER").get();
+			promise1.$promise.then(function(response) {
+				$scope.companyDetails = response.reseller;
+				console.log("Response print company name-->", $scope.companyDetails);
+				$scope.ManResDTO = response;
+				
+				$scope.ManResDTO.companyType = "RESELLER";
+				console.log("ManDTO-->",$scope.ManResDTO);
 			}, function(error) {
 				dialogs.error("Error", error.data.error, {
 					'size' : 'sm'
@@ -35,19 +61,50 @@ function waProfileController($scope, $rootScope, restAPIService, dialogs,
 
 		var companyDetailsId = Number($rootScope.user.companyDetailsId);
 
-		var promise = restAPIService.companyDetailResource(companyDetailsId)
-				.update($scope.companyDetails);
-
-		promise.$promise.then(function(response) {
-			dialogs.notify("Success", response.success, {
-				'size' : 'sm'
+		if ($rootScope.user.role == "MANUFACTURERADMIN") {
+			console.log("MANUFACTURERADMIN -------------------"+$scope.ManResDTO.companyName);
+			console.log("Manu variable ----------->"+$scope.ManResDTO);
+			
+			
+			var promise = restAPIService.companyDetailResource(
+					companyDetailsId, "MANUFACTURER").update(
+							$scope.ManResDTO);
+			console.log("After manufacturer -------------------");
+			promise.$promise.then(function(response) {
+				dialogs.notify("Success", response.success, {
+					'size' : 'sm'
+				});
+				getCompanyDetails();
+			}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
 			});
-			getCompanyDetails();
-		}, function(error) {
-			dialogs.error("Error", error.data.error, {
-				'size' : 'sm'
+		} else {
+			$scope.manufacturerName = "TEST 3";
+			console.log("Reseller -------------------"+$scope.ManResDTO.companyName);
+			console.log("Reseller resources-->>>", $scope.ManResDTO);
+		
+			var promise1 = restAPIService.companyDetailResource(companyDetailsId,"RESELLER").update($scope.ManResDTO);
+				
+				
+				/*restAPIService.companyDetailResource(companyDetailsId, "RESELLER").update(
+					$scope.ManResDTO);*/
+				
+				
+			console.log("After Reseller -------------------");
+			promise1.$promise.then(function(response) {
+				dialogs.notify("Success", response.success, {
+					'size' : 'sm'
+				});
+				getCompanyDetails();
+			}, function(error) {
+				console.log("error",error);
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
 			});
-		});
+		}
 		$state.go("home.waprofile");
 	}
 

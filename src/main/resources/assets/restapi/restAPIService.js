@@ -12,9 +12,16 @@ function restAPIService($resource, $rootScope, $q) {
 		userResource : userResource,
 		resetPasswordResource : resetPasswordResource,
 		checkUserByUsernameAndPassword : checkUserByUsernameAndPassword,
+		
+		//For details of company ------------------------------
 		companyDetailResource : companyDetailResource,
+		
+		//-----------------------------------------------
+		
 		companyDetailsResource : companyDetailsResource,
 		companyDetailsByCompanyTypeResource : companyDetailsByCompanyTypeResource,
+		//Getting a Reseller of manufacturer's
+		companyDetailsResllerByManufactrer : companyDetailsResllerByManufactrer,//<----- Added
 		companyDetailsByOnBoarded : companyDetailsByOnBoarded,
 		companyDetailNameListByType : companyDetailNameListByType,
 		companyDetailsManResResource : companyDetailsManResResource,
@@ -53,7 +60,15 @@ function restAPIService($resource, $rootScope, $q) {
 		complaintListDownloadAsExcel : complaintListDownloadAsExcel,
 		subscriptionReportResource : subscriptionReportResource,
 		broadcastMessagesResource : broadcastMessagesResource,
-		getMachineModelNumberListByManId : getMachineModelNumberListByManId
+		getMachineModelNumberListByManId : getMachineModelNumberListByManId,
+		//------------------------------------------------------------
+		companyManufacturerName : companyManufacturerName,// To get manufacturer name and details by id
+		companyResellerName : companyResellerName, //To get reseller details
+		//------------------------------------------------------------
+		//Forgot password and reset password
+		forgotPasswordLink : forgotPasswordLink, //send the reset password link in email
+		updateUserPassword : updateUserPassword, //update user password, from forgot password screen
+		authenticateForgotPassLink : authenticateForgotPassLink //authenticate the user from token provided from resetLink Param
 
 	}
 
@@ -94,21 +109,27 @@ function restAPIService($resource, $rootScope, $q) {
 		var url = $rootScope.apiUrl + "login";
 		return $resource(url);
 	}
-
-	function companyDetailResource(compDetailId) {
-		var url = $rootScope.apiUrl + "companydetail/" + compDetailId;
+//==============================================================================================
+	//For manufacturer company details and reseller company details
+	function companyDetailResource(compDetailId, companyType) {
+		var url = $rootScope.apiUrl + "companydetail/" + compDetailId + "/" + companyType;
 		return $resource(url, null, {
 			'update' : {
 				method : 'PUT'
 			}
 		});
-	}
+	}		
+//==============================================================================================
+	
+	
+	
 	function companyDetailByCompanyTypeAndCompanyPan(companyType, companyPan) {
 		var url = $rootScope.apiUrl + "companydetail/check/" + companyType
 				+ "/" + companyPan;
 		return $resource(url);
 	}
 
+	// Only for Manufacturer
 	function companyDetailsManResResource() {
 		var url = $rootScope.apiUrl + "companydetails/addmanres";
 		return $resource(url);
@@ -116,17 +137,38 @@ function restAPIService($resource, $rootScope, $q) {
 		 * return $resource(url, null, { 'update' : { method : 'PUT' } });
 		 */
 	}
+	
 
-	function companyDetailManResResource(companyDetailId) {
+	function companyDetailManResResource(companyDetailId,companyType) {
 		var url = $rootScope.apiUrl + "companydetail/editmanres/"
-				+ companyDetailId;
+				+ companyDetailId+ "/" + companyType;
 		return $resource(url, null, {
 			'update' : {
 				method : 'PUT'
 			}
 		});
 	}
+	
+	// To get the reseller and manufacturer whole details
+	function companyResellerName(resellerId, companyType){
+		var url = $rootScope.apiUrl + "companydetail/checkName/"
+		+ resellerId+ "/" + companyType;
+		
+		return $resource(url, null, {
+			'query':{method: 'GET'}
+	});
+	}
+	
+	// To get the manufacturer name from the database
+	function companyManufacturerName(manId){
+		var url = $rootScope.apiUrl + "companydetail/" + manId;
+		return $resource(url, null, {
+			'query':{method: 'GET'}
+	});
+	}
 
+	
+	
 	function companyDetailsResource() {
 		var url = $rootScope.apiUrl + "companydetails";
 		return $resource(url);
@@ -134,6 +176,12 @@ function restAPIService($resource, $rootScope, $q) {
 
 	function companyDetailsByCompanyTypeResource(companyType) {
 		var url = $rootScope.apiUrl + "companydetails/" + companyType;
+		return $resource(url);
+	}
+	
+	//For getting a reseller of manufacturer's
+	function companyDetailsResllerByManufactrer(manufacturerId){
+		var url = $rootScope.apiUrl + "companydetails/reseller/" + manufacturerId;
 		return $resource(url);
 	}
 
@@ -388,6 +436,35 @@ function restAPIService($resource, $rootScope, $q) {
 	function getMachineModelNumberListByManId(manufacturerId) {
 		var url = $rootScope.apiUrl + "machines/modelnumbers/"+manufacturerId;
 		return $resource(url);
+	}
+	
+	/**Send reset password link, called from forgot password page**/
+	function forgotPasswordLink() {
+		var url = $rootScope.apiUrl + "user/forgotpassword";
+		return $resource(url, null, {
+			save : {
+				method : 'POST'
+			}
+		});
+	}
+	
+	/**update password via forgot password.**/
+	function updateUserPassword(){
+		var url = $rootScope.apiUrl + "user/resetpasswordsubmit";
+		return $resource(url, null, {
+			'update' : {
+				method : 'POST'
+			}
+		});
+	}
+	function authenticateForgotPassLink(token){
+		var url = $rootScope.apiUrl + "user/resetpasswordcheck/"+token;
+		return $resource(url, null, {
+			save : {
+				method : 'POST'
+			}
+		});
+		
 	}
 
 }

@@ -159,34 +159,47 @@ public class IssuesResource {
 
 			Thread t1 = new Thread(new SendFcmPushNotification(fcmMessage));
 			t1.start();
+			
 
 			// send email to web admin if subscribed
 			Machine machine = machineDAO.getById(dbIssue.getMachineId());
 			if (machine != null) {
 				String supportAssistance = machine.getSupportAssistance();
+				
+				// send sms to customer for new complaint
+				CompanyDetail customer = companyDetailDAO.getById(machine.getCustomerId());
+				String customerMainPerson = customer.getCustSupportPhone();
+				if (customerMainPerson != null) {
+					JsonObject jsonObjSms = new JsonObject();
+					jsonObjSms.addProperty("toMobileNumber", customerMainPerson.replaceAll("\\+", ""));
+					jsonObjSms.addProperty("smsMessage",
+							"New Complaint has been raised by "+ phoneDevice.getOperatorName() + " " + phoneDevice.getPhoneNumber()
+									+ " Complaint No: " + dbIssue.getIssueNumber());
+
+					Thread custSms = new Thread(new SendSMS(jsonObjSms));
+					custSms.start();
+					log.info("Complaint raised sms sent to customer.");
+				}
 				if (supportAssistance.equalsIgnoreCase("MANUFACTURER")) {
 					CompanyDetail manufacturer = companyDetailDAO.getById(machine.getManufacturerId());
 					if (manufacturer != null) {					
 
 						//send email/sms to manufacturer support contact if incident raised
 						 
-						// EMAIL
+						// EMAIL support person mail
 						String manContactEmail = manufacturer.getCustSupportEmail();
 						if (manContactEmail != null) {
 							JsonObject jsonObj = MailUtils.getComplaintReportedMail(manContactEmail, dbIssue,
 									phoneDevice);
-							Thread t5 = new Thread(new SendMail(jsonObj));
-							t5.start();
+							Thread supportMail = new Thread(new SendMail(jsonObj));
+							supportMail.start();
 							log.info("Complaint registration email sent to support contact details.");
 						}
-						// SMS
+						// SMS for manufacturer 
 						String manContactPhone = manufacturer.getCustSupportPhone();
 						if (manContactPhone != null) {
 							JsonObject jsonObjSms = new JsonObject();
 							jsonObjSms.addProperty("toMobileNumber", manContactPhone.replaceAll("\\+", ""));
-							/*jsonObjSms.addProperty("smsMessage",
-									"A new complaint has been registered with AttendMe. "
-											+ "Complaint Number- " + dbIssue.getIssueNumber());*/
 							jsonObjSms.addProperty("smsMessage",
 									"A new complaint has been registered with AttendMe. "
 									+ "Complaint No: " + dbIssue.getIssueNumber()+", "
@@ -213,8 +226,8 @@ public class IssuesResource {
 								JsonObject jsonObj = MailUtils.getComplaintReportedMail(manufacturerWebAdminEmail,
 										dbIssue, phoneDevice);
 
-								Thread t2 = new Thread(new SendMail(jsonObj));
-								t2.start();
+								Thread manuWebEmail = new Thread(new SendMail(jsonObj));
+								manuWebEmail.start();
 
 								log.info("Email sent to manufacturer web admin");
 							} else {
@@ -226,17 +239,14 @@ public class IssuesResource {
 							if (manufacturerWebAdminMobile != null) {
 								JsonObject jsonObjSms = new JsonObject();
 								jsonObjSms.addProperty("toMobileNumber", manufacturerWebAdminMobile.replaceAll("\\+", ""));
-								/*jsonObjSms.addProperty("smsMessage",
-										"A new complaint has been registered with AttendMe. "
-												+ "Complaint Number- " + dbIssue.getIssueNumber());*/
 								jsonObjSms.addProperty("smsMessage",
 										"A new complaint has been registered with AttendMe. "
 										+ "Complaint No: " + dbIssue.getIssueNumber()+", "
 										+ "Customer Name: "+ dbIssue.getCustomerCompanyName()+", "
 										+ "Operator Mobile: "+ phoneDevice.getPhoneNumber()); 
 								 
-								Thread t6 = new Thread(new SendSMS(jsonObjSms));
-								t6.start();
+								Thread manufWebAdminMobile = new Thread(new SendSMS(jsonObjSms));
+								manufWebAdminMobile.start();
 								log.info("Complaint registration sms sent to wen admin mobile.");
 							}
 							 
@@ -257,8 +267,8 @@ public class IssuesResource {
 						if (manContactEmail != null) {
 							JsonObject jsonObj = MailUtils.getComplaintReportedMail(manContactEmail, dbIssue,
 									phoneDevice);
-							Thread t5 = new Thread(new SendMail(jsonObj));
-							t5.start();
+							Thread manContEmail = new Thread(new SendMail(jsonObj));
+							manContEmail.start();
 							log.info("Complaint registration email sent to support contact details.");
 						}
 						// SMS
@@ -266,17 +276,14 @@ public class IssuesResource {
 						if (manContactPhone != null) {
 							JsonObject jsonObjSms = new JsonObject();
 							jsonObjSms.addProperty("toMobileNumber", manContactPhone.replaceAll("\\+", ""));
-							/*jsonObjSms.addProperty("smsMessage",
-									"A new complaint has been registered with AttendMe. "
-											+ "Complaint Number- " + dbIssue.getIssueNumber());*/
 							jsonObjSms.addProperty("smsMessage",
 									"A new complaint has been registered with AttendMe. "
 									+ "Complaint No: " + dbIssue.getIssueNumber()+", "
 									+ "Customer Name: "+ dbIssue.getCustomerCompanyName()+", "
 									+ "Operator Mobile: "+ phoneDevice.getPhoneNumber()); 
 							 
-							Thread t6 = new Thread(new SendSMS(jsonObjSms));
-							t6.start();
+							Thread manContactPhoneSMS = new Thread(new SendSMS(jsonObjSms));
+							manContactPhoneSMS.start();
 							log.info("Complaint registration sms sent to support contact details.");
 						}
 						String subscriptionStatus = reseller.getCurSubscriptionStatus();
@@ -294,8 +301,8 @@ public class IssuesResource {
 								JsonObject jsonObj = MailUtils.getComplaintReportedMail(resellerWebAdminEmail, dbIssue,
 										phoneDevice);
 								// new SendMail(jsonObj).run();
-								Thread t3 = new Thread(new SendMail(jsonObj));
-								t3.start();
+								Thread resellWebAdmin = new Thread(new SendMail(jsonObj));
+								resellWebAdmin.start();
 								log.info("Email sent to reseller web admin");
 							} else {
 								log.info("There is no reseller web admin email");					
@@ -306,17 +313,14 @@ public class IssuesResource {
 							if (resellerWebAdminMobile != null) {
 								JsonObject jsonObjSms = new JsonObject();
 								jsonObjSms.addProperty("toMobileNumber", resellerWebAdminMobile.replaceAll("\\+", ""));
-								/*jsonObjSms.addProperty("smsMessage",
-										"A new complaint has been registered with AttendMe. "
-												+ "Complaint Number- " + dbIssue.getIssueNumber());*/
 								jsonObjSms.addProperty("smsMessage",
 										"A new complaint has been registered with AttendMe. "
 										+ "Complaint No: " + dbIssue.getIssueNumber()+", "
 										+ "Customer Name: "+ dbIssue.getCustomerCompanyName()+", "
 										+ "Operator Mobile: "+ phoneDevice.getPhoneNumber()); 
 								// send SMS
-								Thread t8 = new Thread(new SendSMS(jsonObjSms));
-								t8.start();
+								Thread resellWebAdminMobile = new Thread(new SendSMS(jsonObjSms));
+								resellWebAdminMobile.start();
 								log.info("Complaint registration sms sent to web admin mobile.");
 							}
  

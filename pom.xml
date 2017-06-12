@@ -49,10 +49,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.dropwizard</groupId>
-			<artifactId>dropwizard-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-auth</artifactId>
 		</dependency>
 		<dependency>
@@ -186,6 +182,11 @@
 		    </exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>io.dropwizard</groupId>
+			<artifactId>dropwizard-core</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

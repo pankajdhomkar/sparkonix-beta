@@ -127,11 +127,21 @@
 							<td>{{ complaint.dateClosed | date:"dd-MM-yyyy" }}</td>
 							<td>{{ complaint.status }}</td> 
 							<td class="text-center" ng-hide="user.role == 'SUPERADMIN'">
-								<button class="btn btn-primary btn-xs" type="button" ng-click="onEditComplaint(complaint)"> 
-									<i class="fa fa-edit"></i>&nbsp;  
-										<span title="Assign To Technician" ng-if="user.role == 'MANUFACTURERADMIN' 
-										|| user.role == 'RESELLERADMIN'">Assign</span>
-										<span title="Change complaint status" ng-if="user.role == 'TECHNICIAN'">Change Status</span>
+								<button class="btn btn-primary btn-xs" type="button" ng-disabled="complaint.status == 'CLOSED'" ng-click="onEditComplaint(complaint)"> 
+									<i class="fa fa-edit"></i>&nbsp;
+									 <!-- <span title="Assign To Technician" ng-if="user.role == 'MANUFACTURERADMIN'
+										|| user.role == 'RESELLERADMIN' && complaint.status == 'OPEN' && complaint.status == 'CLOSED'">Assign</span> -->
+										
+										<span title="Assign To Technician" ng-if="(user.role == 'MANUFACTURERADMIN'
+										|| user.role == 'RESELLERADMIN') && (complaint.status != 'ASSIGNED') && (complaint.status != 'INPROGRESS')">Assign</span>
+										
+										<span title="Assign To Technician" ng-if="(((user.role == 'MANUFACTURERADMIN')
+										|| (user.role == 'RESELLERADMIN')) && user.role != 'TECHNICIAN') && ((complaint.status == 'ASSIGNED') || (complaint.status == 'INPROGRESS'))">Re-Assign</span>
+										
+										<span title="Change complaint status" ng-if="(user.role == 'TECHNICIAN' && complaint.status == 'ASSIGNED')">Change Status</span>
+										<span title="Change status" ng-if="(user.role == 'TECHNICIAN' && complaint.status == 'INPROGRESS') && (user.role != 'MANUFACTURERADMIN'
+										|| user.role != 'RESELLERADMIN')">INPROGRESS</span>
+										<span title="Change status" ng-if="user.role == 'TECHNICIAN' && complaint.status == 'CLOSED'">Closed</span>
 									</button>
 							</td>
 						</tr>
@@ -168,11 +178,12 @@
 							<td>{{ service.servicingAssignedDate | date:"dd-MM-yyyy" }}</td>	
 							<td>{{ service.servicingDoneDate | date:"dd-MM-yyyy" }}</td>
 							<td>{{ service.status }}</td>			
-							<td ng-hide="user.role == 'SUPERADMIN'" class="text-center" >
+							<td ng-hide="user.role == 'SUPERADMIN'" class="text-center">
 								<button class="btn btn-primary btn-xs" type="button" ng-click="onEditServiceRequest(service)"> 
 									<i class="fa fa-edit"></i>&nbsp;  
 									<span ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'">Assign To Technician</span>
 									<span ng-if="user.role == 'TECHNICIAN'">Change Status</span>
+									<span ng-if="service.status == 'CLOSED'">Closed</span>
 								</button>
 							</td>					
 						</tr>
@@ -233,7 +244,7 @@
 					 <label>Status</label> <label style="color: red">&nbsp*</label> 
 					<select class="form-control" ng-model="updateIssueRecord.status" ng-required="true">
 						<option value="">-- Select --</option>
-						<option value="ASSIGNED" ng-selected="updateIssueRecord.status == 'ASSIGNED'">ASSIGNED</option>
+						<option value="INPROGRESS" ng-selected="updateIssueRecord.status == 'INPROGRESS'">INPROGRESS</option>
 						<option value="CLOSED" ng-selected="updateIssueRecord.status == 'CLOSED'">CLOSED</option> 
 					</select>
 					<label>Failure Reason</label> <label style="color: red">&nbsp*</label> 
@@ -246,7 +257,7 @@
 				</div>
 
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">
+					<button type="button" class="btn btn-default" data-dismiss="modal" data-ng-click="cancelComplaintByTechnician()">
 						<i class="fa fa-minus-circle"></i>&nbsp; Cancel
 					</button>
 					<button type="submit" class="btn btn-success" data-dismiss="modal" 
@@ -463,6 +474,7 @@ font-size: 14px;
 					<select class="form-control" ng-model="updatedRecord.status" ng-required="true">
 						<option value="">-- Select --</option>
 						<option value="ASSIGNED">ASSIGNED</option>
+						<option value="INPROGRESS">INPROGRESS</option>
 						<option value="CLOSED">CLOSED</option>
 					</select>
 				</div>

@@ -3,7 +3,7 @@
 angular.module('sparkonixWebApp')
 		.controller('loginController', loginController);
 loginController.$inject = [ '$http', '$state', 'restAPIService', '$scope',
-		'$rootScope', 'dialogs', '$cookies' ];
+		'$rootScope', 'dialogs', '$cookies'];
 
 function loginController($http, $state, restAPIService, $scope, $rootScope,
 		dialogs, $cookies) {
@@ -50,13 +50,34 @@ function loginController($http, $state, restAPIService, $scope, $rootScope,
 
 	}
 
-	/*
-	 * $scope.md5 = function(value) { return CryptoJS.MD5(value).toString(); }
-	 */
+	//$scope.md5 = function(value) { return CryptoJS.MD5(value).toString(); }
 
-	$scope.forgotPassword = function() {
-		dialogs.error("Error", "oops!", {
-			'size' : 'sm'
-		});
-	}
+//	$scope.forgotPassword = function() {
+//		$state.go('forgotpassword');
+//	}
+//	
+//	$scope.back = function() {
+//		$state.go('login');
+//	}
+	
+//	$scope.forgotPassword = function(){
+//		$rootScope.apiUrl.otherwise('home/forgotPassword');
+//		var promise;
+//		/**add forgot password API**/
+//		var forgotPasswordDTO = {
+//				email : $scope.username
+//		}
+//		promise = restAPIService.forgotPasswordLink().save(forgotPasswordDTO);
+//		
+//		promise.$promise.then(function(response) {
+//			dialogs.notify("Success", response.success, {
+//				'size' : 'sm'
+//			});
+////			$scope.back();
+//		}, function(error) {
+//			dialogs.error("Error", error.data.error, {
+//				'size' : 'sm'
+//			});
+//		});
+	//}	
 }

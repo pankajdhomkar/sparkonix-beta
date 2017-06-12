@@ -13,20 +13,41 @@
 		<div class="panel-body">
 			<form name="addManResForm1">
 				<div class="row form-group">
-					<div class="col-lg-4">
-						<label>Company Type</label> <select
-							ng-model="newManRes.companyType" ng-required="true"
-							ng-options="companyType for companyType in companyTypes"
-							class="form-control" ng-disabled="editMode"
-							ng-init="newManRes.companyType = companyTypes[0]"></select>
-					</div>
-					<div class="col-lg-4">
+				<div class="col-lg-4">
+					<!-- If manufacturer then it show only manufacturer and if 
+					it is reseller then it will show a list of manufacturer -->
+					<label>Company Type</label>
+					<!-- This ng-if for add reseller admin -->
+					<span ng-if="role != 'MANUFACTURERADMIN' && mode == 'add'">
+						
+						<div style="font-family: courier new; background-color: #EEE; min-height: 33px;">
+									<select class="form-control" ng-model="mlist.id" ng-disabled="editMode" 
+									ng-required="true"
+									ng-change="getId()"
+									ng-options="m.id as m.companyName for m in manufacturersList" />
+						</div>
+					</span>
+					<!-- For all add button click manufacturer -->
+					<span ng-if="role == 'MANUFACTURERADMIN'" ng-init="man='MANUFACTURER'">
+					 <input class="form-control" 
+							ng-disabled = "editMode" ng-required="true"
+							value = "MANUFACTURER" readonly>
+					</span>
+					<!-- For all edit button click eg reseller and manufacturer -->
+					<span ng-if="mode == 'edit'">
+					<input class="form-control" 
+							ng-disabled = "editMode" ng-required="true"
+							value = "MANUFACTURER" readonly>
+					</span>
+				</div>
+				<div class="col-lg-4">
 						<label>Company Name</label> <label style="color: red">&nbsp*</label>
 						<input class="form-control" ng-model="newManRes.companyName"
 							ng-disabled="editMode" ng-required="true"
 							placeholder="Enter Company Name">
 					</div>
 					<div class="col-lg-3">
+				
 						<label>Company PAN</label> <label style="color: red">&nbsp*</label>
 						<input class="form-control" ng-model="newManRes.pan"
 							ng-required="true" ng-disabled="editMode"   
@@ -42,7 +63,7 @@
 					</div>
 					<div class="col-lg-4 pull-right">
 						<span style=" font-size:12px; color : {{panValidationMsgColor}};">{{panValidationMsg}}</span>
-											 
+					 
 					 
 						
 					</div>
@@ -246,7 +267,7 @@
 		<!--SHOW if dropdown has value as BASIC && INACTIVE -->
 		<span ng-show="hideFlag">
 			<button type="submit" class="btn btn-success"
-				ng-disabled="(addManResForm1.$invalid) || (addManResForm2.$invalid) || (addManResForm3.$invalid) "
+				ng-disabled="(addManResForm1.$invalid) || (addManResForm2.$invalid) || (addManResForm3.$invalid)"
 				ng-click="onSubmit()">
 				<i class="fa fa-plus-circle"></i> Submit
 			</button>

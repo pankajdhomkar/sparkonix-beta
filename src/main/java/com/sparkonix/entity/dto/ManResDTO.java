@@ -3,6 +3,7 @@ package com.sparkonix.entity.dto;
 import java.io.Serializable;
 
 import com.sparkonix.entity.CompanyDetail;
+import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.User;
 
 public class ManResDTO implements Serializable {
@@ -11,6 +12,16 @@ public class ManResDTO implements Serializable {
 
 	CompanyDetail manResDetail;
 	User webAdminUser;
+	Reseller reseller;
+	String companyType;
+	
+	public String getCompanyType() {
+		return companyType;
+	}
+
+	public void setCompanyType(String companyType) {
+		this.companyType = companyType;
+	}
 
 	public CompanyDetail getManResDetail() {
 		return manResDetail;
@@ -28,4 +39,11 @@ public class ManResDTO implements Serializable {
 		this.webAdminUser = webAdminUser;
 	}
 
+	public Reseller getReseller() {
+		return reseller;
+	}
+
+	public void setReseller(Reseller reseller) {
+		this.reseller = reseller;
+	}
 }

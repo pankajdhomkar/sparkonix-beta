@@ -6,11 +6,7 @@
 			<img src="/assets/images/customers.png"
 				style="width: 50px; height: 50px;"></img>&nbsp; <span>
 				Manufacturers and Resellers</span>
-			<button class="btn btn-primary pull-right" type="button"
-				ng-click="addNewManRes()">
-				<i class="fa fa-plus-circle"></i>&nbsp; Add New
-				Manufacturer/Reseller
-			</button>
+			
 		</h1>
 	</div>
 
@@ -22,9 +18,14 @@
 	<div ng-show="isSet(1)">
 		<!-- ----- Manufacturer details ----- -->
 		<div class="panel panel-default">
-			<div class="panel-heading">
-				<b>Manufacturer</b>
-			</div>
+			
+				<button class="btn btn-primary pull-right" type="button" style="margin:10px 10px 10px 0px;"
+				ng-click="addNewManRes(1)">
+				<i class="fa fa-plus-circle"></i>&nbsp; Add New Manufacturer
+			</button>
+			<br>
+			&nbsp;
+			<hr/>
 			<div class="panel-body">
 				<div class="row text-center" ng-if="manufacturers.length == 0">
 					<div class="col-lg-12 col-md-12 col-sm-12">
@@ -50,7 +51,7 @@
 									class="item">
 									<td class="text-left"> 									
 									<button style="text-align: left;" class="btn-link" type="button"
-									ng-click="viewManRes(manufacturer.id)">{{manufacturer.companyName}}</button>
+									ng-click="viewManRes(manufacturer.id, 'MANUFACTURER')">{{manufacturer.companyName}}</button>
 								
 									</td>
 									<td>{{manufacturer.pan}}</td>
@@ -65,11 +66,21 @@
 									</span></td>
 									<td title="Current Subscription Status">{{manufacturer.curSubscriptionStatus}}</td>
 									<td>
+										
 										<button type="button" ng-model="editMode"
 											class="btn btn-primary btn-xs"
-											ng-click="editManRes(manufacturer.id)">
+											ng-click="editManRes(manufacturer.id, 'MANUFACTURER')">
 											<span class="glyphicon glyphicon-edit"></span> Edit
 										</button>
+										<br/>
+										<br/>
+										
+										<!-- <button type="button" ng-model="deltMode"
+											class="btn btn-primary btn-xs" 
+											ng-click="deleteManufacturer(manufacturer.id, 'MANUFACTURER')">
+											<span class="glyphicon glyphicon-edit"></span> Delete
+										</button> -->
+										
 									</td>
 								</tr>
 							</tbody>
@@ -83,9 +94,16 @@
 	<div ng-show="isSet(2)">
 		<!-- ----- Reseller details ----- -->
 		<div class="panel panel-default">
-			<div class="panel-heading">
-				<b>Reseller Details</b>
-			</div>
+			
+				
+				<button class="btn btn-primary pull-right" type="button" style="margin:10px 10px 10px 0px;"
+				ng-click="addNewManRes()">
+				<i class="fa fa-plus-circle"></i>&nbsp; Add New Reseller
+			</button>
+			<br>
+			&nbsp;
+			<hr/>
+			
 			<div class="panel-body">
 				<div class="row text-center" ng-if="resellers.length == 0">
 					<div class="col-lg-12 col-md-12 col-sm-12">
@@ -112,7 +130,7 @@
 									class="item">
 									<td style="width: 30%;" class="text-left">
 									<button style="text-align: left;" class="btn-link" type="button" 
-									ng-click="viewManRes(reseller.id)">{{reseller.companyName}}</button>
+									ng-click="viewManRes(reseller.id,'RESELLER')">{{reseller.companyName}}</button>
 									</td>									
 									<td style="width: 20%;">{{reseller.pan}}</td>
 									<td style="width: 30%;" class="text-left"><span
@@ -128,9 +146,17 @@
 									<td>
 										<button type="button" ng-model="editMode"
 											class="btn btn-primary btn-xs"
-											ng-click="editManRes(reseller.id)">
+											ng-click="editManRes(reseller.id, 'RESELLER')">
 											<span class="glyphicon glyphicon-edit"></span> Edit
 										</button>
+										
+										<br/>
+										<br/>
+										
+										<!-- <button type="button" ng-model="del_R_tMode"
+											class="btn btn-primary btn-xs">
+											<span class="glyphicon glyphicon-edit"></span> Delete
+										</button> -->
 									</td>
 								</tr>
 							</tbody>
