@@ -6,5 +6,5 @@ angular.module('sparkonixWebApp').controller('saDashboardController',
 function saDashboardController($scope, $rootScope) {
 
 	$scope.loggedUser = $rootScope.user.name;
-
+	
 }

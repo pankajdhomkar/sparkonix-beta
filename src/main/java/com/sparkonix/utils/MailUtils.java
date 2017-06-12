@@ -1,10 +1,15 @@
 package com.sparkonix.utils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import com.google.gson.JsonObject;
 import com.sparkonix.ApplicationContext;
 import com.sparkonix.entity.CompanyDetail;
 import com.sparkonix.entity.Issue;
+import com.sparkonix.entity.PasswordResetToken;
 import com.sparkonix.entity.PhoneDevice;
+import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.User;
 
 public class MailUtils {
@@ -29,6 +34,26 @@ public class MailUtils {
 				+ "<p><b>Company Details: </b></p>"
 				+ "Comapny Name: "+companyDetail.getCompanyName()+"<br>"
 				+ "Comapny PAN: "+companyDetail.getPan()+"<br>"
+				+ "Boarded By: "+onBoardedBy.getName()+"( "+onBoardedBy.getEmail()+" )<br><br>";
+				 
+
+		jsonObject.addProperty("body", emailBody);
+
+		return jsonObject;
+	}
+	// send email to super admin reseller
+	public static JsonObject getAddCompanyMailReseller(Reseller reseller, User onBoardedBy) {
+		String email = ApplicationContext.getInstance().getConfig().getSuperadminEmail();
+
+		JsonObject jsonObject = new JsonObject();
+		jsonObject.addProperty(SEND_TO, email);
+		jsonObject.addProperty(SUBJECT, "[AttendMe] New reseller added ");
+
+		String emailBody = "Hey, <br><br>" + "A new reseller has been added by " + onBoardedBy.getRole().toLowerCase()+"." 
+				+ "<br>" 
+				+ "<p><b>Company Details: </b></p>"
+				+ "Comapny Name: "+reseller.getCompanyName()+"<br>"
+				+ "Comapny PAN: "+reseller.getPan()+"<br>"
 				+ "Boarded By: "+onBoardedBy.getName()+"( "+onBoardedBy.getEmail()+" )<br><br>";
 				 
 
@@ -95,4 +120,25 @@ public class MailUtils {
 
 		return jsonObject;
 	}
+	
+	//send email to manufacturer/reseller
+	/*		public static JsonObject getResetPasswordMail(PasswordResetToken token, User user) {
+						String url = "http://localhost:8080/#/user/resetpasswordcheck/";
+				JsonObject jsonObject = new JsonObject();
+				jsonObject.addProperty(SEND_TO, user.getEmail());
+				jsonObject.addProperty(SUBJECT, "[AttendMe] Click link to reset your password");
+
+				String emailBody = null;
+				try {
+					emailBody = "Dear "+user.getName()+", <br><br>" 
+							+ "Click the following link to reset your password.<br><br>"
+							+ "<a href=\'"+url+URLEncoder.encode(token.getToken(), "UTF-8")+"\'>Click to reset password</a>";
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+
+				jsonObject.addProperty("body", emailBody);
+				return jsonObject;
+			}*/
 }

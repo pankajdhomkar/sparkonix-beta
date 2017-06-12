@@ -23,7 +23,6 @@ public class QRCodeDAO extends AbstractDAO<QRCode> {
 
 	public List<QRCode> findAll() {
 		// return list(namedQuery("com.sparkonix.entity.QRCode.findAll"));
-
 		List<QRCode> qrCodeList;
 		qrCodeList = list(namedQuery("com.sparkonix.entity.QRCode.findAll"));
 		for (QRCode qrCode : qrCodeList) {

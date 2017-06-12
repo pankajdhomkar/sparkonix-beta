@@ -1,10 +1,5 @@
 package com.sparkonix.entity.dto;
 
-import java.io.Serializable;
-
-import com.sparkonix.entity.CompanyDetail;
-import com.sparkonix.entity.User;
-
 public class ResetPasswordDTO {
 
 	private String oldPassword;

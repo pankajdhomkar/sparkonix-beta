@@ -17,6 +17,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 	$scope.displayFlag = true;
 	// date-picker format
 	$scope.format = 'dd-MM-yyyy'
+		$scope.showtext = 'Assign';
 
 	// ------------- PRIVATE VARIABLES ----------------
 
@@ -50,6 +51,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 
 		promise1.$promise.then(function(response) {
 			$scope.complaints = response;
+			console.log("Complaint object --",$scope.complaints);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
@@ -105,6 +107,32 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 			// load technnician dropdown
 			getTechniciansByCompanyId();
 			$('#actionWebAdmin').modal().show();
+			
+		}
+	}
+	
+	$scope.textSetter = function(){
+		if ($rootScope.user.role == "TECHNICIAN") {
+			console.log("------TECHNICIAN--------");
+			if ($scope.complaint.status == "INPROGRESS") {
+				console.log("1-->", $scope.complaint.status);
+				$scope.showtext = "INPROGRESS";
+			} else if ($scope.complaint.status == "CLOSED") {
+				console.log("2-->", $scope.complaint.status);
+				$scope.showtext = "CLOSED";
+			} else {
+				console.log("3-->", $scope.complaint.status);
+				$scope.showtext = "Change Status";
+			}
+		}else{
+			console.log("------ADMIN--------");
+			if($scope.complaint.status == "ASSIGNED"){
+				console.log("1-->",$scope.complaint.status);
+				$scope.showtext = "Re-Assign";
+			}else{
+				console.log("2-->",$scope.complaint.status);
+				$scope.showtext = "Assign";
+			}
 		}
 	}
 
@@ -156,6 +184,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 				});
 			});
 		}, function() {
+			
 		});
 	}
 
@@ -235,7 +264,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 
 			$('#editServiceRequest').modal().show();
 		}
-
+		
 	}
 
 	$scope.assignServiceRequestToTechnician = function() {
@@ -265,9 +294,15 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		$scope.setTab(2);
 		getServiceHistoryList();
 	};
-
+	
+	$scope.cancelComplaintByTechnician = function() {
+		console.log("RELOAD");
+		$state.reload();
+	}
+	
 	$scope.onResetSearchForm = function() {
 		$scope.searchForm = '';
+		$state.reload();
 		$state.reload();
 	};
 	$scope.onSubmitSearchForm = function() {
@@ -298,7 +333,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 
 		promise1.$promise.then(function(response) {
 			$scope.complaints = response;
-
+			console.log("Complaint Resonse-->",$scope.complaints);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'

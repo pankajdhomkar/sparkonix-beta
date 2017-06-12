@@ -298,15 +298,15 @@ public class QRCodesResource {
 	@Produces("application/zip")
 	// @Produces("application/octet-stream")
 	public Response downloadQRBatchZip(@PathParam("batchName") String batchName) throws IOException {
-
+		System.out.println("-------"+batchName);
 		String qrCodeImagesDirectory = ApplicationContext.getInstance().getConfig().getQrCodeImagesDirectory();
 		String filePath = qrCodeImagesDirectory + "\\" + batchName + ".zip";
-
+		System.out.println("----file path---"+filePath);
 		File file = new File(filePath);
 		if (file.exists()) {
-
 			ResponseBuilder responseBuilder = Response.ok((Object) file);
 			responseBuilder.header("Content-Disposition", "attachment; filename=\"" + batchName + ".zip\"");
+			System.out.println("-------");
 			return responseBuilder.build();
 		} else {
 			log.severe("Failed to download QR codes batch.");

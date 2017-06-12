@@ -100,29 +100,35 @@ public class MachineAmcServiceHistoryResource {
 						.build();
 			}
 			Machine machine = machineDAO.getById(machineAmcServiceHistory.getMachine().getId());
-
+			System.out.println("HERE COMES---------->>-"+machineDAO.getById(machineAmcServiceHistory.getMachine().getId()));
 			if (machine == null) {
 				return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Machine does not exist"))
 						.build();
 			}
 
 			if (authUser.getRole().equals(User.ROLE_TYPE.TECHNICIAN.toString())) {
+				System.out.println("HERE COMES-----------");
 				if (machineAmcServiceHistory.getStatus().equals("CLOSED")) {
 					log.severe("Technician has changed service request status");
 					amcServiceHistoryObj.setServicingDoneDate(new Date());
 					amcServiceHistoryObj.setStatus("CLOSED");
 				}
-
+				if(machineAmcServiceHistory.getStatus().equals("INPROGRESS")){
+					log.severe("Technician has changed service request status");
+					amcServiceHistoryObj.setServicingDoneDate(new Date());
+					amcServiceHistoryObj.setStatus("INPROGRESS");
+				}
 			} else {
+				System.out.println("HERE COME else-----------");
 				if (machineAmcServiceHistory.getAssignedTo() != null
 						&& machineAmcServiceHistory.getAssignedTo().getId() > 0) {
+					System.out.println("HERE COME else-111----------");
 					User technician = userDAO.getById(machineAmcServiceHistory.getAssignedTo().getId());
+					System.out.println("HERE COME else-22----------"+userDAO.getById(machineAmcServiceHistory.getAssignedTo().getId()));
 					if (technician == null) {
 						return Response.status(Status.BAD_REQUEST)
 								.entity(JsonUtils.getErrorJson("Technician does not exist")).build();
 					}
-					amcServiceHistoryObj.setAssignedTo(technician);
-					amcServiceHistoryObj.setStatus("ASSIGNED");
 					// amcServiceHistoryObj.setMachine(machine);
 					// amcServiceHistoryObj.setCompanyId(machineAmcServiceHistory.getCompanyId());
 					amcServiceHistoryObj.setDetails(machineAmcServiceHistory.getDetails());
