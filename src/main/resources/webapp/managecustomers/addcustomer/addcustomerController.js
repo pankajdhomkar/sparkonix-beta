@@ -196,7 +196,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			promise3.$promise.then(function(response) {
 				console.log("resposne--",response);
 			$scope.getResellerData = response.reseller;
-//			console.log("GET Reseller Data----------->",$scope.getResellerData);
+			console.log("GET Reseller Data----------->",$scope.getResellerData);
 			getManufacturerName($scope.getResellerData.fld_manufid);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
@@ -312,8 +312,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			(rv[x[key]] = rv[x[key]] || []).push(x);
 			return rv;
 		}, {});
-	}
-	;
+	};
 
 	function getPhoneDevicesByCustomerIdAndOnboaradedBy() {
 		var promise;
@@ -587,8 +586,10 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			var machineObj = restAPIService.machineResource($scope.machineId)
 					.get();
 			machineObj.$promise.then(function(response) {
+				console.log("----222",response);
 				$scope.machine = response;
-
+				
+				
 				// split & set qrcode data
 				var qrCodeString = $scope.machine.qrCode;
 				var qrCodeArr = [];
@@ -706,10 +707,11 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			if ($rootScope.user.role == "MANUFACTURERADMIN"){
 				//=----------------------------------2---------------------------
 				$scope.machine.manufacturerId=$rootScope.user.companyDetailsId;
-				console.log("Id in edit--"+$scope.machine.manufacturerId+"--name--"+$scope.machine.name);
+				console.log("Id in edit--"+$scope.machine.manufacturerId+"--name--"+$scope.resellerId.companyName);
 			}
 			if ($rootScope.user.role == "RESELLERADMIN"){
-				$scope.machine.resellerId=$rootScope.user.companyDetailsId;
+				$scope.machine.resellerId=$rootScope.user.companyDetailsId;	
+				
 			} 
 			
 			$scope.machine.onBoardedBy = $rootScope.user.id;
@@ -759,6 +761,18 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 		}
 	}
+	
+//	$scope.cancelSaveMachine = function() {
+//		console.log("1");
+//		$("#addMachine").on('hidden.bs.modal', function () {	
+//			console.log("2");
+//			$state.reload();
+//			$scope.setTabId = 3;
+//			$state.go("home.managecustomers.addcustomer");
+////			$scope.machine = {};
+//	    });	
+//		console.log("3");
+//	}
 //-------------------------------------------------------------------------------------------------------------------
 	
 	/**
@@ -1307,5 +1321,10 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			return true;
 		}
 	}
+	
+	$rootScope.goBack = function(){
+		    $window.history.back();
+		  }
+	
 
 }

@@ -31,7 +31,9 @@ import com.sparkonix.entity.dialect.StringJsonUserType;
 		@NamedQuery(name = "com.sparkonix.entity.User.findUserByUsernameAndPassword", query = "SELECT u FROM User u WHERE u.email = :USERNAME and u.password = :PASSWORD"),
 		@NamedQuery(name = "com.sparkonix.entity.User.checkSuperAdminByUsername", query = "SELECT u FROM User u WHERE u.email = :USERNAME and u.role= :ROLE "),
 		@NamedQuery(name = "com.sparkonix.entity.User.findByEmail", query = "SELECT u FROM User u WHERE u.email = :EMAIL"),
-		@NamedQuery(name = "com.sparkonix.entity.User.findByCompanyDetailsIdAndRole", query = "SELECT u FROM User u WHERE u.companyDetailsId = :COMPANY_DETAIL_ID AND u.role = :ROLE") })
+		@NamedQuery(name = "com.sparkonix.entity.User.findByCompanyDetailsIdAndRole", query = "SELECT u FROM User u WHERE u.companyDetailsId = :COMPANY_DETAIL_ID AND u.role = :ROLE"),
+		@NamedQuery(name = "com.sparkonix.entity.User.findByTechnicianByReseller", query="SELECT u FROM User u WHERE u.reseller_id = :RESELLER_ID AND u.role = :ROLE")
+})
 
 public class User implements Serializable, Principal {
 
@@ -68,6 +70,9 @@ public class User implements Serializable, Principal {
 	@Type(type = "CustomJsonObject")
 	@Column(name = "metadata")
 	private String metadata;
+	
+	@Column(name = "reseller_id")
+	private long reseller_id;
 
 	private transient String token; // transient variable not serialized
 
@@ -204,5 +209,15 @@ public class User implements Serializable, Principal {
 	public void setMetadata(String metadata) {
 		this.metadata = metadata;
 	}
+
+	public long getReseller_id() {
+		return reseller_id;
+	}
+
+	public void setReseller_id(long reseller_id) {
+		this.reseller_id = reseller_id;
+	}
+
+
 
 }

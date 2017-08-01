@@ -40,6 +40,7 @@ public class MachineAmcServiceHistoryDAO extends AbstractDAO<MachineAmcServiceHi
 	public Date getLastServiceDate(long machineId) {
 		Criteria criteria = currentSession().createCriteria(MachineAmcServiceHistory.class)
 				.setProjection(Projections.max("servicingDoneDate"));
+		System.out.println("date-get-->"+criteria.toString());
 
 		return (Date) criteria.uniqueResult();
 	}

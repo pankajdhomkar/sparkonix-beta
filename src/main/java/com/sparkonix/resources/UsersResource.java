@@ -33,6 +33,7 @@ public class UsersResource {
 	@UnitOfWork
 	public Response createUser(@Auth User authUser, User user) throws Exception {
 		User dbUser = userDAO.findByEmail(user.getEmail());
+		System.out.println("-------------------"+user);
 		try {
 			if (dbUser == null) {
 				return Response.status(Status.OK).entity(userDAO.save(user)).build();
@@ -75,16 +76,24 @@ public class UsersResource {
 	}
 
 	@GET
-	@Path("/{role}/{companyDetailsId}")
+	@Path("/{role}/{companyDetailsId}/{resellerID}")
 	@UnitOfWork
 	public Response listUsersByRoleAndCompanyDetailsId(@Auth User authUser, @PathParam("role") String role,
-			@PathParam("companyDetailsId") long companyDetailsId) {
+			@PathParam("companyDetailsId") long companyDetailsId, @PathParam("resellerID") long resellerID) {
 		try {
-			log.info(" In listUsersByRoleAndCompanyDetailsId");
-			return Response.status(Status.OK)
-					.entity(JsonUtils.getJson(userDAO.findAllByRoleCompanyDetailsId(role, companyDetailsId))).build();
+			log.info(" In listUsersByRoleAndCompanyDetailsId"+role);
+			if(role.equals("MANUFACTURERADMIN")){
+				System.out.println("Manufacturer--"+companyDetailsId);
+				return Response.status(Status.OK)
+						.entity(JsonUtils.getJson(userDAO.findAllByRoleCompanyDetailsId("TECHNICIAN", companyDetailsId))).build();
+			}else{
+				System.out.println("Reseller-->"+resellerID);
+				return Response.status(Status.OK)
+						.entity(JsonUtils.getJson(userDAO.findAllResellerTechnician("TECHNICIAN", resellerID))).build();
+			}
+			
 		} catch (Exception e) {
-			log.severe("Unable to find uses by given role and comany details id" + e);
+			log.severe("Unable to find user by given role and comany details id" + e);
 			return Response.status(Status.BAD_REQUEST)
 					.entity(JsonUtils.getErrorJson("Unable to find users by given role & comany details id")).build();
 		}

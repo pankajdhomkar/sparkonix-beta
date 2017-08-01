@@ -18,6 +18,7 @@ import com.sparkonix.dao.MachineDAO;
 import com.sparkonix.dao.PhoneDeviceDAO;
 import com.sparkonix.dao.QRCodeDAO;
 import com.sparkonix.dao.UnregisterOperatorDAO;
+import com.sparkonix.dao.UserDAO;
 import com.sparkonix.entity.CompanyDetail;
 import com.sparkonix.entity.Machine;
 import com.sparkonix.entity.PhoneDevice;
@@ -40,17 +41,19 @@ public class MachineResource {
 	private final PhoneDeviceDAO phoneDeviceDAO;
 	private final MachineAmcServiceHistoryDAO machineAmcServiceHistoryDAO;
 	private final UnregisterOperatorDAO unregisterOperatorDAO;
+	private final UserDAO userDAO;
 	private final Logger log = Logger.getLogger(MachineResource.class.getName());
 
 	public MachineResource(MachineDAO machineDAO, CompanyDetailDAO companyDetailDAO,
 			MachineAmcServiceHistoryDAO machineAmcServiceHistoryDAO, QRCodeDAO qrCodeDAO,
-			PhoneDeviceDAO phoneDeviceDAO, UnregisterOperatorDAO unregisterOperatorDAO) {
+			PhoneDeviceDAO phoneDeviceDAO, UnregisterOperatorDAO unregisterOperatorDAO, UserDAO userDAO) {
 		this.machineDAO = machineDAO;
 		this.companyDetailDAO = companyDetailDAO;
 		this.machineAmcServiceHistoryDAO = machineAmcServiceHistoryDAO;
 		this.qrCodeDAO = qrCodeDAO;
 		this.phoneDeviceDAO = phoneDeviceDAO;
 		this.unregisterOperatorDAO = unregisterOperatorDAO;
+		this.userDAO = userDAO;
 	}
 
 	@GET
@@ -111,7 +114,9 @@ public class MachineResource {
 						CompanyDetail manufacturerObj = companyDetailDAO
 								.getCustSupportInfo(machine.getManufacturerId());
 						Date lastServiceDate = machineAmcServiceHistoryDAO.getLastServiceDate(machine.getId());
-
+						
+						User userObj = userDAO.getById(machine.getOnBoardedBy()); 
+						
 						MachineDetailsDTO machineDetailsDTO = new MachineDetailsDTO();
 
 						machineDetailsDTO.setMachineId(machine.getId());
@@ -124,7 +129,9 @@ public class MachineResource {
 						machineDetailsDTO.setCurAmcStatus(machine.getCurAmcStatus());
 						machineDetailsDTO.setManufacturer(manufacturerObj);
 						machineDetailsDTO.setLastServiceDate(lastServiceDate);
-
+						machineDetailsDTO.setAdminName(userObj.getName());// For admin Name
+						machineDetailsDTO.setAdminEmail(userObj.getEmail());// For Admin email
+						machineDetailsDTO.setAdminContact(userObj.getMobile()); // For Admin contact no
 						return Response.status(Status.OK).entity(JsonUtils.getJson(machineDetailsDTO)).build();
 						//// this comment for if where it scan any machine code by customer android app and raise a issue
 //					}else{
@@ -162,7 +169,8 @@ public class MachineResource {
 						CompanyDetail manufacturerObj = companyDetailDAO
 								.getCustSupportInfo(machine.getManufacturerId());
 						Date lastServiceDate = machineAmcServiceHistoryDAO.getLastServiceDate(machine.getId());
-
+						System.out.println("DATE--->"+lastServiceDate.toString());
+						User userObj = userDAO.getById(machine.getOnBoardedBy()); // Admin info send to android device
 						MachineDetailsDTO machineDetailsDTO = new MachineDetailsDTO();
 
 						machineDetailsDTO.setMachineId(machine.getId());
@@ -175,7 +183,11 @@ public class MachineResource {
 						machineDetailsDTO.setCurAmcStatus(machine.getCurAmcStatus());
 						machineDetailsDTO.setManufacturer(manufacturerObj);
 						machineDetailsDTO.setLastServiceDate(lastServiceDate);
-					
+						machineDetailsDTO.setAdminName(userObj.getName());// For admin Name
+						machineDetailsDTO.setAdminEmail(userObj.getEmail());// For Admin email
+						machineDetailsDTO.setAdminContact(userObj.getMobile()); // For Admin contact no
+						
+						System.out.println(machineDetailsDTO.getAdminName());
 						
 						//If the phone number is found in unregister operator table delete that entry because it is in 
 						//phonedevice table

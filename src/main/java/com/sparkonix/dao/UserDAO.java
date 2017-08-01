@@ -2,6 +2,7 @@ package com.sparkonix.dao;
 
 import java.util.List;
 
+import org.h2.command.dml.Update;
 import org.hibernate.SessionFactory;
 
 import com.sparkonix.entity.User;
@@ -14,7 +15,7 @@ public class UserDAO extends AbstractDAO<User> {
 		super(sessionFactory);
 	}
 
-	public User save(User user) throws Exception {
+	public User save(User user) throws Exception {		
 		return persist(user);
 	}
 
@@ -59,6 +60,10 @@ public class UserDAO extends AbstractDAO<User> {
 		return list(namedQuery("com.sparkonix.entity.User.findByCompanyDetailsIdAndRole")
 				.setParameter("COMPANY_DETAIL_ID", companyDetailId).setParameter("ROLE", role));
 
+	}
+	public Object findAllResellerTechnician(String role, long resellerId){
+		return list(namedQuery("com.sparkonix.entity.User.findByTechnicianByReseller")
+				.setParameter("RESELLER_ID", resellerId).setParameter("ROLE", role));
 	}
 
 }

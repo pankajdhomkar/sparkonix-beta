@@ -64,6 +64,14 @@ public class PhoneDeviceDAO extends AbstractDAO<PhoneDevice> {
 
 		return (Long) query.uniqueResult();
 	}
+	
+	// For getting a count of operator using a customer id 
+	public long getCountOperatorCustomerId(long customerId) {
+		Query query;
+		query = currentSession().createQuery("select count(*) from PhoneDevice pd where pd.customerId= :CUSTOMER_ID");
+		query.setParameter("CUSTOMER_ID", customerId);
+		return (Long) query.uniqueResult();
+	}
 
 	public List<String> getAllFcmTokens() {
 		Criteria criteria = currentSession().createCriteria(PhoneDevice.class, "PhoneDevice");

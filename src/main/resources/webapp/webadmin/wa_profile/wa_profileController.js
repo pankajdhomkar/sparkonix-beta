@@ -142,6 +142,25 @@ function waProfileController($scope, $rootScope, restAPIService, dialogs,
 		});
 
 	}
+	
+	$scope.cancelResetPassword = function(){
+		console.log("1");
+		$("#editWebAdminPassword").on('hidden.bs.modal', function () {	
+			console.log("2");
+			$state.reload();
+			$scope.resetPasswordDTO = {};
+	    });	
+		console.log("3");
+	}
+	
+	$scope.cancelEditCustomer = function(){
+		console.log("1");
+		$("#editCustSupport").on('hidden.bs.modal', function () {	
+			console.log("2");
+			$state.reload();
+	    });	
+		console.log("3");
+	}
 
 	$scope.onClose = function() {
 		$state.go('home.wadashboard');

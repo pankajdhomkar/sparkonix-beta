@@ -42,6 +42,16 @@ function manageSalesTeamController($scope, restAPIService, dialogs) {
 		});
 	}
 	
+	$scope.cancelSalesTeam = function(){
+		console.log("1");
+		$("#addSTMember").on('hidden.bs.modal', function () {	
+			console.log("2");
+			location.reload();
+			$scope.newMember = {};
+	    });	
+		console.log("3");
+	}
+	
 	$scope.updateUser = function(){
 		var dlg = dialogs.confirm("Are you sure?","Are you sure you wish to update this Sales TEam Member?", {'size' : 'sm'});
 		dlg.result.then(function() {
@@ -55,12 +65,24 @@ function manageSalesTeamController($scope, restAPIService, dialogs) {
 				dialogs.error("Error", error.data.error, { 'size' : 'sm' });
 			});
 		}, function() {
+			console.log("3");
+			location.reload();
 		});
 	}
 	$scope.onEdit = function(salesteammember){
 		$scope.editMember = salesteammember;
 		//$scope.editMember.mobile = Number($scope.editMember.mobile);
 		$('#editSTMember').modal().show();
+	}
+	
+	$scope.cancelEditSalesTeam = function(){
+		console.log("1");
+		$("#editSTMember").on('hidden.bs.modal', function () {	
+			console.log("2");
+			location.reload();
+			
+	    });	
+		console.log("3");
 	}
 	
 	$scope.onDelete = function(salesteammember){
@@ -75,6 +97,7 @@ function manageSalesTeamController($scope, restAPIService, dialogs) {
 				dialogs.error("Error", error.data.error, { 'size' : 'sm' });
 			});
 		}, function() {
+			location.reload();
 		});
 	}	
 }

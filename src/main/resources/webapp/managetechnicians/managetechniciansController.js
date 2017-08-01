@@ -8,12 +8,15 @@ function manageTechniciansController($scope, $rootScope, $state,
 	// ------------- PUBLIC VARIABLES ----------------
 	$scope.technicians = [];
 	$scope.newTechnician = {};
+	$scope.editTechnician = {};
 	$scope.newTechnician = {
 		name : "",
 		email : "",
 		altEmail : "",
 		mobile : "",
-		password : ""
+		password : "",
+		role : "",
+		reseller_id : ""
 	};
 
 	// ------------- PRIVATE VARIABLES ----------------
@@ -28,16 +31,25 @@ function manageTechniciansController($scope, $rootScope, $state,
 		if ($rootScope.user.role == "SUPERADMIN") {
 			promise = restAPIService.usersByRoleResource(
 					"TECHNICIAN").query();
-		} else {
-			// for Man/Res
+		} else if($rootScope.user.role == "MANUFACTURERADMIN"){
+			console.log("Manufacturer Techincian--");
+			// for Manufacturer
 			promise = restAPIService.usersByRoleByCompanyResource(
-					"TECHNICIAN", $rootScope.user.companyDetailsId).query();
+					$rootScope.user.role, $rootScope.user.companyDetailsId, 0).query();
+		} else if($rootScope.user.role == "RESELLERADMIN"){
+			console.log("Call For Reseller Technician",$rootScope.user.companyDetailsId);
+			promise = restAPIService.usersByRoleByCompanyResource(
+					$rootScope.user.role, 0, $rootScope.user.companyDetailsId).query();
 		}
 
 		// var promise = restAPIService.usersByRoleResource("TECHNICIAN").query();
 
 		promise.$promise.then(function(response) {
 			$scope.technicians = response;
+			console.log("TEc-",$scope.technicians);
+		/*	if($scope.technicians.altEmail == null){
+				$scope.technicians.alt_Email = " ";
+			}*/
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
@@ -51,10 +63,20 @@ function manageTechniciansController($scope, $rootScope, $state,
 		$scope.newTechnician.password = CryptoJS.MD5(
 				$scope.newTechnician.password).toString();
 		$scope.newTechnician.role = "TECHNICIAN";
-		$scope.newTechnician.companyDetailsId = Number($rootScope.user.companyDetailsId);
-
+		
+		if($rootScope.user.role == "MANUFACTURERADMIN"){
+			console.log("Here1--",$rootScope.user.role);
+			$scope.newTechnician.companyDetailsId = Number($rootScope.user.companyDetailsId);
+			$scope.newTechnician.reseller_id = 0;
+		}else if($rootScope.user.role == "RESELLERADMIN"){
+			console.log("Here2--",$rootScope.user.role);
+			$scope.newTechnician.companyDetailsId = 0;
+			$scope.newTechnician.reseller_id = $rootScope.user.companyDetailsId;
+		}
+		console.log("Here3--",$scope.newTechnician);
 		var promise = restAPIService.usersResource().save($scope.newTechnician);
 		promise.$promise.then(function(response) {
+			console.log("REsponse",response);
 			$scope.technicians.push(response);
 			$scope.newTechnician = {};
 			$('#addTechnician').hide();
@@ -71,14 +93,16 @@ function manageTechniciansController($scope, $rootScope, $state,
 	}
 
 	$scope.updateTechnician = function() {
+		console.log("1");
 		var dlg = dialogs.confirm("Are you sure?",
 				"Are you sure you want to update this technician?", {
 					'size' : 'sm'
 				});
 		dlg.result.then(function() {
-
-			var promise = restAPIService.userResource($scope.editTechnician.id)
-					.update($scope.editTechnician);
+			console.log("2--->",$scope.editTechnician);
+			
+			var promise = restAPIService.userResource($scope.editTechnician.id).update($scope.editTechnician);
+			console.log("33--->");
 			promise.$promise.then(function(response) {
 				var index = $scope.technicians.indexOf($scope.editTechnician);
 				$scope.technicians.splice(index, 1);
@@ -87,16 +111,58 @@ function manageTechniciansController($scope, $rootScope, $state,
 					'size' : 'sm'
 				});
 			}, function(error) {
+				console.log("in error boz"+error);
 				dialogs.error("Error", error.data.error, {
 					'size' : 'sm'
 				});
 			});
-		}, function() {
+		}, function() { // this function for click on NO in the 2nd modal
+			console.log("3");
+			$state.reload();
 		});
 	}
+	
+	$scope.cancelUpdateTechnician = function(){
+		console.log("1");
+		$("#editTechnician").on('hidden.bs.modal', function () {	
+			console.log("2");
+			$state.reload();
+	    });	
+		console.log("3");
+	}
+	
+	$scope.cancelAddTechnician = function(){
+		console.log("1");
+		$("#addTechnician").on('hidden.bs.modal', function () {	
+			console.log("2");
+			$state.reload();
+			$scope.newTechnician={};
+	    });	
+		console.log("3");
+	}
+	
 	$scope.onEdit = function(technician) {
+		
 		$scope.editTechnician = technician;
-		//$scope.editTechnician.mobile = Number($scope.editTechnician.mobile);
+		console.log("on Edit function ---",technician);
+		console.log("scope of edit technician--  ",$scope.editTechnician)
+		/*if(technician.altEmail != "" || technician.altEmail != undefined){
+			$scope.editTechnician.altEmail= technician.altEmail;
+		}else{
+			$scope.editTechnician.altEmail="";
+		}
+		
+		$scope.editTechnician.companyDetailsId =technician.companyDetailsId;
+		$scope.editTechnician.email = technician.email;
+		$scope.editTechnician.id =technician.id;
+		$scope.editTechnician.mobile =technician.mobile;
+		$scope.editTechnician.name =technician.name;
+		$scope.editTechnician.password =technician.password;
+		$scope.editTechnician.reseller_id =technician.reseller_id;
+		$scope.editTechnician.role =technician.role;
+		*/
+		;
+		$scope.editTechnician.mobile = Number($scope.editTechnician.mobile);
 		$('#editTechnician').modal().show();
 	}
 
@@ -119,6 +185,7 @@ function manageTechniciansController($scope, $rootScope, $state,
 				});
 			});
 		}, function() {
+			$state.reload();
 		});
 	}
 }

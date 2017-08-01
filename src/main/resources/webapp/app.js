@@ -17,7 +17,8 @@ function appController ($scope,$cookies,$rootScope,$state,$http) {
 		 $rootScope.user = user;
 		 $http.defaults.headers.common.Authorization = "Basic "
 				+ btoa($rootScope.user.token + ":");
-		 if ($rootScope.user.role == "SALESTEAM") {
+		 console.log("user------>",$rootScope.user.role);
+		 	if ($rootScope.user.role == "SALESTEAM") {
 				$state.go('home.stdashboard');
 			}
 			if ($rootScope.user.role == "SUPERADMIN") {
@@ -27,7 +28,7 @@ function appController ($scope,$cookies,$rootScope,$state,$http) {
 				$state.go('home.wadashboard');
 			}
 			if ($rootScope.user.role == "RESELLERADMIN") {
-				$state.go('home.wadashboard');
+				$state.go('home.wardashboard');
 			}
 			if ($rootScope.user.role == "TECHNICIAN") {
 				$state.go('home.tcdashboard');
@@ -43,7 +44,6 @@ function appController ($scope,$cookies,$rootScope,$state,$http) {
 function config($stateProvider, $urlRouterProvider) {
 	
 	$urlRouterProvider.otherwise("/login");
-	
 	$stateProvider.state('login', {
 		url : '/login',
 		templateUrl : 'login/login.html',
@@ -76,6 +76,22 @@ function config($stateProvider, $urlRouterProvider) {
 		controller : "waProfileController"
 	})
 	
+	// WEB ADMIN RESELLER WORKFLOW
+	.state('home.wardashboard', {
+		templateUrl : 'webadminreseller/war_dashboard/war_dashboard.html',
+		url : '/warDashboard',
+		controller : "warDashboardController"
+	}).state('home.warreports', {
+		templateUrl : 'webadminreseller/war_reports/war_reports.html',
+		url : '/warreports',
+		controller : "warReportsController"
+	}).state('home.warprofile', {
+		templateUrl : 'webadminreseller/war_profile/war_profile.html',
+		url : '/warprofile',
+		controller : "warProfileController"
+	})
+	
+	
 	// SUPERADMIN WORKFLOW
 	.state('home.sadashboard', {
 		templateUrl : 'superadmin/sa_dashboard/sa_dashboard.html',
@@ -106,6 +122,25 @@ function config($stateProvider, $urlRouterProvider) {
 		url : '/managecomplaints',
 		controller : "manageComplaintsController"
 	})
+	// MANAGE RESELLER FOR MANUFACTURER PAGE DASHBOARD
+	.state('home.wareseller', {
+		url : '/wareseller',
+		templateUrl : 'wareseller/wareseller.html',
+		controller : "waResellerController"
+	}).state('home.wareseller.addreseller', {
+		templateUrl : 'wareseller/addreseller/addreseller.html',
+		url : '/addreseller',
+		controller : "addResellerController"
+	}).state('home.wareseller.viewreseller', {
+		templateUrl : 'wareseller/addreseller/viewreseller.html',
+		url : '/viewreseller',
+		controller : "viewResellerController"
+	}).state('home.wareseller.addcustomer1', {
+		templateUrl : 'wareseller/addcustomer1/addcustomer1.html',
+		url : '/addcustomer1',
+		controller : "addcustomer1Controller"
+	})
+	
 	// MANAGE MANUFATURERS AND RESELLERS
 	.state('home.managemanres', {
 		templateUrl : 'managemanres/managemanres.html',
@@ -120,6 +155,7 @@ function config($stateProvider, $urlRouterProvider) {
 		url : '/viewmanres',
 		controller : "viewManResController"
 	})
+	
 	// MANAGE SALES TEAM
 	.state('home.managesalesteam', {
 		templateUrl : 'managesalesteam/managesalesteam.html',

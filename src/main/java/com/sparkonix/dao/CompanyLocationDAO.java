@@ -92,4 +92,13 @@ public class CompanyLocationDAO extends AbstractDAO<CompanyLocation> {
 
 		return (Long) query.uniqueResult();
 	}
+	
+	public long getCountLocationByCustomerId(long customerId) {
+		Query query;
+		query = currentSession()
+				.createQuery("select count(*) from CompanyLocation cl where cl.companyDetailsId= :COMPANY_DETAIL_ID");
+		query.setParameter("COMPANY_DETAIL_ID", customerId);
+		return (Long) query.uniqueResult();
+	}
+
 }

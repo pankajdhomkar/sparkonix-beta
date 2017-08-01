@@ -25,6 +25,7 @@ import com.sparkonix.dao.PhoneDeviceDAO;
 import com.sparkonix.dao.ResellerDAO;
 import com.sparkonix.dao.UserDAO;
 import com.sparkonix.entity.CompanyDetail;
+import com.sparkonix.entity.Machine;
 import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.User;
 import com.sparkonix.entity.dto.CustomerDetailsDTO;
@@ -286,6 +287,46 @@ public class CompanyDetailsResource {
 		return null;
 	}
 
+	@GET
+	@UnitOfWork
+	@Path("/searchCustomer/{resellerId}")
+	public Response listCompanyDetailsOnBoardedById(@Auth User authUser, @PathParam("resellerId") long resellerId) {
+		try {
+			log.info("In listCompanyDetailsOnBoardedById");
+//				ListCompanyDetalis object get the resellers customers.
+				List<Machine> listCompanyDetails = new ArrayList<>();
+				listCompanyDetails = machineDAO.findAllCustomerIdByResellerId(resellerId);
+				
+//				Creating a arraylist for stored the information in it.
+				List<CustomerDetailsDTO> listCustomerDetailsDTO = new ArrayList<>();
+//				For loop on resellers customers
+				for (int i = 0; i < listCompanyDetails.size(); i++) {
+					System.out.println("Arraylist length---"+listCompanyDetails.size());
+					long customerId = Long.parseLong(""+listCompanyDetails.get(i));
+					System.out.println("Id of customer------>"+customerId+",I =="+i);
+					CustomerDetailsDTO customerDetailsDTO = new CustomerDetailsDTO();
+					/*long customerId = Long.parseLong(listCompanyDetails.get(i).toString());
+					System.out.println("customer id---"+customerId);*/
+					// CompanyLocationCount give the count of location.
+					long companyLocationCount = companyLocationDAO.getCountLocationByCustomerId(customerId);
+					long machinesCount = machineDAO.getCountMAchineByCustomerId(customerId);
+					long operatorsCount = phoneDeviceDAO.getCountOperatorCustomerId(customerId);
+
+					customerDetailsDTO.setCompanyDetail(companyDetailDAO.getCompanyDetailsByID(customerId));
+					customerDetailsDTO.setFactoryLocationsCount(companyLocationCount);
+					customerDetailsDTO.setMachinesCount(machinesCount);
+					customerDetailsDTO.setOperatorsCount(operatorsCount);
+
+					listCustomerDetailsDTO.add(customerDetailsDTO);
+				}
+				return Response.status(Status.OK).entity(JsonUtils.getJson(listCustomerDetailsDTO)).build();
+		} catch (Exception e) {
+			log.severe("Unable get customer id" + e);
+			return Response.status(Status.BAD_REQUEST)
+					.entity(JsonUtils.getErrorJson("Unable get customer id")).build();
+		}
+	}
+	
 	/*
 	 * used for adding new Manufacturer/Reseller by salesteam/superadmin
 	 * 

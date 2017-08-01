@@ -3,6 +3,7 @@ package com.sparkonix.resources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import com.sparkonix.dao.CompanyLocationDAO;
 import com.sparkonix.dao.IssueDAO;
 import com.sparkonix.dao.MachineDAO;
 import com.sparkonix.dao.PhoneDeviceDAO;
+import com.sparkonix.dao.ResellerDAO;
 import com.sparkonix.dao.UserDAO;
 import com.sparkonix.entity.CompanyDetail;
 import com.sparkonix.entity.CompanyLocation;
@@ -39,7 +41,9 @@ import com.sparkonix.entity.Issue;
 import com.sparkonix.entity.Machine;
 import com.sparkonix.entity.PhoneDevice;
 import com.sparkonix.entity.User;
+import com.sparkonix.entity.dto.CustomerDetailsDTO;
 import com.sparkonix.entity.dto.IssueSearchFilterPayloadDTO;
+import com.sparkonix.entity.dto.IssueWithResellerDTO;
 import com.sparkonix.entity.jsonb.CompanyLocationAddress;
 import com.sparkonix.utils.FcmMessage;
 import com.sparkonix.utils.JsonUtils;
@@ -61,17 +65,19 @@ public class IssuesResource {
 	private final CompanyDetailDAO companyDetailDAO;
 	private final UserDAO userDAO;
 	private final CompanyLocationDAO companyLocationDAO;
+	private final ResellerDAO resellerDAO;
 
 	private final Logger log = Logger.getLogger(IssuesResource.class.getName());
 
 	public IssuesResource(IssueDAO issueDAO, PhoneDeviceDAO phoneDeviceDAO, MachineDAO machineDAO,
-			CompanyDetailDAO companyDetailDAO, UserDAO userDAO, CompanyLocationDAO companyLocationDAO) {
+			CompanyDetailDAO companyDetailDAO, UserDAO userDAO, CompanyLocationDAO companyLocationDAO, ResellerDAO resellerDAO) {
 		this.issueDAO = issueDAO;
 		this.phoneDeviceDAO = phoneDeviceDAO;
 		this.machineDAO = machineDAO;
 		this.companyDetailDAO = companyDetailDAO;
 		this.userDAO = userDAO;
 		this.companyLocationDAO = companyLocationDAO;
+		this.resellerDAO= resellerDAO;
 	}
 
 	/**
@@ -358,16 +364,39 @@ public class IssuesResource {
 	@GET
 	@UnitOfWork
 	@Path("/machine/{machineId}")
-	public Response listIssuesByMachineId(@Auth User authUser, @PathParam("machineId") long machineId) {
+	public Response complaintByMachineId(@Auth User authUser, @PathParam("machineId") long machineId) {
 		try {
 			log.info(" In listIssuesByMachineId");
-			return Response.status(Status.OK).entity(JsonUtils.getJson(issueDAO.findAllByMachineId(machineId))).build();
+			return Response.status(Status.OK).entity(JsonUtils.getJson(issueDAO.findByMachineID(machineId))).build();
 		} catch (Exception e) {
 			log.severe("Unable to find Issues " + e);
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Issues")).build();
 		}
 	}
 
+	@GET
+	@UnitOfWork
+	@Path("/complaints/{manufacturerId}/{support}")
+	public Response complaintByID(@Auth User authUser, @PathParam("manufacturerId") long manufacturerId, @PathParam("support") String support) {
+		try {
+			log.info(" In listIssuesByMachineId");
+			List<Issue> listComplaint = (issueDAO.findComplaintID(manufacturerId, support));
+			List<IssueWithResellerDTO> list = new ArrayList<>();
+			
+			for(int i = 0; i < listComplaint.size(); i++){
+				IssueWithResellerDTO resellerNameWithIssue = new IssueWithResellerDTO();
+				long resellerId = listComplaint.get(i).getResellerId();
+				resellerNameWithIssue.setIssue(listComplaint.get(i));
+				resellerNameWithIssue.setReseller(resellerDAO.findResellerDetailById(resellerId));
+				list.add(resellerNameWithIssue);
+			}
+			return Response.status(Status.OK).entity(JsonUtils.getJson(list)).build();
+		} catch (Exception e) {
+			log.severe("Unable to find Issues " + e);
+			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Issues")).build();
+		}
+	}
+	
 	/*
 	 * @GET
 	 * 
@@ -520,7 +549,7 @@ public class IssuesResource {
 				if (issueList.get(i).getDateClosed() != null) {
 					closedDate = issueList.get(i).getDateClosed().toString();
 				}
-
+				
 				data.put(Integer.toString(i + 2),
 						new Object[] { issueList.get(i).getIssueNumber(), issueList.get(i).getMachineModelNumber(),
 								issueList.get(i).getMachineSerialNumber(), installationDate,
@@ -578,5 +607,120 @@ public class IssuesResource {
 		}
 
 	}
+	
+	/* This will show the issues of resellers for manufacturer
+	 * Here we write a new method for download a excel sheet of resellers complaints 
+	 *  this machine serviced by a resellers
+	*/
+	@POST
+	@Path("/listbyfilter/excel2") 
+	@UnitOfWork
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getIssuesListByInExcel(@Auth User authUser,
+			IssueSearchFilterPayloadDTO issueSearchFilterPayloadDTO) {
+		try {
+			log.info(" In getIssuesList");
+
+			String supportAssistance = Machine.SUPPORT_ASSISTANCE.RESELLER.toString();
+
+			List<Issue> issueList = issueDAO.findAllBySearch(supportAssistance, issueSearchFilterPayloadDTO);
+
+			// Blank workbook
+			XSSFWorkbook workbook = new XSSFWorkbook();
+
+			// Create a blank sheet
+			XSSFSheet sheet = workbook.createSheet("Complaint List");
+
+			// This data needs to be written (Object[])
+			Map<String, Object[]> data = new TreeMap<String, Object[]>();
+			data.put("1",
+					new Object[] { "IssueNumber", "MachineModel", "MachineSerial", "MachineInstallationDate","ResellerName",
+							"CustomerCompanyName", "MachineLocation", "ComplaintDetails", "OperatorName",
+							"ReportedDate", "AssignedDate", "TechnicianName", "ClosedDate", "FailureReason",
+							"ActionTaken", "Status" });
+			System.out.println("******************************************************************");
+			System.out.println("Size of list"+ issueList.size());
+			System.out.println("******************************************************************");
+			for (int i = 0; i < issueList.size(); i++) {
+				String installationDate = null;
+				String reportedDate = null;
+				String assignedDate = null;
+				String closedDate = null;
+
+				if (issueList.get(i).getMachineInstallationDate() != null) {
+					installationDate = issueList.get(i).getMachineInstallationDate().toString();
+				}
+				if (issueList.get(i).getDateReported() != null) {
+					reportedDate = issueList.get(i).getDateReported().toString();
+				}
+				if (issueList.get(i).getDateAssigned() != null) {
+					assignedDate = issueList.get(i).getDateAssigned().toString();
+				}
+				if (issueList.get(i).getDateClosed() != null) {
+					closedDate = issueList.get(i).getDateClosed().toString();
+				}
+
+				IssueWithResellerDTO dto = new IssueWithResellerDTO();
+				dto.setReseller(resellerDAO.findResellerDetailById(issueList.get(i).getResellerId()));
+				
+				data.put(Integer.toString(i + 2),
+						new Object[] { issueList.get(i).getIssueNumber(), issueList.get(i).getMachineModelNumber(),
+								issueList.get(i).getMachineSerialNumber(), installationDate,
+								dto.getReseller().getCompanyName(),
+								issueList.get(i).getCustomerCompanyName(),
+								issueList.get(i).getMachineLocationNameAddress(), issueList.get(i).getDetails(),
+								issueList.get(i).getPhonedeviceOperatorName(), reportedDate, assignedDate,
+								issueList.get(i).getTechnicianName(), closedDate, issueList.get(i).getFailureReason(),
+								issueList.get(i).getActionTaken(), issueList.get(i).getStatus() });
+			}
+
+			// Iterate over data and write to sheet
+			Set<String> keyset = data.keySet();
+			int rownum = 0;
+			for (String key : keyset) {
+				Row row = sheet.createRow(rownum++);
+				Object[] objArr = data.get(key);
+				int cellnum = 0;
+				for (Object obj : objArr) {
+					Cell cell = row.createCell(cellnum++);
+					if (obj instanceof String)
+						cell.setCellValue((String) obj);
+					else if (obj instanceof Integer)
+						cell.setCellValue((Integer) obj);
+				}
+			}
+			// Write the workbook in ByteArrayOutputStream
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			workbook.write(byteArrayOutputStream);
+			byteArrayOutputStream.close();
+			log.info("Workbook written in byteArrayOutputStream");
+
+			// implement StreamingOutput to return as response
+			StreamingOutput stream = new StreamingOutput() {
+				public void write(OutputStream out) throws IOException, WebApplicationException {
+					try {
+						out.write(byteArrayOutputStream.toByteArray());
+						log.info("byteArrayOutputStream written in StreamingOutput");
+					} catch (Exception e) {
+						log.severe("Failed to write byteArrayOutputStream into StreamingOutput");
+						throw new WebApplicationException(e);
+					} finally {
+						out.flush();
+						out.close();
+					}
+				}
+			};
+			// finally return response as required stream
+			return Response.ok(stream)
+					.header("Content-Disposition", "attachment; filename=\"complaint_list.xlsx" + "\"").build();
+
+		} catch (Exception e) {
+			log.severe("Failed to download excel. " + e);
+			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Failed to download as excel"))
+					.build();
+		}
+
+	}
+
 
 }

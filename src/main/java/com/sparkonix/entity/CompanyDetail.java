@@ -43,7 +43,11 @@ import com.sparkonix.entity.dialect.StringJsonUserType;
 		query = "SELECT cd FROM CompanyDetail cd WHERE cd.pan= :PAN"),
 		
 		@NamedQuery(name = "com.sparkonix.entity.CompanyDetail.findManufacturerName", 
-		query = "SELECT cd FROM CompanyDetail cd WHERE cd.id= :MANID") })
+		query = "SELECT cd FROM CompanyDetail cd WHERE cd.id= :MANID"),
+		
+		@NamedQuery(name = "com.sparkonix.entity.CompanyDetail.findCompanyDetailsBy", 
+		query = "SELECT cd FROM CompanyDetail cd WHERE cd.id= :ID"),
+})
 @TypeDefs({ @TypeDef(name = "CustomJsonObject", typeClass = StringJsonUserType.class) })
 public class CompanyDetail implements Serializable {
 

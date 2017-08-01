@@ -18,15 +18,22 @@ function loginController($http, $state, restAPIService, $scope, $rootScope,
 			"password" : encryptedPassword
 		};
 
+		console.log("user auth->",userObj);
+		
 		var authUserObj = restAPIService.checkUserByUsernameAndPassword().save(
 				userObj);
 
+		console.log("user auth->",authUserObj);
+		
 		authUserObj.$promise.then(function(response) {
 			$rootScope.user = response;
 			$rootScope.token = $rootScope.user.token;
 			$cookies.user = JSON.stringify($rootScope.user);
 			$http.defaults.headers.common.Authorization = "Basic "
 					+ btoa($rootScope.token + ":");
+			
+			console.log("HERE1",$rootScope.user.role);
+			
 			if ($rootScope.user.role == "SALESTEAM") {
 				$state.go('home.stdashboard');
 			}
@@ -36,8 +43,10 @@ function loginController($http, $state, restAPIService, $scope, $rootScope,
 			if ($rootScope.user.role == "MANUFACTURERADMIN") {
 				$state.go('home.wadashboard');
 			}
+			
 			if ($rootScope.user.role == "RESELLERADMIN") {
-				$state.go('home.wadashboard');
+				console.log("HERE IN RESELLER");	
+				$state.go('home.wardashboard');
 			}
 			if ($rootScope.user.role == "TECHNICIAN") {
 				$state.go('home.tcdashboard');

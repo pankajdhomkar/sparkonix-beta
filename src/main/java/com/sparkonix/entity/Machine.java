@@ -32,8 +32,9 @@ import com.sparkonix.entity.dialect.StringJsonUserType;
 		@NamedQuery(name = "com.sparkonix.entity.Machine.findMachineByQrCode", 
 		query = "SELECT m FROM Machine m WHERE m.qrCode= :QRCODE"),
 		@NamedQuery(name = "com.sparkonix.entity.Machine.findAllByCustomerId", 
-		query = "SELECT m FROM Machine m WHERE m.customerId= :CUSTOMER_ID ")
-
+		query = "SELECT m FROM Machine m WHERE m.customerId= :CUSTOMER_ID"),
+		@NamedQuery(name = "com.sparkonix.entity.Machine.findAllCustomerIdByResellerId",
+		query = "SELECT DISTINCT(m.customerId) FROM Machine m WHERE m.resellerId = :RESELLER_ID")
 })
 @TypeDefs({ @TypeDef(name = "CustomJsonObject", typeClass = StringJsonUserType.class) })
 public class Machine implements Serializable {

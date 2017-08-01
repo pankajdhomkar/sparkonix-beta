@@ -174,7 +174,7 @@ public class WebApplication extends Application<WebConfiguration> {
 				.register(new IssueResource(issueDAO, phoneDeviceDAO, machineDAO, companyDetailDAO, userDAO, resellerDAO));
 		
 		environment.jersey().register(new IssuesResource(issueDAO, phoneDeviceDAO, machineDAO, companyDetailDAO,
-				userDAO, companyLocationDAO));
+				userDAO, companyLocationDAO, resellerDAO));
 
 		environment.jersey().register(new MachineAmcHistoryResource(machineAmcHistoryDAO));
 		environment.jersey().register(new MachineAmcHistoriesResource(machineAmcHistoryDAO));
@@ -190,9 +190,9 @@ public class WebApplication extends Application<WebConfiguration> {
 				configuration.getMachineDocsDirectory(), companyDetailDAO));
 
 		environment.jersey().register(new MachineResource(machineDAO, companyDetailDAO, machineAmcServiceHistoryDAO,
-				qrcodeDAO, phoneDeviceDAO,unregisterOperatorDAO));
+				qrcodeDAO, phoneDeviceDAO,unregisterOperatorDAO, userDAO));
 		environment.jersey()
-				.register(new MachinesResource(machineDAO, companyDetailDAO, companyLocationDAO, qrcodeDAO));
+				.register(new MachinesResource(machineDAO, companyDetailDAO, companyLocationDAO, qrcodeDAO, issueDAO));
 
 		environment.jersey().register(new MachineSubscriptionHistoryResource(machineSubscriptionHistoryDAO));
 		environment.jersey().register(new MachineSubscriptionHistoriesResource(machineSubscriptionHistoryDAO));

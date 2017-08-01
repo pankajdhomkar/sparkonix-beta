@@ -19,16 +19,15 @@ import javax.persistence.Table;
 				+ "(SELECT id FROM Machine m where m.manufacturerId =:COMPANYID or m.resellerId =:COMPANYID)"),
 		@NamedQuery(name = "com.sparkonix.entity.Issue.findByTechnicianID", query = "SELECT i FROM Issue i "
 				+ "WHERE i.assignedTo = :TECHID"),
-
 		@NamedQuery(name = "com.sparkonix.entity.Issue.findAllByAssignedToId", query = "SELECT i FROM Issue i "
 				+ "WHERE i.assignedTo = :ASSIGNEDTO_ID"),
 		@NamedQuery(name = "com.sparkonix.entity.Issue.findAllBySupportAssitanaceAndManId", query = "SELECT i FROM Issue i "
 				+ "WHERE i.machineSupportAssistance = :SUPPORT_ASSISTANCE AND manufacturerId =:MANUFACTURER_ID"),
 		@NamedQuery(name = "com.sparkonix.entity.Issue.findAllBySupportAssitanaceAndResId", query = "SELECT i FROM Issue i "
 				+ "WHERE i.machineSupportAssistance = :SUPPORT_ASSISTANCE AND resellerId =:RESELLER_ID"),
-
 		@NamedQuery(name = "com.sparkonix.entity.Issue.findByMachineID", query = "SELECT i FROM Issue i "
-				+ "WHERE i.machineId = :MACHINEID") })
+				+ "WHERE i.machineId = :MACHINEID")
+		})
 
 public class Issue implements Serializable {
 

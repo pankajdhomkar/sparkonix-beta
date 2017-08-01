@@ -14,7 +14,10 @@
 				comments="Batches" colour="yellow" type="fa fa-group"></salesteam_stats></a>
 		<a><salesteam_stats number={{numStudents}} 
 				comments="Students" colour="red" type="fa  fa-graduation-cap"></salesteam_stats></a> -->
-		 
+		 <a ui-sref="home.wareseller">
+			<salesteam_stats number={{numRes}} comments="Reseller" colour="info" 
+			image="/assets/images/customers_bk.png">
+		</salesteam_stats></a>
 		
 		<a ui-sref="home.managecustomers">
 			<salesteam_stats number={{numCustomers}} comments="Customers" colour="red" 
@@ -30,8 +33,6 @@
 			<salesteam_stats   comments="Complaint / Servicing" colour="primary" 
 			image="/assets/images/problem_bk.png">
 		</salesteam_stats></a>
-		
-		 				
 				
 	</div>
 

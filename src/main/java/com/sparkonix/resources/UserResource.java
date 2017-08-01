@@ -74,10 +74,23 @@ public class UserResource {
 	@PUT
 	@UnitOfWork
 	@Path("/{userId}")
-	public Response updateUserById(@Auth User authUser, @PathParam("userId") long userId, User userobj) {
+	public Response updateUserById(@Auth User authUser, User userobj, @PathParam("userId") long userId) {
 		try {
 			log.info(" In updateUserById");
-			userDAO.save(userobj);
+			/*System.out.println("1-- "+userobj.getId() +"--uid"+userId);
+			System.out.println("2-- "+userobj.getAltEmail());
+			System.out.println("3-- "+userobj.getName());
+			System.out.println("4-- "+userobj.getCompanyDetailsId());
+			System.out.println("5-- "+userobj.getReseller_id());
+			System.out.println("6-- "+userobj.getRole());
+			System.out.println("7-- "+userobj.getToken());
+			System.out.println("8-- "+userobj.getEmail());
+			System.out.println("9-- "+userobj.getNotificationType());
+			System.out.println("10-- "+userobj.getMobile());
+			System.out.println("11-- "+userobj.getMetadata());
+			System.out.println("12-- "+userobj.getToken());
+			System.out.println("13-- "+userobj.getPassword());*/
+//			userDAO.save(userobj);
 			return Response.status(Status.OK).entity(userDAO.save(userobj)).build();
 		} catch (Exception e) {
 			log.severe("Unable to Update  " + e);

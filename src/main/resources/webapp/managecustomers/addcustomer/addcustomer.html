@@ -290,7 +290,7 @@
 											<td>{{machine.serialNumber}}</td>
 											<td>{{machine.modelNumber}}</td>
 											<td>{{machine.manufacturer.companyName}}</td>
-											<td>{{machine.reseller.companyName}}</td>
+											<td>{{getResellerData.companyName}}</td>
 											<td><span
 												ng-if="(machine.location.companyLocationAddress.locationAddress)!=null">
 													{{machine.location.companyLocationAddress.locationName}},
@@ -397,7 +397,7 @@
 </div>
 
 
-<!------------ - Modal for adding new factory location ------------------------------------>
+<!------------ - Modal for adding new  location ------------------------------------>
 <div id="addLocation" class="modal fade" role="dialog">
 	<form name="addLocationForm">
 		<div class="modal-dialog">

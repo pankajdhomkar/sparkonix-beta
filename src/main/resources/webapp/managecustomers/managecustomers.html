@@ -38,9 +38,9 @@
 					<div class="col-lg-6 col-md-6 col-sm-6">
 						<label>Total Machines :</label> {{totalMachines}} 
 					</div>
-					<div class="col-lg-6 col-md-6 col-sm-6">
+					<!-- <div class="col-lg-6 col-md-6 col-sm-6">
 						<label>Total Operators :</label> {{totalOperators}} 
-					</div>
+					</div> -->
 				</div>				  
 			</div>
 
@@ -69,7 +69,7 @@
 						<td><b>Contact details</b></td>
 						<td><b>Factory Locations</b></td>
 						<td><b>Machines</b></td>
-						<td><b>Authorized Operators</b></td>
+						<!-- <td><b>Authorized Operators</b></td> -->
 						<td><b>Current Subscription Status</b></td>
 					</tr>
 				</thead>
@@ -108,7 +108,7 @@
 								</b>
 							</button>
 						</td>
-						<td align="center">
+						<!-- <td align="center">
 							<button class="btn-link btn-sm" type="button"
 								ng-click="editCustomer(customer.companyDetail,4)"
 								title="Add/Edit Operator">
@@ -116,7 +116,7 @@
 									<span ng-if="customer.operatorsCount==0">0</span>
 								</b>
 							</button>
-						</td>
+						</td> -->
 						<td>{{customer.companyDetail.curSubscriptionStatus}}</td>
 					</tr>
 				</tbody>

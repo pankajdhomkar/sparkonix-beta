@@ -36,7 +36,8 @@ public class MachineDAO extends AbstractDAO<Machine> {
 	public List<Machine> findAll() {
 		return list(namedQuery("com.sparkonix.entity.Machine.findAll"));
 	}
-
+	
+	
 	@SuppressWarnings("unchecked")
 	public List<Machine> getAllMachinesForCompany(long companyId) {
 		Criteria c = currentSession().createCriteria(Machine.class, "m");
@@ -58,10 +59,27 @@ public class MachineDAO extends AbstractDAO<Machine> {
 				.setParameter("CUSTOMER_ID", companyDetailsId).setParameter("ON_BOARDED_BY", onBoardedById));
 
 	}
+	
+	//For gettting a customer ids from the reseller id
+	public List<Machine> findAllCustomerIdByResellerId(long resellerId) {
+
+		/*
+		 * This method will retrun a list of resllers customer machine.
+		 */
+		return list(namedQuery("com.sparkonix.entity.Machine.findAllCustomerIdByResellerId")
+				.setParameter("RESELLER_ID", resellerId));
+
+	}
 
 	public List<Machine> findAllByCustomerId(long companyDetailsId) {
 		return list(namedQuery("com.sparkonix.entity.Machine.findAllByCustomerId").setParameter("CUSTOMER_ID",
 				companyDetailsId));
+	}
+	
+	// This method for find all machine by Customer id
+	public List<Machine> getAllMachinesByCustomers(long customerId){
+		return list(namedQuery("com.sparkonix.entity.Machine.findAllByCustomerId").setParameter("CUSTOMER_ID",
+				customerId));
 	}
 
 	public long getCountByCustomerIdAndOnBoardedBy(long customerId, long onBoardedById, String userRole) {
@@ -81,6 +99,12 @@ public class MachineDAO extends AbstractDAO<Machine> {
 		return (Long) query.uniqueResult();
 	}
 
+	public long getCountMAchineByCustomerId(long customerId) {
+		Query query;
+		query = currentSession().createQuery("select count(*) from Machine m where m.customerId= :CUSTOMER_ID");
+		query.setParameter("CUSTOMER_ID", customerId);
+		return (Long) query.uniqueResult();
+	}
 	public Machine findMachineByQrCode(String qrcode) {
 		return uniqueResult(
 				namedQuery("com.sparkonix.entity.Machine.findMachineByQrCode").setParameter("QRCODE", qrcode));

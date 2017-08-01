@@ -118,7 +118,7 @@ public class PhoneDevicesResource {
 	public Response getOtp(PhoneDeviceOtpDTO dtoObject) {
 		//remove this line after UI fixes done in apk(to accept 10digit number with country code)
 		String phoneNumber="+"+dtoObject.getPhoneNumber();		
-//		System.out.println(phoneNumber);
+		System.out.println(phoneNumber);
 		PhoneDevice operatorObj = phoneDeviceDAO.getOperatorByPhoneNumber(phoneNumber);
 		/*This if number is not present then it will add a number into a unrecognized table in database and 
 		after it will stored in phoneDevice table*/
@@ -127,7 +127,7 @@ public class PhoneDevicesResource {
 			log.severe("inserting a unregister operator");
 //			System.out.println("1here upto--------------------"+phoneNumber);
 			String otp = Otp.generate();
-//			System.out.println("2here upto--------------------"+otp);
+			System.out.println("2here upto--------------------"+otp);
 			UnregisterOperator unregisterOperatorObj = unregisterOperatorDAO.getOperatorByPhoneNumber1(phoneNumber);
 //			System.out.println("3here upto--------------------"+unregisterOperatorObj);
 			if(unregisterOperatorObj == null){

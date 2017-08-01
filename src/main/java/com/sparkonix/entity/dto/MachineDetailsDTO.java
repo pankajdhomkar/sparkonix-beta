@@ -17,6 +17,11 @@ public class MachineDetailsDTO {
 	private Date curAmcEndDate;
 	private String curAmcStatus;
 	private String machineDocuments;//
+	private String adminName;
+	private String adminEmail;
+	private String adminContact;
+	private String qrCode;
+	private String name;
 	private CompanyDetail manufacturer;
 	private CompanyDetail reseller;
 	private CompanyLocation location;
@@ -116,6 +121,23 @@ public class MachineDetailsDTO {
 	public void setReseller(CompanyDetail reseller) {
 		this.reseller = reseller;
 	}
+	
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getQrCode() {
+		return qrCode;
+	}
+
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
+	}
 
 	public CompanyLocation getLocation() {
 		return location;
@@ -125,4 +147,29 @@ public class MachineDetailsDTO {
 		this.location = location;
 	}
 
+	public String getAdminName() {
+		return adminName;
+	}
+
+	public void setAdminName(String adminName) {
+		this.adminName = adminName;
+	}
+
+	public String getAdminEmail() {
+		return adminEmail;
+	}
+
+	public void setAdminEmail(String adminEmail) {
+		this.adminEmail = adminEmail;
+	}
+
+	public String getAdminContact() {
+		return adminContact;
+	}
+
+	public void setAdminContact(String adminContact) {
+		this.adminContact = adminContact;
+	}
+
+	
 }

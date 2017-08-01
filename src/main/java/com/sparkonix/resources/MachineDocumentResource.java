@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -52,13 +53,14 @@ public class MachineDocumentResource {
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response fetchMachineDocByFileName(@PathParam("manufacturerId") String manufacturerId,
 			@PathParam("docName") String docName) {
-
+		System.out.println("Doucments-->"+this.mahineDocsLocation);
 		File filePath = new File(this.mahineDocsLocation + File.separator + manufacturerId + File.separator + docName);
-
+		
 		if (filePath.exists()) {
 			return Response.ok(filePath, MediaType.APPLICATION_OCTET_STREAM)
 					.header("Content-Disposition", "inline; filename=\"" + docName + "\"").build();
 		} else {
+			System.out.println("Doucments-->");
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Machine Document"))
 					.build();
 		}

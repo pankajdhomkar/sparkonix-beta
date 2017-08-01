@@ -33,6 +33,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		if ($rootScope.user.role == "MANUFACTURERADMIN"
 				|| $rootScope.user.role == "RESELLERADMIN") {
 			// companyDetailsId of logged in web admin
+			console.log("LOGIN---->",$rootScope.user.role);
 			var manResId = Number($rootScope.user.companyDetailsId);
 
 			promise1 = restAPIService.complaintsByManResRoleAndCompanyId(
@@ -74,9 +75,21 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 
 	function getTechniciansByCompanyId() {
 		// for Man/Res
-		var promise1 = restAPIService.usersByRoleByCompanyResource(
-				"TECHNICIAN", $rootScope.user.companyDetailsId).query();
-		promise1.$promise.then(function(response) {
+		var promise;
+		 if($rootScope.user.role == "MANUFACTURERADMIN"){
+				console.log("Manufacturer Techincian--");
+				// for Manufacturer
+				promise = restAPIService.usersByRoleByCompanyResource(
+						$rootScope.user.role, $rootScope.user.companyDetailsId, -1).query();
+			} else{
+				console.log("Call For Reseller Technician",$rootScope.user.companyDetailsId);
+				promise = restAPIService.usersByRoleByCompanyResource(
+						$rootScope.user.role, 0, $rootScope.user.companyDetailsId).query();
+			}
+		
+		/*var promise1 = restAPIService.usersByRoleByCompanyResource(
+				"TECHNICIAN", $rootScope.user.companyDetailsId).query();*/
+		promise.$promise.then(function(response) {
 			$scope.technicianList = response;
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
@@ -161,6 +174,8 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 								});
 							});
 						}, function() {
+							console.log("3");
+							$state.reload();
 						});
 	}
 
@@ -184,7 +199,9 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 				});
 			});
 		}, function() {
-			
+			console.log("3");
+			$state.reload();
+			$scope.updateIssueRecord = {};
 		});
 	}
 
@@ -287,6 +304,8 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 				});
 			});
 		}, function() {
+			console.log("3");
+			$state.reload();
 		});
 	}
 
@@ -295,10 +314,28 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		getServiceHistoryList();
 	};
 	
+	//cancel Technician change modal
 	$scope.cancelComplaintByTechnician = function() {
-		console.log("RELOAD");
-		$state.reload();
+		console.log("1");
+		$("#actionTechnician").on('hidden.bs.modal', function () {	
+			console.log("2");
+			$state.reload();
+			$scope.updateIssueRecord = {};
+	    });	
+		console.log("3");
 	}
+	
+	// admin to technician cancel.
+	$scope.cancelActionWebAdmin = function() {
+		console.log("1");
+		$("#actionWebAdmin").on('hidden.bs.modal', function () {	
+			console.log("2");
+			$state.reload();
+			$scope.updateIssueRecord = {};
+	    });	
+		console.log("3");
+	}
+	
 	
 	$scope.onResetSearchForm = function() {
 		$scope.searchForm = '';
@@ -341,7 +378,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		});
 
 	};
-
+	
 	// download as excel using $http post
 	$scope.onDownloadAsExcel = function() {
 		angular.element(document.getElementById('btnDownloadAsExcel'))[0].disabled = true;
@@ -370,9 +407,9 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		var fileName = "complaint_list.xlsx";
 		var url = $rootScope.apiUrl + "issues/listbyfilter/excel";
 		$scope.Authorization = "Basic " + btoa($rootScope.token + "1:");
-
+		
 		$http
-				.post(url, $scope.complaintSearchFilter, {
+				.post(url, $scope.complaintSearchFilter,{ 
 					responseType : 'arraybuffer',
 					'Authorization' : $scope.Authorization
 				})

@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response.Status;
 import com.google.zxing.WriterException;
 import com.sparkonix.dao.CompanyDetailDAO;
 import com.sparkonix.dao.CompanyLocationDAO;
+import com.sparkonix.dao.IssueDAO;
 import com.sparkonix.dao.MachineDAO;
 import com.sparkonix.dao.QRCodeDAO;
 import com.sparkonix.entity.CompanyDetail;
@@ -40,15 +41,17 @@ public class MachinesResource {
 
 	private final CompanyDetailDAO companyDetailDAO;
 	private final CompanyLocationDAO companyLocationDAO;
+	private final IssueDAO issueDAO;
 
 	private final Logger log = Logger.getLogger(MachinesResource.class.getName());
 
 	public MachinesResource(MachineDAO machineDAO, CompanyDetailDAO companyDetailDAO,
-			CompanyLocationDAO companyLocationDAO, QRCodeDAO qrCodeDAO) {
+			CompanyLocationDAO companyLocationDAO, QRCodeDAO qrCodeDAO, IssueDAO issueDAO) {
 		this.machineDAO = machineDAO;
 		this.companyDetailDAO = companyDetailDAO;
 		this.companyLocationDAO = companyLocationDAO;
 		this.qrCodeDAO = qrCodeDAO;
+		this.issueDAO = issueDAO;
 	}
 
 	@POST
@@ -155,7 +158,9 @@ public class MachinesResource {
 				machineDetailsDTO.setMachineId(machineList.get(i).getId());
 				machineDetailsDTO.setSerialNumber(machineList.get(i).getSerialNumber());
 				machineDetailsDTO.setModelNumber(machineList.get(i).getModelNumber());
-
+				machineDetailsDTO.setQrCode(machineList.get(i).getQrCode());
+				machineDetailsDTO.setName(machineList.get(i).getName());
+				machineDetailsDTO.setInstallationDate(machineList.get(i).getInstallationDate());
 				CompanyDetail manufacturerObj = companyDetailDAO.getById(machineList.get(i).getManufacturerId());
 				machineDetailsDTO.setManufacturer(manufacturerObj);
 
@@ -185,6 +190,22 @@ public class MachinesResource {
 		try {
 			log.info("In getAllMachinesForCompany");
 			return Response.status(Status.OK).entity(JsonUtils.getJson(machineDAO.getAllMachinesForCompany(companyId)))
+					.build();
+		} catch (Exception e) {
+			log.severe("Unable to find Machines " + e);
+			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Machines"))
+					.build();
+		}
+	}
+	
+	@GET
+	@Path("/searchmachines/{customerId}")
+	@UnitOfWork
+	public Response getAllMachinesByCustomers(@Auth User authUser, @PathParam("customerId") long customerId)
+			throws IOException, WriterException {
+		try {
+			log.info("In getAllMachinesForCustomer");
+			return Response.status(Status.OK).entity(JsonUtils.getJson(machineDAO.getAllMachinesByCustomers(customerId)))
 					.build();
 		} catch (Exception e) {
 			log.severe("Unable to find Machines " + e);
@@ -232,6 +253,15 @@ public class MachinesResource {
 					.build();
 		}
 	}
+	
+	//For getting a complaint and machine information with this using a machine id
+	/*@GET
+	@UnitOfWork
+	@Path("/machineInfo/{machineId}")
+	public Response getMachineInfoForReseller(){
+		
+	}
+	*/
 
 	@POST
 	@UnitOfWork

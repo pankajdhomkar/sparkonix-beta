@@ -21,10 +21,12 @@ function manageCustomersController($scope, $state, restAPIService, $rootScope,
 	// ------------- PRIVATE FUNCTIONS ----------------
 	function getCustomerDetails() {
 		var promise;
+		console.log("Customer-->",$rootScope.user.id+" ",$rootScope.user.resellerId);
 		promise = restAPIService.companyDetailsByOnBoarded($rootScope.user.id,
-				$rootScope.user.role, "CUSTOMER").query();
+				$rootScope.user.role, "CUSTOMER", $rootScope.user.resellerId).query();
 		promise.$promise.then(function(response) {
 			$scope.companyDetailData = response;
+			console.log("List-->",$scope.companyDetailData);
 			getTotalCounts();
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {

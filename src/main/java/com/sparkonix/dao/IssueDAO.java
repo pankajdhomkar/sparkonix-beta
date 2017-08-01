@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.sparkonix.entity.Issue;
 import com.sparkonix.entity.Machine;
+import com.sparkonix.entity.dto.IssueByManufacturerPayloadDTO;
 import com.sparkonix.entity.dto.IssueSearchFilterPayloadDTO;
 
 import io.dropwizard.hibernate.AbstractDAO;
@@ -63,8 +64,12 @@ public class IssueDAO extends AbstractDAO<Issue> {
 		}
 	}
 
-	public List<Issue> findAllByMachineId(long machineId) {
+	public List<Issue> findByMachineID(long machineId) {
 		return list(namedQuery("com.sparkonix.entity.Issue.findByMachineID").setParameter("MACHINEID", machineId));
+	}
+	
+	public List<Issue> findComplaintID(long manufacturerId, String support) {
+		return list(namedQuery("com.sparkonix.entity.Issue.findAllBySupportAssitanaceAndManId").setParameter("SUPPORT_ASSISTANCE", support).setParameter("MANUFACTURER_ID", manufacturerId));
 	}
 
 	public List<Issue> findAllBySearchFilter(String supportAssistance,
@@ -95,7 +100,31 @@ public class IssueDAO extends AbstractDAO<Issue> {
 		}
 
 		return criteria.list();
-
 	}
 
+	/*  This public method for the get the complaint through a database using a criteria
+	 * 
+	 */
+	public List<Issue> findAllBySearch(String supportAssistance,
+			IssueSearchFilterPayloadDTO  issueSearchFilterPayloadDTO) {
+
+		Criteria criteria = currentSession().createCriteria(Issue.class, "issue");
+		System.out.println("(*)000000000");
+		System.out.println("ID MAN"+issueSearchFilterPayloadDTO.getManResId());
+		System.out.println("ASSISTANCE--"+supportAssistance);
+		System.out.println("(*)000000000");
+		//Using a Manufacturer Id
+		if (issueSearchFilterPayloadDTO.getManResId() != 0) {
+			criteria.add(Restrictions.eq("manufacturerId", issueSearchFilterPayloadDTO.getManResId()));
+		}
+		
+	
+		//for superadmin
+		if (!supportAssistance.equals("")) {
+			criteria.add(Restrictions.eq("machineSupportAssistance", supportAssistance));
+		}
+
+		return criteria.list();
+
+	}
 }

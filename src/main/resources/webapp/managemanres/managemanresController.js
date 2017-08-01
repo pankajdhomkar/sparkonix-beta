@@ -99,7 +99,7 @@ function manageManResController($scope, $state, restAPIService, dialogs,
 		console.log("call from manager controller");
 		$state.go('home.managemanres.viewmanres');	
 	}
-
+	
 	$scope.setTab = function(tabId) {
 		$scope.activeTabNumber = tabId;
 	};

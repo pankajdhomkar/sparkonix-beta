@@ -36,7 +36,10 @@ public class LoginResource {
 		User userObj = null;
 		try {
 			userObj = userDAO.findUserByUsernameAndPassword(user.getEmail(), user.getPassword());
+			System.out.println("HERE-->1 "+user.getEmail()+" <-> Pass = "+user.getPassword());
+			
 			if (userObj != null) {
+				System.out.println("HERE-->2");
 				log.info("User found");
 				User tempUser = new User();
 				tempUser.setId(userObj.getId());
@@ -48,7 +51,12 @@ public class LoginResource {
 				tempUser.setRole(userObj.getRole());
 				tempUser.setNotificationType(userObj.getNotificationType());
 				tempUser.setMetadata(userObj.getMetadata());
-
+				if(userObj.getRole().equals("RESELLERADMIN")){
+					tempUser.setReseller_id(userObj.getCompanyDetailsId());
+				}else{
+					tempUser.setReseller_id(userObj.getReseller_id());
+				}
+				
 				String token = JwtToken.generateToken(userObj.getEmail(), tempUser);
 				userObj.setToken(token);
 				

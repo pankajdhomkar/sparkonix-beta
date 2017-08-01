@@ -35,6 +35,10 @@ public class CompanyDetailDAO extends AbstractDAO<CompanyDetail> {
 	public List<CompanyDetail> findManufacturerName(long id){
 		return list(namedQuery("com.sparkonix.entity.CompanyDetail.findManufacturerName").setParameter("MANID", id));
 	}
+	
+	public CompanyDetail getCompanyDetailsByID(long id){
+		return uniqueResult(namedQuery("com.sparkonix.entity.CompanyDetail.findCompanyDetailsBy").setParameter("ID", id));
+	}
 	/**
 	 * get list of {@link CompanyDetail} by onBoarded & companyType
 	 * 
@@ -103,5 +107,7 @@ public class CompanyDetailDAO extends AbstractDAO<CompanyDetail> {
 		return uniqueResult(namedQuery("com.sparkonix.entity.CompanyDetail.findCompanyDetailByPanAndCompanyType")
 				.setParameter("PAN", pan).setParameter("COMPANY_TYPE", companyType));
 	}
+	
+	
 
 }
