@@ -81,10 +81,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 
 	// This method edit a existing reseller
 	$scope.editRes = function(manResId, companyT) {
-		$scope.parent = false;
 		$scope.mode = "edit";
-		$scope.isRequired = false;
-		$scope.ngDisabled = false;
 		$scope.companyType = companyT;
 		$scope.manResId = manResId;
 		$state.go('home.wareseller.addreseller');
