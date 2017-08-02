@@ -1,73 +1,75 @@
-	<div class="row">
-		<h1 class="page-header">
-			<img src="/assets/images/add-new-customers.png"
-				style="width: 50px; height: 50px;"></img>&nbsp; <span>
-				{{headerTitleText}} </span>
-		</h1>
-	</div>
 
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<b>Company Details</b>
-		</div>
-		<div class="panel-body">
-			<form name="addManResForm1">
-				<div class="row form-group">
+<div class="row">
+	<h1 class="page-header">
+		<img src="/assets/images/add-new-customers.png"
+			style="width: 50px; height: 50px;"></img>&nbsp; <span>
+			{{headerTitleText}} </span>
+	</h1>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<b>Company Details</b>
+	</div>
+	<div class="panel-body">
+		<form name="addManResForm1">
+			<div class="row form-group">
 				<div class="col-lg-4">
 					<!-- If manufacturer then it show only manufacturer and if 
 					it is reseller then it will show a list of manufacturer -->
 					<label>Company Type</label>
 					<!-- This ng-if for add reseller admin -->
 					<span ng-if="role != 'MANUFACTURERADMIN' && mode == 'add'">
-						
-						<div style="font-family: courier new; background-color: #EEE; min-height: 33px;">
-									<select class="form-control" ng-model="mlist.id" ng-disabled="editMode" 
-									ng-required="true"
-									ng-change="getId()"
-									ng-options="m.id as m.companyName for m in manufacturersList" />
+
+						<div
+							style="font-family: courier new; background-color: #EEE; min-height: 33px;">
+							<select class="form-control" ng-model="mlist.id"
+								ng-disabled="editMode" ng-required="true" ng-change="getId()"
+								ng-options="m.id as m.companyName for m in manufacturersList" />
 						</div>
 					</span>
 					<!-- For all add button click manufacturer -->
-					<span ng-if="role == 'MANUFACTURERADMIN'" ng-init="man='MANUFACTURER'">
-					 <input class="form-control" 
-							ng-disabled = "editMode" ng-required="true"
-							value = "MANUFACTURER" readonly>
+					<span ng-if="role == 'MANUFACTURERADMIN'"
+						ng-init="man='MANUFACTURER'"> <input class="form-control"
+						ng-disabled="editMode" ng-required="true" value="MANUFACTURER"
+						readonly>
 					</span>
 					<!-- For all edit button click eg reseller and manufacturer -->
-					<span ng-if="mode == 'edit'">
-					<input class="form-control" 
-							ng-disabled = "editMode" ng-required="true"
-							value = "MANUFACTURER" readonly>
+					<span ng-if="mode == 'edit'"> <input class="form-control"
+						ng-disabled="editMode" ng-required="true" value="MANUFACTURER"
+						readonly>
 					</span>
 				</div>
 				<div class="col-lg-4">
-						<label>Company Name</label> <label style="color: red">&nbsp*</label>
-						<input class="form-control" ng-model="newManRes.companyName"
-							ng-disabled="editMode" ng-required="true"
-							placeholder="Enter Company Name">
-					</div>
-					<div class="col-lg-3">
-				
-						<label>Company PAN</label> <label style="color: red">&nbsp*</label>
-						<input class="form-control" ng-model="newManRes.pan"
-							ng-required="true" ng-disabled="editMode"   
-							placeholder="Enter Company PAN" maxlength="10">
-							<!-- ng-blur="checkCompanyPanAvailability()" -->
-					</div>
-					<div class="col-lg-1">
-						<p>&nbsp;</p>						 
-						<button type="button" ng-click="checkCompanyPanAvailability()" class="btn btn-primary btn-xs"
-							title="Check company PAN number availability" ng-disabled="editMode" >
-							<span class="glyphicon glyphicon-check"></span> Check
-						</button>						
-					</div>
-					<div class="col-lg-4 pull-right">
-						<span style=" font-size:12px; color : {{panValidationMsgColor}};">{{panValidationMsg}}</span>
-					</div> 
+					<label>Company Name</label> <label style="color: red">&nbsp*</label>
+					<input class="form-control" ng-model="newManRes.companyName"
+						ng-disabled="editMode" ng-required="true"
+						placeholder="Enter Company Name">
 				</div>
-		</div>
-		</form>
+				<div class="col-lg-3">
+
+					<label>Company PAN</label> <label style="color: red">&nbsp*</label>
+					<input class="form-control" ng-model="newManRes.pan"
+						ng-required="true" ng-disabled="editMode"
+						placeholder="Enter Company PAN" maxlength="10">
+					<!-- ng-blur="checkCompanyPanAvailability()" -->
+				</div>
+				<div class="col-lg-1">
+					<p>&nbsp;</p>
+					<button type="button" ng-click="checkCompanyPanAvailability()"
+						class="btn btn-primary btn-xs"
+						title="Check company PAN number availability"
+						ng-disabled="editMode">
+						<span class="glyphicon glyphicon-check"></span> Check
+					</button>
+				</div>
+				<div class="col-lg-4 pull-right">
+					<span style="font-size: 12px; color: {{panValidationMsgColor">{{panValidationMsg}}</span>
+				</div>
+			</div>
 	</div>
+	</form>
+</div>
 </div>
 
 <div class="panel panel-default">
@@ -85,9 +87,9 @@
 				<div class="col-lg-4">
 					<label>Contact Phone Number</label> <input class="form-control"
 						ng-model="newManRes.custSupportPhone"
-						placeholder="Enter Contact Phone Number">
-					<span style=" color:gray; font-family: verdana; font-size: 12px;">
-							Eg. 020-27470643 OR +91xxxxxxxxxx</span>	
+						placeholder="Enter Contact Phone Number"> <span
+						style="color: gray; font-family: verdana; font-size: 12px;">
+						Eg. 020-27470643 OR +91xxxxxxxxxx</span>
 				</div>
 				<div class="col-lg-4">
 					<label>Contact Email</label> <input class="form-control"
@@ -123,33 +125,34 @@
 				</div>
 				<!-- Hide dates if status is INACTIVE -->
 				<div ng-hide="hideFlag">
-				<div class="col-lg-6">
-					<label>Subscription Start Date</label><label style="color: red">&nbsp*</label>
-					<div class='input-group'>
-						<input type="text" class="form-control date"
-							ng-click="startDate=true" datepicker-popup="{{format}}"
-							ng-model="newManRes.curSubscriptionStartDate" is-open="startDate"
-							close-text="Close" id="newManResCurSubscriptionStartDate"
-							placeholder="DD-MM-YYYY" ng-required="!hideFlag" ng-change="setEndDate()" > 
-							<label
-							class="input-group-addon" for='newManResCurSubscriptionStartDate'>
-							<span class="glyphicon glyphicon-calendar"></span>
-						</label>
+					<div class="col-lg-6">
+						<label>Subscription Start Date</label><label style="color: red">&nbsp*</label>
+						<div class='input-group'>
+							<input type="text" class="form-control date"
+								ng-click="startDate=true" datepicker-popup="{{format}}"
+								ng-model="newManRes.curSubscriptionStartDate"
+								is-open="startDate" close-text="Close"
+								id="newManResCurSubscriptionStartDate" placeholder="DD-MM-YYYY"
+								ng-required="!hideFlag" ng-change="setEndDate()"> <label
+								class="input-group-addon"
+								for='newManResCurSubscriptionStartDate'> <span
+								class="glyphicon glyphicon-calendar"></span>
+							</label>
+						</div>
 					</div>
-				</div>
-				<div class="col-lg-6">
-					<label>Subscription End Date</label><label style="color: red">&nbsp*</label>
-					<div class='input-group'>
-						<input type="text" class="form-control date"
-							ng-click="endDate=true" datepicker-popup="{{format}}"
-							ng-model="newManRes.curSubscriptionEndDate" is-open="endDate"
-							close-text="Close" id="newManResCurSubscriptionEndDate"
-							placeholder="DD-MM-YYYY" ng-required="!hideFlag"> <label
-							class="input-group-addon" for='newManResCurSubscriptionEndDate'>
-							<span class="glyphicon glyphicon-calendar"></span>
-						</label>
+					<div class="col-lg-6">
+						<label>Subscription End Date</label><label style="color: red">&nbsp*</label>
+						<div class='input-group'>
+							<input type="text" class="form-control date"
+								ng-click="endDate=true" datepicker-popup="{{format}}"
+								ng-model="newManRes.curSubscriptionEndDate" is-open="endDate"
+								close-text="Close" id="newManResCurSubscriptionEndDate"
+								placeholder="DD-MM-YYYY" ng-required="!hideFlag"> <label
+								class="input-group-addon" for='newManResCurSubscriptionEndDate'>
+								<span class="glyphicon glyphicon-calendar"></span>
+							</label>
+						</div>
 					</div>
-				</div>
 				</div>
 
 			</div>
@@ -171,14 +174,13 @@
 						placeholder="Enter Name">
 				</div>
 				<div class="col-lg-6">
-					<label>Mobile</label> <label style="color: red">&nbsp*</label> 					 
-					 	
-					<input type="text" class="form-control" ng-model="newUser.mobile"
-								placeholder="Enter Mobile Number with country code" 
-								 ng-required="true">
-					<span style=" color:gray; font-family: verdana; font-size: 12px;">
-							Eg. +91xxxxxxxxxx</span>			 
-						
+					<label>Mobile</label> <label style="color: red">&nbsp*</label> <input
+						type="text" class="form-control" ng-model="newUser.mobile"
+						placeholder="Enter Mobile Number with country code"
+						ng-required="true"> <span
+						style="color: gray; font-family: verdana; font-size: 12px;">
+						Eg. +91xxxxxxxxxx</span>
+
 				</div>
 				<div class="col-lg-6">
 					<label>E-Mail</label> <label style="color: red">&nbsp*</label> <input

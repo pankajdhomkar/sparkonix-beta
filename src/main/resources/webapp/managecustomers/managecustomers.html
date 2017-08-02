@@ -24,29 +24,29 @@
 				</h4>
 				<br>
 			</div>
-			
+
 			<div class="row text-center" ng-if="companyDetailData.length>0">
 				<div class="form-group">
 					<div class="col-lg-6 col-md-6 col-sm-6">
 						<label>Total Customers :</label> {{totalCustomers}}
 					</div>
 					<div class="col-lg-6 col-md-6 col-sm-6">
-						<label>Total Locations :</label> {{totalLocations}} 
+						<label>Total Locations :</label> {{totalLocations}}
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="col-lg-6 col-md-6 col-sm-6">
-						<label>Total Machines :</label> {{totalMachines}} 
+						<label>Total Machines :</label> {{totalMachines}}
 					</div>
 					<!-- <div class="col-lg-6 col-md-6 col-sm-6">
 						<label>Total Operators :</label> {{totalOperators}} 
 					</div> -->
-				</div>				  
+				</div>
 			</div>
 
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default" style="width: 100%;">
 		<div class="panel-heading">
 			<b>Customer Details</b>
@@ -59,8 +59,9 @@
 				</h4>
 				<br>
 			</div>
-			
-			<table datatable class="table table-bordered table-striped"	ng-if="companyDetailData.length>0">
+
+			<table datatable class="table table-bordered table-striped"
+				ng-if="companyDetailData.length>0">
 				<thead>
 					<tr>
 						<td><b>Company Name</b></td>

@@ -4,26 +4,26 @@
 <body style="overflow: scroll">
 	<div>
 		<header-directive></header-directive>
-	
+
 		<!-- <st-sidebar-directive></st-sidebar-directive> -->
 		<!-- <wa-sidebar-directive></wa-sidebar-directive> -->
-		
+
 		<sa-sidebar-directive ng-if="user.role == 'SUPERADMIN'"></sa-sidebar-directive>
 		<st-sidebar-directive ng-if="user.role == 'SALESTEAM'"></st-sidebar-directive>
 		<wa-sidebar-directive ng-if="user.role == 'MANUFACTURERADMIN'"></wa-sidebar-directive>
 		<war-sidebar-directive ng-if="user.role == 'RESELLERADMIN'"></war-sidebar-directive>
 		<tc-sidebar-directive ng-if="user.role == 'TECHNICIAN'"></tc-sidebar-directive>
-		
+
 		<div id="wrapper">
 			<div id="page-wrapper" style="min-height: 561px;">
 				<div ui-view></div>
 			</div>
 		</div>
 	</div>
-	
+
 </body>
 </html>
 
 
-   
+
 

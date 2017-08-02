@@ -1,8 +1,8 @@
 <div>
-<style>
-.view-detail-content{
-font-family: Courier New;
-font-size: 15px; 
+	<style>
+.view-detail-content {
+	font-family: Courier New;
+	font-size: 15px;
 }
 </style>
 	<div class="row">
@@ -22,15 +22,15 @@ font-size: 15px;
 				<div class="row form-group">
 					<div class="col-lg-4">
 						<label>Company Type</label>
-						<p class="view-detail-content">{{newManRes.companyType}}</p>  
+						<p class="view-detail-content">{{newManRes.companyType}}</p>
 					</div>
 					<div class="col-lg-4">
 						<label>Company Name</label>
-						<p class="view-detail-content">{{newManRes.companyName}}</p> 						 
+						<p class="view-detail-content">{{newManRes.companyName}}</p>
 					</div>
 					<div class="col-lg-4">
-						<label>Company PAN</label> 
-						<p class="view-detail-content">{{newManRes.pan}}</p> 						 
+						<label>Company PAN</label>
+						<p class="view-detail-content">{{newManRes.pan}}</p>
 					</div>
 				</div>
 			</form>
@@ -45,21 +45,23 @@ font-size: 15px;
 			<form name="addManResForm2">
 				<div class="row form-group">
 					<div class="col-lg-4">
-						<label>Contact Name</label> 
-						<p class="view-detail-content">{{newManRes.custSupportName}}</p> 
+						<label>Contact Name</label>
+						<p class="view-detail-content">{{newManRes.custSupportName}}</p>
 					</div>
 					<div class="col-lg-3">
-						<label>Contact Number</label> 
-						<p class="view-detail-content">{{ newManRes.custSupportPhone }}</p>						 
+						<label>Contact Number</label>
+						<p class="view-detail-content">{{ newManRes.custSupportPhone
+							}}</p>
 					</div>
 					<div class="col-lg-5">
-						<label>Contact Email</label> 
-						<p class="view-detail-content">{{ newManRes.custSupportEmail }}</p>						 
+						<label>Contact Email</label>
+						<p class="view-detail-content">{{ newManRes.custSupportEmail
+							}}</p>
 					</div>
 				</div>
 			</form>
 		</div>
-	</div> 
+	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<b>AttendMe Subscription Details</b>
@@ -69,22 +71,26 @@ font-size: 15px;
 				<div class="row form-group">
 					<div class="col-lg-6">
 						<label>Subscription Type</label>
-						<p class="view-detail-content">{{ newManRes.curSubscriptionType }}</p>
+						<p class="view-detail-content">{{
+							newManRes.curSubscriptionType }}</p>
 					</div>
 					<div class="col-lg-6">
 						<label>Subscription Status </label>
-						<p class="view-detail-content">{{ newManRes.curSubscriptionStatus }}</p>						   
+						<p class="view-detail-content">{{
+							newManRes.curSubscriptionStatus }}</p>
 					</div>
 					<div class="col-lg-6">
-						<label>Subscription Start Date</label>						 
-						 <p class="view-detail-content">{{ newManRes.curSubscriptionStartDate | date:'dd-MM-yyyy'}}</p>						 	
+						<label>Subscription Start Date</label>
+						<p class="view-detail-content">{{
+							newManRes.curSubscriptionStartDate | date:'dd-MM-yyyy'}}</p>
 					</div>
 					<div class="col-lg-6">
 						<label>Subscription End Date</label>
-						<p class="view-detail-content">{{ newManRes.curSubscriptionEndDate | date:'dd-MM-yyyy'}}</p>
-						 
+						<p class="view-detail-content">{{
+							newManRes.curSubscriptionEndDate | date:'dd-MM-yyyy'}}</p>
+
 					</div>
-					
+
 				</div>
 			</form>
 		</div>
@@ -98,23 +104,23 @@ font-size: 15px;
 			<form name="addManResForm4">
 				<div class="row form-group">
 					<div class="col-lg-6">
-						<label>Name</label> 
+						<label>Name</label>
 						<p class="view-detail-content">{{ newUser.name }}</p>
 					</div>
 					<div class="col-lg-6">
-						<label>Mobile</label> 
+						<label>Mobile</label>
 						<p class="view-detail-content">{{ newUser.mobile }}</p>
 					</div>
 					<div class="col-lg-6">
-						<label>E-Mail</label> 
-						<p class="view-detail-content">{{ newUser.email }}</p> 						 
+						<label>E-Mail</label>
+						<p class="view-detail-content">{{ newUser.email }}</p>
 					</div>
 					<div class="col-lg-6">
-						<label>Alternate E-Mail</label> 
-						<p class="view-detail-content">{{ newUser.altEmail }}</p> 
+						<label>Alternate E-Mail</label>
+						<p class="view-detail-content">{{ newUser.altEmail }}</p>
 					</div>
 				</div>
-			</form>			 
+			</form>
 		</div>
 	</div>
 
@@ -123,7 +129,7 @@ font-size: 15px;
 			<button type="button" class="btn btn-danger" ng-click="onCancel()">
 				<i class="fa fa-minus-circle"></i>&nbsp; Cancel
 			</button>
-		 
+
 		</div>
 	</div>
 </div>

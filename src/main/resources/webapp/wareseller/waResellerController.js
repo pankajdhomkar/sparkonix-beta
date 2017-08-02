@@ -76,12 +76,15 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$scope.role = "RESELLERADMIN";
 		console.log("call from ---------r controller");
 		$state.go('home.wareseller.addreseller');
+//		$state.go('^');
 		console.log("call fjjjjcontroller");
 	}
 
 	// This method edit a existing reseller
 	$scope.editRes = function(manResId, companyT) {
 		$scope.mode = "edit";
+		$scope.isRequired = false;
+		$scope.ngDisabled = false;
 		$scope.companyType = companyT;
 		$scope.manResId = manResId;
 		$state.go('home.wareseller.addreseller');

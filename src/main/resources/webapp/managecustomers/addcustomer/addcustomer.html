@@ -316,7 +316,7 @@
 				<!-- -------------------------------------------------------------------------------- -->
 			</div>
 			<!-- END ng-show="isSet(3)" -->
-<!--  
+			<!--  
 			<div ng-show="isSet(4)">
 				<!-- ----- Phone Devices ----- 
 				<div class="row text-right" align="right">
@@ -383,8 +383,8 @@
 					<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Go
 					Back
 				</button>
-				<button id="btnSaveAndNext" 
-					type="button" class="btn btn-success" ng-click="onSaveAndNext()"
+				<button id="btnSaveAndNext" type="button" class="btn btn-success"
+					ng-click="onSaveAndNext()"
 					ng-disabled="addCustomerForm.$invalid && mode == 'add'">
 					<span class="fa fa-check" aria-hidden="true"></span>{{saveButtonText}}
 				</button>
@@ -535,7 +535,8 @@
 										</div>
 									</span>
 
-									<div ng-if="user.role == 'SUPERADMIN' || user.role == 'SALESTEAM'">
+									<div
+										ng-if="user.role == 'SUPERADMIN' || user.role == 'SALESTEAM'">
 										<select ng-required="true" class="form-control" id="w"
 											ng-model="machine.manufacturerId" ng-change="getIdofMan()"
 											ng-value="machine.manufacturerId"
@@ -556,8 +557,8 @@
 
 								</div>
 								<div class="col-lg-6">
-									<label>Reseller</label> 
-									<span ng-if="user.role == 'RESELLERADMIN'"> <!-- <select class="form-control" ng-model="machine.resellerId" ng-disabled="true">
+									<label>Reseller</label> <span
+										ng-if="user.role == 'RESELLERADMIN'"> <!-- <select class="form-control" ng-model="machine.resellerId" ng-disabled="true">
 											<option value="">-- Select --</option>
 											<option ng-repeat="r in resellersList" ng-if="user.companyDetailsId == r.id"
 												ng-selected="user.companyDetailsId == r.id" value="{{r.id}}">{{r.companyName}}</option>
@@ -567,12 +568,13 @@
 											<b>{{getResellerData.companyName}}</b>
 										</div>
 									</span>
-									<div ng-if="user.role == 'SUPERADMIN' || user.role == 'SALESTEAM' || user.role == 'MANUFACTURERADMIN' ">
+									<div
+										ng-if="user.role == 'SUPERADMIN' || user.role == 'SALESTEAM' || user.role == 'MANUFACTURERADMIN' ">
 										<!-- <select class="form-control" ng-model="machine.resellerId" ng-value ="machine.resellerId"
 											ng-options="r.id as r.companyName for r in resellersList">{{r.id}} -->
 
 										<select ng-required="true" class="form-control">
-										<option value="">-- Select --</option>
+											<option value="">-- Select --</option>
 											<option ng-repeat="r in resellersList"
 												ng-selected="machine.resellerId == r.id" value="{{r.id}}">{{r.companyName}}</option>
 										</select>
