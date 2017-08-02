@@ -75,7 +75,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$scope.isRequired = true;
 		$scope.role = "RESELLERADMIN";
 		console.log("call from ---------r controller");
-		$state.go('home.wareseller.addcustomer1');
+		$state.go('home.wareseller.addreseller');
 		console.log("call fjjjjcontroller");
 	}
 

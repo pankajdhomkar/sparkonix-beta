@@ -5,7 +5,7 @@ angular.module('sparkonixWebApp').controller('addResellerController',
 function addResellerController($scope, $state, $rootScope, restAPIService,
 		dialogs) {
 	console.log("Reseller controller1");
-	// ------------- PUBLIC VARIABLES ----------------
+	/*// ------------- PUBLIC VARIABLES ----------------
 	$scope.companyTypes = [ "MANUFACTURER", "RESELLER"];
 	$scope.curSubscriptionTypes = [ "BASIC", "PREMIUM" ];
 	$scope.curSubscriptionStatusData = [ "ACTIVE", "PAYMENT_DUE", "INACTIVE",
@@ -368,5 +368,5 @@ function addResellerController($scope, $state, $rootScope, restAPIService,
 				'size' : 'sm'
 			});
 		});
-	}
+	}*/
 }

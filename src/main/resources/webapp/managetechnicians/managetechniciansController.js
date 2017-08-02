@@ -161,8 +161,8 @@ function manageTechniciansController($scope, $rootScope, $state,
 		$scope.editTechnician.reseller_id =technician.reseller_id;
 		$scope.editTechnician.role =technician.role;
 		*/
-		;
-		$scope.editTechnician.mobile = Number($scope.editTechnician.mobile);
+		$scope.editTechnician.mobile = technician.mobile;
+//		$scope.editTechnician.mobile = Number($scope.editTechnician.mobile);
 		$('#editTechnician').modal().show();
 	}
 

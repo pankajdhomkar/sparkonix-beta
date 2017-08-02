@@ -135,10 +135,6 @@ function config($stateProvider, $urlRouterProvider) {
 		templateUrl : 'wareseller/addreseller/viewreseller.html',
 		url : '/viewreseller',
 		controller : "viewResellerController"
-	}).state('home.wareseller.addcustomer1', {
-		templateUrl : 'wareseller/addcustomer1/addcustomer1.html',
-		url : '/addcustomer1',
-		controller : "addcustomer1Controller"
 	})
 	
 	// MANAGE MANUFATURERS AND RESELLERS

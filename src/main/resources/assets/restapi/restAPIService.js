@@ -49,6 +49,7 @@ function restAPIService($resource, $rootScope, $q) {
 		companyLocationsResource : companyLocationsResource,
 		companyLocationsForCompanyOnboardedBy : companyLocationsForCompanyOnboardedBy,
 		companyLocationsByCompanyId : companyLocationsByCompanyId,
+		machineResource : machineResource, // <------ This is for getting a machine details  using a machine id
 		machinesResource : machinesResource,
 		machinesByCustomerId : machinesByCustomerId,
 		machinesByCustomerIdAndOnBoardedBy : machinesByCustomerIdAndOnBoardedBy,
@@ -284,6 +285,16 @@ function restAPIService($resource, $rootScope, $q) {
 		return $resource(url);
 	}
 
+	// This method for getting a machine info using mahcine id
+	function machineResource(machineId) {
+		var url = $rootScope.apiUrl + "machine/" + machineId;
+		return $resource(url, null, {
+			'update' : {
+				method : 'PUT'
+			}
+		});
+	}
+	
 	function machinesResource() {
 		var url = $rootScope.apiUrl + "machines";
 		return $resource(url);

@@ -560,23 +560,20 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		$scope.modalMachineMode = "add";
 		// reset
 		$scope.machine = '';
-		$scope.qrcode = '';
+		$scope.qrcode = {};
 		$scope.qrCodeValidationMsg = '';
 
 		// fetch location dropdown list by onBoardedBy
 		getCompanyLocationsListByOnBoarded();
 	}
+	// This method will edit a machine information
 	$scope.editMachine = function(machine) {
 		$scope.machineModalTitle = "Edit Machine";
 		$scope.modalMachineMode = "edit";
 		$scope.qrCodeValidationMsg = '';
 		$scope.machine = '';
 		$scope.machineId = machine.machineId;
-		//$scope.qrcode={};
-	/*	$scope.qrcode.part1 = undefined;
-		$scope.qrcode.part2 = undefined;
-		$scope.qrcode.part3 = undefined;*/
-		
+		$scope.qrcode = {};
 		/*$scope.qrcode.part1 = undefined;
 		$scope.qrcode.part2 = undefined;
 		$scope.qrcode.part3 = undefined;*/
@@ -592,13 +589,20 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				
 				// split & set qrcode data
 				var qrCodeString = $scope.machine.qrCode;
-				var qrCodeArr = [];
+				console.log("In the Edit method - qr code is--",$scope.machine.qrCode);
+				
 				if (qrCodeString != undefined || qrCodeString != null) {
-					qrCodeArr = qrCodeString.split("-");
-
+					console.log("In the Edit method - qr code is--",$scope.machine.qrCode);
+					var qrCodeArr = qrCodeString.split("-");
+					console.log("In the Edit method - 1 ",qrCodeArr[0]);
 					$scope.qrcode.part1 = qrCodeArr[0];
+					console.log("In the Edit method - qr 1--",$scope.qrcode.part1);
+					console.log("In the Edit method - 2--",qrCodeArr[1]);
 					$scope.qrcode.part2 = qrCodeArr[1];
+					console.log("In the Edit method - qr 2--",$scope.qrcode.part2);
+					console.log("In the Edit method 3 --",qrCodeArr[2]);
 					$scope.qrcode.part3 = qrCodeArr[2];
+					console.log("In the Edit method - qr 3--",$scope.qrcode.part3);
 
 				}
 
@@ -707,7 +711,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			if ($rootScope.user.role == "MANUFACTURERADMIN"){
 				//=----------------------------------2---------------------------
 				$scope.machine.manufacturerId=$rootScope.user.companyDetailsId;
-				console.log("Id in edit--"+$scope.machine.manufacturerId+"--name--"+$scope.resellerId.companyName);
+//				console.log("Id in edit--"+$scope.machine.manufacturerId+"--name--"+$scope.resellerId.companyName);
 			}
 			if ($rootScope.user.role == "RESELLERADMIN"){
 				$scope.machine.resellerId=$rootScope.user.companyDetailsId;	

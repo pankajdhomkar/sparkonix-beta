@@ -22,12 +22,12 @@
 				</div>
  				<br>
 
-		<button class="btn btn-primary pull-right" type="button"
+	<!-- 	<button class="btn btn-primary pull-right" type="button"
 				style="margin: 10px 10px 10px 0px;" ng-click="addNewRes()">
 				<i class="fa fa-plus-circle"></i>&nbsp; Add New Reseller
 			</button>
 			
-			<br> &nbsp; <hr /> 
+			<br> &nbsp; <hr />  -->
 			
 			<div class="panel-body">
 				<div class="row text-center" ng-if="resellers.length == 0">
@@ -55,7 +55,7 @@
 								<tr ng-repeat="reseller in resellers track by $index"
 									class="item">
 									<td style="width: 30%;" class="text-left">
-										<!-- <button style="text-align: left;" class="btn-link"
+										<!--  <button style="text-align: left;" class="btn-link"
 											type="button" ng-click="viewRes(reseller.id,'RESELLER')"> -->{{reseller.companyName}}<!-- </button> -->
 									</td>
 									<td style="width: 20%;">{{reseller.pan}}</td>
