@@ -56,8 +56,8 @@
 								<tr ng-repeat="reseller in resellers track by $index"
 									class="item">
 									<td style="width: 30%;" class="text-left">
-										<!--  <button style="text-align: left;" class="btn-link"
-											type="button" ng-click="viewRes(reseller.id,'RESELLER')"> -->{{reseller.companyName}}<!-- </button> -->
+										  <button style="text-align: left;" class="btn-link"
+											type="button" ng-click="viewRes(reseller.id,'RESELLER')"> {{reseller.companyName}} </button>
 									</td>
 									<td style="width: 20%;">{{reseller.pan}}</td>
 									<td style="width: 30%;" class="text-left"><span
@@ -402,8 +402,7 @@
 				<br> <label style="margin-left: 20px;">Factory Location</label>
 				<br>
 				<div class="col-lg-12 col-md-12 col-sm-12 table-responsive">
-					<br>
-					<br>
+					<br> <br>
 					<table datatable dt-options="{paging: true}"
 						class="table table-bordered table-striped"
 						ng-if="factoryLocations.length>0" style="width: 100%;">
@@ -451,8 +450,7 @@
 				<br> <label style="margin-left: 20px;">Factory Location</label>
 				<br>
 				<div class="col-lg-12 col-md-12 col-sm-12 table-responsive">
-					<br>
-					<br>
+					<br> <br>
 					<table datatable dt-options="{paging: true}"
 						class="table table-bordered table-striped"
 						ng-if="machines.length>0" style="width: 100%;">

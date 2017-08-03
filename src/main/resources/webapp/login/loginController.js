@@ -44,8 +44,7 @@ function loginController($http, $state, restAPIService, $scope, $rootScope,
 				$state.go('home.wadashboard');
 			}
 			
-			if ($rootScope.user.role == "RESELLERADMIN") {
-				console.log("HERE IN RESELLER");	
+			if ($rootScope.user.role == "RESELLERADMIN") {	
 				$state.go('home.wardashboard');
 			}
 			if ($rootScope.user.role == "TECHNICIAN") {
