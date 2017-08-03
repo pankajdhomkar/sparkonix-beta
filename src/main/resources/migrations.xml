@@ -458,7 +458,7 @@
 				<constraints primaryKey="true" nullable="false" />
 			</column>
 			<column name="fld_manufid" type="bigint">
-				<constraints nullable="false"/>
+				<constraints nullable="false" />
 			</column>
 			<column name="company_name" type="text" />
 			<column name="pan" type="text" />
@@ -472,8 +472,8 @@
 			<column name="on_boarded_by" type="bigint" />
 		</createTable>
 	</changeSet>
-	
-	
-	
+
+
+
 
 </databaseChangeLog>

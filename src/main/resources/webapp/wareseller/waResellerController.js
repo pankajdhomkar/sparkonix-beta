@@ -97,7 +97,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$scope.manResId = manResId;
 		$scope.companyType = companyT;
 		console.log("call from manager controller");
-		$state.go('home.wareseller.viewreseller');
+//		$state.go('home.wareseller.viewreseller');
 		console.log("Edit state after call");
 	}
 	
