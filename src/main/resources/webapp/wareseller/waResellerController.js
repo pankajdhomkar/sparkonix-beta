@@ -48,6 +48,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	$scope.changedValueMachineDropDown = function(item){
 		var promise1;
 		console.log("Id of Machine----->",item);
+		$scope.complaints.length = 0;
 		promise1 = restAPIService.complaintByMachineId(item).query();
 		
 		promise1.$promise.then(function(response) {
@@ -75,7 +76,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$scope.isRequired = true;
 		$scope.role = "RESELLERADMIN";
 		console.log("call from ---------r controller");
-		$state.go('home.wareseller.addnewreseller');
+		$state.go('home.wareseller.addreseller');
 		console.log("call fjjjjcontroller");
 	}
 
@@ -177,6 +178,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	function getComplaints(){
 		$scope.complaints.length = 0;
 		var promise2;
+		/*here we send a manufacturer id and send a support assistance for machine*/
 		promise2 = restAPIService.companyComplaints(
 				$rootScope.user.companyDetailsId, "RESELLER").query();
 		console.log("Response of Complaints-->", promise2);
