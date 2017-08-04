@@ -397,22 +397,28 @@ public class IssuesResource {
 		}
 	}
 	
-	/*
-	 * @GET
-	 * 
-	 * @Path("/{category}/{parameter}")
-	 * 
-	 * @UnitOfWork public Response listIssuesByCategory(@Auth User
-	 * authUser, @PathParam("category") String category,
-	 * 
-	 * @PathParam("parameter") long parameter) { try { log.info(
-	 * " In listIssuesByCategory"); return Response.status(Status.OK)
-	 * .entity(JsonUtils.getJson(issueDAO.getIssuesByCategory(category,
-	 * parameter))).build(); } catch (Exception e) { log.severe(
-	 * "Unable to find Issues " + e); return
-	 * Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson(
-	 * "Unable to find issues")).build(); } }
-	 */
+	/*@GET
+	@UnitOfWork
+	@Path("/complaints/{customerId}/{support}")
+	public Response complaintBycustomerID(@Auth User authUser, @PathParam("customerId") long customerId, @PathParam("support") String support) {
+		try {
+			log.info(" In listIssuesByMachineId");
+			List<Issue> listComplaint = (issueDAO.findComplaintByCustomerID(customerId, support));
+			List<IssueWithResellerDTO> list = new ArrayList<>();
+			
+			for(int i = 0; i < listComplaint.size(); i++){
+				IssueWithResellerDTO resellerNameWithIssue = new IssueWithResellerDTO();
+				long resellerId = listComplaint.get(i).getResellerId();
+				resellerNameWithIssue.setIssue(listComplaint.get(i));
+				resellerNameWithIssue.setReseller(resellerDAO.findResellerDetailById(resellerId));
+				list.add(resellerNameWithIssue);
+			}
+			return Response.status(Status.OK).entity(JsonUtils.getJson(list)).build();
+		} catch (Exception e) {
+			log.severe("Unable to find Issues " + e);
+			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Issues")).build();
+		}
+	}*/
 
 	@GET
 	@Path("/{role}/{companyId}")

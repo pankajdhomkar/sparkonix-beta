@@ -211,7 +211,6 @@ function restAPIService($resource, $rootScope, $q) {
 	// For getting all complaints of Manufacturer who's support assistance is RESELLER
 	function companyComplaints(manufacturerId, support) {
 		var url = $rootScope.apiUrl + "issues/complaints/" + manufacturerId + "/" + support;
-				+ manufacturerId;
 		return $resource(url);
 	}
 

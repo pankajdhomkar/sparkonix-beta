@@ -32,20 +32,20 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	//	This for complaint of particular resellers and machine
 	$scope.changedValueCustomerDropDown = function(item) {
 		console.log("Id of customer----->",item);
-		var promise;
-		promise = restAPIService.machinelistByCustomerId(item).query();
-		promise.$promise.then(function(response) {
-			$scope.machines = response;
-			console.log("List of MAchine----->",response);
-		}, function(error) {
-			dialogs.error("Error", error.data.error, {
-				'size' : 'sm'
-			});
-		});
+//		var promise;
+//		promise = restAPIService.machinelistByCustomerId(item).query();
+//		promise.$promise.then(function(response) {
+//			$scope.machines = response;
+//			console.log("List of MAchine----->",response);
+//		}, function(error) {
+//			dialogs.error("Error", error.data.error, {
+//				'size' : 'sm'
+//			});
+//		});
 	}
 	
 	// This method for show complaints.
-	$scope.changedValueMachineDropDown = function(item){
+	/*$scope.changedValueMachineDropDown = function(item){
 		var promise1;
 		console.log("Id of Machine----->",item);
 		$scope.complaints.length = 0;
@@ -59,7 +59,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 				'size' : 'sm'
 			});
 		});
-	}
+	}*/
 	
 	
 	// this method when complaint click then pop up
@@ -67,6 +67,25 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$scope.viewComplaint = complaintObj;
 		console.log("TEST--",$scope.viewComplaint);
 		$('#viewIssueDetails').modal().show();
+	}
+	
+	$scope.onSubmitSearchForm = function(id){
+		$scope.custid = id;
+		console.log("Cust id------",$scope.custid);
+		/*$scope.complaints.length = 0;
+		var promise2;
+		here we send a manufacturer id and send a support assistance for machine
+		promise2 = restAPIService.companyComplaints(
+				$rootScope.user.companyDetailsId, "RESELLER").query();
+		console.log("Response of Complaints-->", promise2);
+		promise2.$promise.then(function(response) {
+			$scope.complaints = response;
+			
+		}, function(error) {
+			dialogs.error("Error", error.data.error, {
+				'size' : 'sm'
+			});
+		});*/
 	}
 	
 	// This method add new Reseller
