@@ -354,11 +354,11 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 	function getCompanyDetailListByType(companyType) {
 		var promise = restAPIService.companyDetailsByCompanyTypeResource(
 				companyType).query();
-
+		console.log("Manufacturer id is --",$rootScope.user.id);
 		// dropdwon should display all Man/Res while adding new machine
 		promise.$promise.then(function(response) {
 				$scope.manufacturersList = response;
-				console.log(response);
+//				console.log(response);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'

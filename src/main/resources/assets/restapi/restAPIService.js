@@ -71,6 +71,7 @@ function restAPIService($resource, $rootScope, $q) {
 		complaintsByManResRoleAndCompanyId : complaintsByManResRoleAndCompanyId,
 		complaintsByTechnicianId : complaintsByTechnicianId,
 		complaintByMachineId : complaintByMachineId, // Added To get the complaints by Machine ID
+		companyComplaintsByCustomerId : companyComplaintsByCustomerId, // Added to get the complaints by customer id
 		complaintListBySearchFilter : complaintListBySearchFilter,
 		complaintListDownloadAsExcel : complaintListDownloadAsExcel,
 		subscriptionReportResource : subscriptionReportResource,
@@ -213,6 +214,12 @@ function restAPIService($resource, $rootScope, $q) {
 		var url = $rootScope.apiUrl + "issues/complaints/" + manufacturerId + "/" + support;
 		return $resource(url);
 	}
+	
+	// For getting all complaints of Manufacturer who's support assistance is RESELLER by Customer id
+		function companyComplaintsByCustomerId(customerId, support) {
+			var url = $rootScope.apiUrl + "issues/complaintby/" + customerId + "/" + support;
+			return $resource(url);
+		}
 
 	function companyDetailsByOnBoarded(onBoardedById, userRole, companyType) {
 		var url = $rootScope.apiUrl + "companydetails/" + onBoardedById + "/"

@@ -397,12 +397,12 @@ public class IssuesResource {
 		}
 	}
 	
-	/*@GET
+	@GET
 	@UnitOfWork
-	@Path("/complaints/{customerId}/{support}")
-	public Response complaintBycustomerID(@Auth User authUser, @PathParam("customerId") long customerId, @PathParam("support") String support) {
+	@Path("/complaintby/{customerId}/{support}")
+	public Response complaintBycustomer(@Auth User authUser, @PathParam("customerId") long customerId, @PathParam("support") String support) {
 		try {
-			log.info(" In listIssuesByMachineId");
+			log.info(" In listIssuesByCustomerId");
 			List<Issue> listComplaint = (issueDAO.findComplaintByCustomerID(customerId, support));
 			List<IssueWithResellerDTO> list = new ArrayList<>();
 			
@@ -418,7 +418,7 @@ public class IssuesResource {
 			log.severe("Unable to find Issues " + e);
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Issues")).build();
 		}
-	}*/
+	}
 
 	@GET
 	@Path("/{role}/{companyId}")

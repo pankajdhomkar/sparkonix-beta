@@ -122,19 +122,35 @@ function config($stateProvider, $urlRouterProvider) {
 		url : '/managecomplaints',
 		controller : "manageComplaintsController"
 	})
+	
 	// MANAGE RESELLER FOR MANUFACTURER PAGE DASHBOARD
 	.state('home.wareseller', {
 		url : '/wareseller',
 		templateUrl : 'wareseller/wareseller.html',
 		controller : "waResellerController"
-	}).state('home.wareseller.addreseller', {
+	}).state('home.addreseller', {
 		url : '/addreseller',
+//		template : '<h1>test</h1>',
 		templateUrl : 'wareseller/addreseller/addnewreseller.html',
-		controller : "addnewresellerController"
-	}).state('home.wareseller.viewreseller', {
+		controller : "addNewResellerController",
+		params	: {
+			'isRequired': null,
+			'role': null,
+			'parent': null,
+			'mode': null,
+			'manResId' : null,
+			'companyType' : null
+			}
+	}).state('home.viewreseller', {
 		url : '/viewreseller',
-		templateUrl : '/wareseller/addreseller/viewreseller.html',
-		controller : "viewresellerController"
+		templateUrl : 'wareseller/addreseller/viewreseller.html',
+		controller : "viewResellerController",
+		params : {
+			'parent' : null,
+			'mode' : null,
+			'manResId' : null,
+			'companyType' : null
+		}
 	})
 	
 	// MANAGE MANUFATURERS AND RESELLERS

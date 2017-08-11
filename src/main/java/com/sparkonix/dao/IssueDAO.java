@@ -71,6 +71,11 @@ public class IssueDAO extends AbstractDAO<Issue> {
 	public List<Issue> findComplaintID(long manufacturerId, String support) {
 		return list(namedQuery("com.sparkonix.entity.Issue.findAllBySupportAssitanaceAndManId").setParameter("SUPPORT_ASSISTANCE", support).setParameter("MANUFACTURER_ID", manufacturerId));
 	}
+	
+	// This will get by customer id 
+	public List<Issue> findComplaintByCustomerID(long customerId, String support) {
+		return list(namedQuery("com.sparkonix.entity.Issue.findComplaintByCustomerID").setParameter("SUPPORT_ASSISTANCE", support).setParameter("CUSTOMER_ID", customerId));
+	}
 
 	public List<Issue> findAllBySearchFilter(String supportAssistance,
 			IssueSearchFilterPayloadDTO issueSearchFilterPayloadDTO) {

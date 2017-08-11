@@ -27,8 +27,8 @@
 				<i class="fa fa-plus-circle"></i>&nbsp; Add New Reseller
 			</button>
 
-			<br> &nbsp;
-			<hr />
+			<!-- 	<br> &nbsp;
+			<hr /> -->
 
 			<div class="panel-body">
 				<div class="row text-center" ng-if="resellers.length == 0">
@@ -49,15 +49,16 @@
 									<td style="width: 20%;"><b>PAN</b></td>
 									<td style="width: 30%;"><b>Customer support details</b></td>
 									<td style="width: 20%;"><b>Current Subscription Status</b></td>
-									<!-- <td style="width: 10%;"><b>Action</b></td> -->
+									<td style="width: 10%;"><b>Action</b></td>
 								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="reseller in resellers track by $index"
 									class="item">
 									<td style="width: 30%;" class="text-left">
-										  <button style="text-align: left;" class="btn-link"
-											type="button" ng-click="viewRes(reseller.id,'RESELLER')"> {{reseller.companyName}} </button>
+										<button style="text-align: left;" class="btn-link"
+											type="button" ng-click="viewRes(reseller.id,'RESELLER')">
+											{{reseller.companyName}}</button>
 									</td>
 									<td style="width: 20%;">{{reseller.pan}}</td>
 									<td style="width: 30%;" class="text-left"><span
@@ -70,13 +71,13 @@
 											{{reseller.custSupportEmail}}
 									</span></td>
 									<td style="width: 20%;">{{reseller.curSubscriptionStatus}}</td>
-									<!-- <td>
+									<td>
 										<button type="button" ng-model="editMode"
 											class="btn btn-primary btn-xs"
 											ng-click="editRes(reseller.id, 'RESELLER')">
 											<span class="glyphicon glyphicon-edit"></span> Edit
-										</button> <br /> <br /> 
-									</td> -->
+										</button> <br /> <br />
+									</td>
 								</tr>
 							</tbody>
 						</table>
@@ -165,24 +166,24 @@
 			<b>Complaints</b>
 		</div>
 		<div class="panel-body table-responsive">
-					<div class="row">
-					<div class="form-group">
-						<div class="col-lg-4 col-md-4 col-sm-4">
-							<label>Reseller</label> <select class="form-control" ng-model="mab" ng-change="changedValue(mab)">
-								<option value="">-- Select --</option>
-								<option ng-repeat="mab in resellers"  
-								value="{{mab.id}}">{{mab.companyName}}</option>
-							</select>
+			<div class="row">
+				<div class="form-group">
+					<div class="col-lg-4 col-md-4 col-sm-4">
+						<label>Reseller</label> <select class="form-control"
+							ng-model="mab" ng-change="changedValue(mab)">
+							<option value="">-- Select --</option>
+							<option ng-repeat="mab in resellers" value="{{mab.id}}">{{mab.companyName}}</option>
+						</select>
 
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-4">
-							<label>Customer</label>
-							<select class="form-control" id = "customerD" ng-model="ma" ng-change="changedValueCustomerDropDown(ma)">
-								<option value="">-- Select --</option>
-								<option ng-repeat="ma in companyDetailData"  
+					</div>
+					<div class="col-lg-4 col-md-4 col-sm-4">
+						<label>Customer</label> <select class="form-control"
+							id="customerD" ng-model="ma">
+							<option value="">-- Select --</option>
+							<option ng-repeat="ma in companyDetailData"
 								value="{{ma.companyDetail.id}}">{{ma.companyDetail.companyName}}</option>
-							</select>	
-						</div>
+						</select>
+					</div>
 					<!-- 	<div class="col-lg-4 col-md-4 col-sm-4">
 							<label>Machine</label>
 							<select class="form-control" ng-model="ma1" ng-change="changedValueMachineDropDown(ma1)">
@@ -191,20 +192,20 @@
 								value="{{ma1.id}}">{{ma1.qrCode}}</option>
 							</select>
 						</div> -->
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="form-group text-center">
+					<div class="col-lg-12 col-md-12 col-sm-12">
+						<button type="button" class="btn btn-primary btn-sm"
+							ng-click="onSubmitSearchForm()">Search</button>
+						&nbsp; &nbsp;
+						<button type="button" class="btn btn-danger btn-sm"
+							ng-click="onResetSearchForm()">Reset</button>
 					</div>
 				</div>
-				<br>
-				<div class="row">
-					<div class="form-group text-center">
-						<div class="col-lg-12 col-md-12 col-sm-12">
-							<button type="button" class="btn btn-primary btn-sm"
-								ng-click="onSubmitSearchForm(ma.value)">Search</button>
-							&nbsp; &nbsp;
-							<button type="button" class="btn btn-danger btn-sm"
-								ng-click="onResetSearchForm()">Reset</button>
-						</div>
-					</div>
-				</div>
+			</div>
 
 
 			<div class="row text-right">
@@ -227,37 +228,39 @@
 			</div>
 
 			<br>
-			<table datatable class="table table-bordered"
-				ng-if="complaints.length > 0" style="width: 100%;">
-				<thead>
-					<tr>
-						<td><b>Complaint Number</b></td>
-						<td><b>Machine Model</b></td>
-						<td><b>Machine Serial</b></td>
-						<td><b>Reported Date</b></td>
-						<td><b>Assigned Date</b></td>
-						<td><b>Assigned To</b></td>
-						<td><b>Closed Date</b></td>
-						<td><b>Status</b></td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="complaint in complaints"
-						class="item">
-						<td><button title="View complaint details"
-								style="text-align: left;" class="btn-link" type="button"
-								ng-click="viewDetails(complaint)">{{
-								complaint.issue.issueNumber}}</button></td>
-						<td>{{ complaint.issue.machineModelNumber }}</td>
-						<td>{{ complaint.issue.machineSerialNumber }}</td>
-						<td>{{ complaint.issue.dateReported | date:"dd-MM-yyyy" }}</td>
-						<td>{{ complaint.issue.dateAssigned | date:"dd-MM-yyyy" }}</td>
-						<td>{{ complaint.issue.technicianName }}</td>
-						<td>{{ complaint.issue.dateClosed | date:"dd-MM-yyyy" }}</td>
-						<td>{{ complaint.issue.status }}</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="row" ng-if="complaints.length > 0">
+				<div class="col-lg-12 col-md-12 col-sm-12 table-responsive">
+					<table datatable class="table table-bordered" style="width: 100%;">
+						<thead>
+							<tr>
+								<td><b>Complaint Number</b></td>
+								<td><b>Machine Model</b></td>
+								<td><b>Machine Serial</b></td>
+								<td><b>Reported Date</b></td>
+								<td><b>Assigned Date</b></td>
+								<td><b>Assigned To</b></td>
+								<td><b>Closed Date</b></td>
+								<td><b>Status</b></td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="complaint in complaints" class="item">
+								<td><button title="View complaint details"
+										style="text-align: left;" class="btn-link" type="button"
+										ng-click="viewDetails(complaint)">{{
+										complaint.issue.issueNumber}}</button></td>
+								<td>{{ complaint.issue.machineModelNumber }}</td>
+								<td>{{ complaint.issue.machineSerialNumber }}</td>
+								<td>{{ complaint.issue.dateReported | date:"dd-MM-yyyy" }}</td>
+								<td>{{ complaint.issue.dateAssigned | date:"dd-MM-yyyy" }}</td>
+								<td>{{ complaint.issue.technicianName }}</td>
+								<td>{{ complaint.issue.dateClosed | date:"dd-MM-yyyy" }}</td>
+								<td>{{ complaint.issue.status }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

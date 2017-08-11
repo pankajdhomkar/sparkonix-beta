@@ -95,10 +95,10 @@ public class CompanyDetailsResource {
 					json.addProperty("entity", gson.toJson(companyDetailDAO.save(companyDetail)));
 
 					// send email to super admin
-					//JsonObject jsonObj = MailUtils.getAddCompanyMail(companyDetail, authUser);
-					//new SendMail(jsonObj).run();
-					//Thread t1 = new Thread(new SendMail(jsonObj));
-					//t1.start();
+					JsonObject jsonObj = MailUtils.getAddCompanyMail(companyDetail, authUser);
+					new SendMail(jsonObj).run();
+					Thread t1 = new Thread(new SendMail(jsonObj));
+					t1.start();
 					
 					//log.info("Email sent to super admin");
 
@@ -392,7 +392,7 @@ public class CompanyDetailsResource {
 				}
 				// send email to super admin
 				JsonObject jsonObj = MailUtils.getAddCompanyMail(newCompanyDetail, authUser);
-				//new SendMail(jsonObj).run();
+				new SendMail(jsonObj).run();
 				Thread t2 = new Thread(new SendMail(jsonObj));
 				t2.start();
 				log.info("Email sent to super admin");
@@ -418,7 +418,7 @@ public class CompanyDetailsResource {
 				}
 				// send email to super admin
 				JsonObject jsonObj = MailUtils.getAddCompanyMailReseller(newReseller, authUser);
-				//new SendMail(jsonObj).run();
+				new SendMail(jsonObj).run();
 				Thread t2 = new Thread(new SendMail(jsonObj));
 				t2.start();
 				log.info("Email sent to super admin");

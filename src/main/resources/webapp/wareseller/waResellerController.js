@@ -18,6 +18,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	$scope.machines = [];
 	$scope.complaints = []; // Added for store a complaints response in this array list 
 	$scope.viewComplaint = {};
+	$scope.filter = 0; // Whole data will be put into a excel sheet 
 	
 	getAllManRes();
 	getComplaints();
@@ -26,12 +27,13 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	
 	// This for customers of particular reseller
 	$scope.changedValue = function(item) {
+		console.log("Clicked---");
 		getCustomerDetails(item);
 	}
 
 	//	This for complaint of particular resellers and machine
-	$scope.changedValueCustomerDropDown = function(item) {
-		console.log("Id of customer----->",item);
+//	$scope.changedValueCustomerDropDown = function(item) {
+//		console.log("Id of customer----->",item);
 //		var promise;
 //		promise = restAPIService.machinelistByCustomerId(item).query();
 //		promise.$promise.then(function(response) {
@@ -42,7 +44,7 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 //				'size' : 'sm'
 //			});
 //		});
-	}
+//	}
 	
 	// This method for show complaints.
 	/*$scope.changedValueMachineDropDown = function(item){
@@ -69,23 +71,35 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$('#viewIssueDetails').modal().show();
 	}
 	
-	$scope.onSubmitSearchForm = function(id){
-		$scope.custid = id;
-		console.log("Cust id------",$scope.custid);
-		/*$scope.complaints.length = 0;
-		var promise2;
-		here we send a manufacturer id and send a support assistance for machine
-		promise2 = restAPIService.companyComplaints(
-				$rootScope.user.companyDetailsId, "RESELLER").query();
-		console.log("Response of Complaints-->", promise2);
-		promise2.$promise.then(function(response) {
-			$scope.complaints = response;
-			
-		}, function(error) {
-			dialogs.error("Error", error.data.error, {
-				'size' : 'sm'
+	$scope.onSubmitSearchForm = function(){
+		var count = angular.element("#customerD")[0].value;
+		$scope.id = count;
+		console.log("Cust id------",count);
+		
+		$scope.complaints.length = 0;
+//		console.log("Length of complaint table-->",$scope.complaints);
+		if($scope.id != 0){
+			var promise2;
+//			here we send a manufacturer id and send a support assistance for machine
+			promise2 = restAPIService.companyComplaintsByCustomerId(
+					$scope.id, "RESELLER").query();
+			console.log("Response of Complaints-->", promise2);
+			promise2.$promise.then(function(response) {
+				$scope.complaints = response;
+			}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
 			});
-		});*/
+		}
+	}
+	
+	$scope.onResetSearchForm = function(){
+		$scope.complaints.length = 0;
+		$scope.companyDetailData.length = 0;
+		getComplaints();
+		console.log("Reset is click and method call");
+		getAllManRes();
 	}
 	
 	// This method add new Reseller
@@ -95,18 +109,29 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$scope.isRequired = true;
 		$scope.role = "RESELLERADMIN";
 		console.log("call from ---------r controller");
-		$state.go('home.wareseller.addreseller');
+		$state.go('home.addreseller', {'isRequired': $scope.isRequired,
+			'role': $scope.role,
+			'parent': $scope.parent,
+			'mode': $scope.mode,
+			'manResId' : null,
+			'companyType' : "RESELLER"});
 		console.log("call fjjjjcontroller");
 	}
 
 	// This method edit a existing reseller
 	$scope.editRes = function(manResId, companyT) {
 		$scope.mode = "edit";
+		$scope.parent = false;
 		$scope.isRequired = false;
 		$scope.ngDisabled = false;
 		$scope.companyType = companyT;
 		$scope.manResId = manResId;
-		$state.go('home.wareseller.addreseller');
+		$state.go('home.addreseller', {'isRequired': $scope.isRequired,
+			'role': $scope.role,
+			'parent': $scope.parent,
+			'mode': $scope.mode,
+			'manResId' : $scope.manResId,
+			'companyType' : $scope.companyType});
 	}
 
 	// This method will view the existing reseller
@@ -116,7 +141,10 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		$scope.manResId = manResId;
 		$scope.companyType = companyT;
 		console.log("call from manager controller");
-		$state.go('home.wareseller.viewreseller');
+		$state.go('home.viewreseller', { 'parent' : $scope.parent,
+		'mode' : $scope.mode,
+		'manResId' : $scope.manResId,
+		'companyType' : $scope.companyType });
 		console.log("Edit state after call");
 	}
 	
@@ -180,11 +208,11 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	// ------------- PRIVATE FUNCTIONS ----------------
 	function getAllManRes() {
 		// get resellers
-		$scope.resellers.length = 0;
+		$scope.resellers = {};
 		var promise2;
 		promise2 = restAPIService.companyDetailsResllerByManufactrer(
 				$rootScope.user.companyDetailsId).query();
-		console.log("Response of reseller-->", promise2);
+		console.log("1-Response of reseller-->", promise2);
 		promise2.$promise.then(function(response) {
 			$scope.resellers = response;
 		}, function(error) {
@@ -213,17 +241,20 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	
 	// This for customer details helping methods
 	function getCustomerDetails(item) {
+		console.log("2 --->",item);
 		var promise;
-		promise = restAPIService.companyDetailsCustomerByResllerId(item).query();
-		promise.$promise.then(function(response) {
-			$scope.companyDetailData = response;
-			console.log("Response of method --->",$scope.companyDetailData);
-			getTotalCounts();
-		}, function(error) {
-			dialogs.error("Error", error.data.error, {
-				'size' : 'sm'
+		if(item != 0){
+			promise = restAPIService.companyDetailsCustomerByResllerId(item).query();
+			promise.$promise.then(function(response) {
+				$scope.companyDetailData = response;
+				console.log("Response of method --->",$scope.companyDetailData);
+				getTotalCounts();
+			}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
 			});
-		});
+		}
 	}
 	
 	// This method for getting a counts of mahcine and location of machine and operators of every customers
@@ -240,9 +271,8 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 	// download as excel using $http post
 	$scope.onDownloadAsExcel = function() {
 		angular.element(document.getElementById('btnDownloadAsExcel'))[0].disabled = true;
-
 		
-			// companyDetailsId of logged in web admin
+		console.log("Checking filter--",$scope.filter);
 			$scope.complaintSearchFilter = {};
 			$scope.complaintSearchFilter.customerId = Number($scope.companyDetailData.customer);
 			console.log("Customer-----",Number($scope.companyDetailData.customerId));
@@ -251,34 +281,37 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 			$scope.complaintSearchFilter.manResId = Number($rootScope.user.companyDetailsId);
 			console.log("ManResId---",Number($rootScope.user.companyDetailsId));
 			$scope.complaintSearchFilter.manResRole = "RESELLER";
-
-
-		var fileName = "complaint_list_of_manufacturer_reseller.xlsx";
-		var url = $rootScope.apiUrl + "issues/listbyfilter/excel2";
-		$scope.Authorization = "Basic " + btoa($rootScope.token + "1:");
-		console.log("Authoriation-->",$scope.Authorization);
-		$http
-				.post(url, $scope.complaintSearchFilter, {
-					responseType : 'arraybuffer',
-					'Authorization' : $scope.Authorization
-				})
-				.success(
-						function(data) {
-							angular.element(document
-									.getElementById('btnDownloadAsExcel'))[0].disabled = false;
-							var file = new Blob([ data ], {
-								type : 'application/octet-stream'
+	
+		if($scope.complaintSearchFilter != null){
+			var fileName = "complaint_list_of_manufacturer_reseller.xlsx";
+			var url = $rootScope.apiUrl + "issues/listbyfilter/excel2";
+			$scope.Authorization = "Basic " + btoa($rootScope.token + "1:");
+			console.log("Authoriation-->",$scope.Authorization);
+			$http
+					.post(url, $scope.complaintSearchFilter, {
+						responseType : 'arraybuffer',
+						'Authorization' : $scope.Authorization
+					})
+					.success(
+							function(data) {
+								angular.element(document
+										.getElementById('btnDownloadAsExcel'))[0].disabled = false;
+								var file = new Blob([ data ], {
+									type : 'application/octet-stream'
+								});
+								saveAs(file, fileName);
+							})
+					.error(
+							function(data, status) {
+								angular.element(document
+										.getElementById('btnDownloadAsExcel'))[0].disabled = false;
+								dialogs.error("Error", error.data.error, {
+									'size' : 'sm'
+								});
 							});
-							saveAs(file, fileName);
-						})
-				.error(
-						function(data, status) {
-							angular.element(document
-									.getElementById('btnDownloadAsExcel'))[0].disabled = false;
-							dialogs.error("Error", error.data.error, {
-								'size' : 'sm'
-							});
-						});
-	};
+		};
+	
+		}
+		
 	
 }

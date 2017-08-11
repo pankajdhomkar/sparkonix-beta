@@ -207,7 +207,6 @@ public class CompanyDetailResource {
 						.build();
 				
 			} catch (Exception e) {
-				System.out.println("]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"+e);
 				log.severe("Unable to find Company detail " + e);
 				return Response.status(Status.BAD_REQUEST)
 						.entity(JsonUtils.getErrorJson("Unable to find Reseller detail")).build();
