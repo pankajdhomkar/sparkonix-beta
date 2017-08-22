@@ -391,13 +391,14 @@ public class CompanyDetailsResource {
 					userDAO.save(manResWebAdmin);
 				}
 				// send email to super admin
+				System.out.println("Kattapaaa"+newCompanyDetail.getCompanyName()+" USER NAME- "+authUser);
 				JsonObject jsonObj = MailUtils.getAddCompanyMail(newCompanyDetail, authUser);
 				new SendMail(jsonObj).run();
 				Thread t2 = new Thread(new SendMail(jsonObj));
 				t2.start();
 				log.info("Email sent to super admin");
 			}else{
-				
+				// It will set a all data to a reseller object
 				resDetail.setCompanyName(manDetail.getCompanyName()); // Company Name
 				resDetail.setPan(manDetail.getPan()); //Pan
 				resDetail.setCustSupportName(manDetail.getCustSupportName()); //Contact Person
@@ -417,6 +418,7 @@ public class CompanyDetailsResource {
 					userDAO.save(manResWebAdmin);
 				}
 				// send email to super admin
+				System.out.println("Kattapaaa"+newReseller.getCompanyName()+" USER NAME- "+authUser);
 				JsonObject jsonObj = MailUtils.getAddCompanyMailReseller(newReseller, authUser);
 				new SendMail(jsonObj).run();
 				Thread t2 = new Thread(new SendMail(jsonObj));

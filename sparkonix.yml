@@ -32,11 +32,12 @@ server:
 #  softNofileLimit: 1000
 #  hardNofileLimit: 1000
   applicationConnectors:
-    - type: http
-      port: 8080
+  #here comment out if using lcoalhost as without ssl support else comment the port 8080
+  # -type
+   # port: 8080
     - type: https
       port: 8443
-      keyStorePath: sparkonix.keystore
+      keyStorePath: sparkonix.jks
       keyStorePassword: example
       validateCerts: false
       validatePeers: false

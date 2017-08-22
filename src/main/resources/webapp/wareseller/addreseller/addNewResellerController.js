@@ -206,6 +206,7 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 		}
 	}
 
+	// It will check weather the pan is not duplicate
 	$scope.checkCompanyPan = function() {
 		// alert($scope.newManRes.pan);
 		if (($scope.newManRes.pan).length > 9) {

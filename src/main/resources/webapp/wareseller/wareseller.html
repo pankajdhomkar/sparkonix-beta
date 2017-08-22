@@ -140,13 +140,13 @@
 											data-toggle="modal" data-target="#viewLocation"
 											ng-if="factoryLocationsCount!=0">
 											<span>{{customer.factoryLocationsCount}}</span>
-										</button> <span ng-if="factoryLocationsCount==0">0</span> </b></td>
+										</button> </b><span ng-if="factoryLocationsCount==0">0</span> </td>
 								<td align="center"><b><button class="btn-link btn-sm"
 											type="button" ng-click="getMachine(customer.companyDetail)"
 											data-toggle="modal" data-target="#viewMachine"
 											ng-if="machinesCount!=0">
 											<span>{{customer.machinesCount}}</span>
-										</button> <span ng-if="customer.machinesCount==0">0</span> </b></td>
+										</button> </b><span ng-if="customer.machinesCount==0"><b>0</b></span> </td>
 								<!-- <td align="center"><b> <span ng-if="machinesCount!=0">{{customer.machinesCount}}</span>
 										<span ng-if="customer.machinesCount==0">0</span>
 								</b></td> -->
