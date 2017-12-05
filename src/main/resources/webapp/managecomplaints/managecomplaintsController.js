@@ -66,6 +66,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		promise2 = restAPIService.getAllMachinesForCompany(manResId).query();
 		promise2.$promise.then(function(response) {
 			$scope.machineList = response;
+			console.log("In the get Machine list method --->",$scope.machineList);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
@@ -77,7 +78,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		// for Man/Res
 		var promise;
 		 if($rootScope.user.role == "MANUFACTURERADMIN"){
-				console.log("Manufacturer Techincian--");
+				console.log("Manufacturers Techincian--");
 				// for Manufacturer
 				promise = restAPIService.usersByRoleByCompanyResource(
 						$rootScope.user.role, $rootScope.user.companyDetailsId, -1).query();
@@ -208,6 +209,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 	$scope.newServiceReq = function() {
 		$scope.newServiceRequest = '';
 		// load machine drop-down
+		console.log("New Service Request Generated");
 		getMachinesList();
 		// load technician drop-down
 		getTechniciansByCompanyId();

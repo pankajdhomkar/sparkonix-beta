@@ -18,6 +18,7 @@ import org.hibernate.annotations.Any;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.sparkonix.ApplicationContext;
 import com.sparkonix.dao.CompanyDetailDAO;
 import com.sparkonix.dao.CompanyLocationDAO;
 import com.sparkonix.dao.MachineDAO;
@@ -116,31 +117,6 @@ public class CompanyDetailsResource {
 					.build();
 		}
 		return null;
-
-		/*try {
-			if (companyDetail.getCompanyType().equals("MANUFACTURER")
-					|| companyDetail.getCompanyType().equals("RESELLER")) {
-
-				CompanyDetail dbCompanyDetail = companyDetailDAO
-						.findCompanyDetailByPanAndCompanyType(companyDetail.getPan(), companyDetail.getCompanyType());
-
-				if (dbCompanyDetail != null) {
-					// exist
-					return Response.status(Status.BAD_REQUEST)
-							.entity(JsonUtils.getErrorJson("Company Detail with given PAN is already exist.")).build();
-				} else {
-					// not exist
-					return Response.status(Status.OK).entity(companyDetailDAO.save(companyDetail)).build();
-				}
-
-			}
-		} catch (Exception e) {
-			log.severe("Failed to create Company detail. Reason: " + e.getMessage());
-			return Response.status(Status.BAD_REQUEST)
-					.entity(JsonUtils.getErrorJson("Failed to create Company detail.")).build();
-		}
-		return null;*/
-
 	}
 
 	@GET
@@ -181,7 +157,7 @@ public class CompanyDetailsResource {
 		}
 	}
 	
-	//Added new for the getting a manufacturer's reseller 
+	//Getting a manufacturer's reseller 
 	@GET
 	@Path("/reseller/{manufacturerId}")
 	@UnitOfWork
@@ -210,6 +186,12 @@ public class CompanyDetailsResource {
 		try {
 			log.info("In listCompanyDetailsOnBoardedById");
 			// used for manage customer view page
+			System.out.println("auth user id -"+authUser.getId());
+			System.out.println("auth user email -"+authUser.getEmail());
+			System.out.println("auth user id -"+authUser.getMobile());
+			System.out.println("auth user id -"+authUser.getName());
+			System.out.println("super admin email -"+ApplicationContext.getInstance().getConfig().getSuperadminEmail());
+		
 			if (companyType.equalsIgnoreCase("CUSTOMER")) {
 				// get count of location+machines+operators
 				List<CompanyDetail> listCompanyDetails = new ArrayList<>();
@@ -219,6 +201,10 @@ public class CompanyDetailsResource {
 
 				} else if (userRole.equals("SALESTEAM") || userRole.equals(User.ROLE_TYPE.MANUFACTURERADMIN.toString())
 						|| userRole.equals(User.ROLE_TYPE.RESELLERADMIN.toString())) {
+					System.out.println("--auth user id -"+authUser.getId());
+					System.out.println("--auth user email -"+authUser.getEmail());
+					System.out.println("--auth Manu -"+authUser.getRole());
+					System.out.println("--auth user id -"+authUser.getName());
 					listCompanyDetails = companyDetailDAO.findAllByOnBoardedId(onBoardedById, userRole, companyType);
 				}
 

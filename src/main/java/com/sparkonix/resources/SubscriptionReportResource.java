@@ -69,8 +69,8 @@ public class SubscriptionReportResource {
 			@QueryParam("onBoardedBy") long onBoardedBy) {
 
 		try {
-
 			log.info("In fetchSubscriptionReportData");
+			
 			List<Machine> subscriptionList = machineDAO.getSubscriptionData(attendmeSubEndMonth, attendmeSubEndYear,
 					warrantyExpEndMonth, warrantyExpEndYear, amcSubEndMonth, amcSubEndYear, onBoardedBy);
 
@@ -102,6 +102,7 @@ public class SubscriptionReportResource {
 
 				subscriptionReportDTOList.add(subscriptionReportDTO);
 			}
+//			System.out.println("-------------------------"+authUser.getRole()+"--");
 			return Response.status(Status.OK).entity(subscriptionReportDTOList).build();
 
 		} catch (Exception e) {

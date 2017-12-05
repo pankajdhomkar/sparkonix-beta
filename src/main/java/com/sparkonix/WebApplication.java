@@ -29,7 +29,6 @@ import com.sparkonix.entity.Machine;
 import com.sparkonix.entity.MachineAmcHistory;
 import com.sparkonix.entity.MachineAmcServiceHistory;
 import com.sparkonix.entity.MachineDocument;
-import com.sparkonix.entity.PasswordResetToken;
 import com.sparkonix.entity.PhoneDevice;
 import com.sparkonix.entity.QRCode;
 import com.sparkonix.entity.Reseller;

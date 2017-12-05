@@ -1,13 +1,9 @@
 package com.sparkonix.utils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import com.google.gson.JsonObject;
 import com.sparkonix.ApplicationContext;
 import com.sparkonix.entity.CompanyDetail;
 import com.sparkonix.entity.Issue;
-import com.sparkonix.entity.PasswordResetToken;
 import com.sparkonix.entity.PhoneDevice;
 import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.User;
@@ -20,7 +16,7 @@ public class MailUtils {
 	MailUtils() {
 
 	}
-	//send email to super amin
+	//send email to super admin
 	public static JsonObject getAddCompanyMail(CompanyDetail companyDetail, User onBoardedBy) {
 		String email = ApplicationContext.getInstance().getConfig().getSuperadminEmail();
 
@@ -44,7 +40,7 @@ public class MailUtils {
 	// send email to super admin reseller
 	public static JsonObject getAddCompanyMailReseller(Reseller reseller, User onBoardedBy) {
 		String email = ApplicationContext.getInstance().getConfig().getSuperadminEmail();
-
+		
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty(SEND_TO, email);
 		jsonObject.addProperty(SUBJECT, "[AttendMe] New reseller added ");

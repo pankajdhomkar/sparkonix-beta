@@ -56,7 +56,7 @@ function manageTechniciansController($scope, $rootScope, $state,
 			});
 		});
 	}
-
+// here we have to change the for set company detail id so that it will display all technician to all resellers of particular manufacturer
 	// ------------- PUBLIC FUNCTIONS ----------------
 	$scope.addNewTechnician = function() {
 

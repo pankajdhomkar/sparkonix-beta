@@ -1,10 +1,8 @@
 package com.sparkonix.resources;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -19,7 +17,6 @@ import com.sparkonix.dao.UserDAO;
 import com.sparkonix.entity.CompanyDetail;
 import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.User;
-import com.sparkonix.entity.User.ROLE_TYPE;
 import com.sparkonix.entity.dto.CompanyPanDTO;
 import com.sparkonix.entity.dto.ManResDTO;
 import com.sparkonix.utils.JsonUtils;
@@ -66,7 +63,7 @@ public class CompanyDetailResource {
 		} else {
 			try {
 				System.out.println("Company Type in retriving a reseller data");
-				log.info(" In getCompanyDetailById" + companyDetailId);
+				log.info(" In Reseller getCompanyDetailById" + companyDetailId);
 				manResDTO.setReseller(resellerDAO.getById(companyDetailId));
 				return Response.status(Status.OK).entity(JsonUtils.getJson(manResDTO))
 						.build();

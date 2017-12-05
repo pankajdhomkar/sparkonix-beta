@@ -133,12 +133,12 @@ public class StringJsonUserType implements UserType
     }
 
     /**
-     * Transform the object into its cacheable representation. At the very least this method should perform a deep copy
+     * Transform the object into its cache able representation. At the very least this method should perform a deep copy
      * if the type is mutable. That may not be enough for some implementations, however; for example, associations must
      * be cached as identifier values. (optional operation)
      *
      * @param value the object to be cached
-     * @return a cachable representation of the object
+     * @return a cache able representation of the object
      */
     @Override
     public Serializable disassemble(Object value) throws HibernateException

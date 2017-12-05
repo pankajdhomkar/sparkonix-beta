@@ -272,6 +272,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		}
 		promise.$promise.then(function(response) {
 			$scope.companyLocationsDropdown = response;
+			console.log("TEst---->>>",$scope.companyLocationsDropdown);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'

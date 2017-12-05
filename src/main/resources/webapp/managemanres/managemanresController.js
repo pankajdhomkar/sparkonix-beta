@@ -33,6 +33,7 @@ function manageManResController($scope, $state, restAPIService, dialogs,
 		}
 		promise1.$promise.then(function(response) {
 			$scope.manufacturers = response;
+			console.log("1 Manufacturer if ---->", $scope.manufacturers);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'

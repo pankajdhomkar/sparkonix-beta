@@ -41,10 +41,10 @@ function waProfileController($scope, $rootScope, restAPIService, dialogs,
 			
 			console.log("type====" + $rootScope.user.role);
 			promise1 = restAPIService.companyDetailResource(
-					$rootScope.user.companyDetailsId, "RESELLER").get();
+					$rootScope.user.reseller_id, "RESELLER").get();
 			promise1.$promise.then(function(response) {
 				$scope.companyDetails = response.reseller;
-				console.log("Response print company name-->", $scope.companyDetails);
+				console.log("12Response print company name-->", $scope.companyDetails);
 				$scope.ManResDTO = response;
 				
 				$scope.ManResDTO.companyType = "RESELLER";

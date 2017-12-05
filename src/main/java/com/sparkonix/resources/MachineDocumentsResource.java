@@ -64,7 +64,7 @@ public class MachineDocumentsResource {
 			// fetch file stream, save in physical location
 			// making directory for storing newly uploaded file
 			String path = this.mahineDocsLocation + File.separator + manufacturerId;
-			System.out.println("path-----"+path);
+			System.out.println("path-----" + path);
 			File f = new File(path);
 			if (!f.exists()) {
 				f.mkdirs();
@@ -76,8 +76,8 @@ public class MachineDocumentsResource {
 				InputStream is = part.getValueAs(InputStream.class);
 				fileName = part.getFormDataContentDisposition().getFileName();
 				String fileNameWithPath = path + File.separator + fileName;
-				System.out.println("path-----"+path);
-				System.out.println("path-----"+fileNameWithPath);
+				System.out.println("path-----" + path);
+				System.out.println("path-----" + fileNameWithPath);
 				// write the inputStream to file in a physical location
 				try {
 					OutputStream outputStream = new FileOutputStream(new File(fileNameWithPath));
@@ -114,18 +114,6 @@ public class MachineDocumentsResource {
 		}
 		return Response.status(Status.OK).entity(JsonUtils.getSuccessJson("Files Uploaded Successfully")).build();
 	}
-
-	/*
-	 * @GET
-	 * 
-	 * @UnitOfWork public Response listMachineDocuments(@Auth User authUser) {
-	 * try { log.info(" In listMachineDocuments"); return
-	 * Response.status(Status.OK).entity(JsonUtils.getJson(machineDocumentDAO.
-	 * findAll())).build(); } catch (Exception e) { log.severe(
-	 * "Unable to find Machine Documents " + e); return
-	 * Response.status(Status.BAD_REQUEST) .entity(JsonUtils.getErrorJson(
-	 * "Unable to find Machine Documents")).build(); } }
-	 */
 
 	@GET
 	@UnitOfWork
@@ -202,13 +190,17 @@ public class MachineDocumentsResource {
 			@PathParam("manufacturerId") long manufacturerId, @PathParam("modelNumber") String modelNumber) {
 		try {
 			log.info(" In listMachineDocumentsByManufacturerIdAndModelNumber");
-			//modelNumber input should be encoded into apk build before call to this api 
-			String decodedModelNumber=URLDecoder.decode(modelNumber);
-			System.out.println("Decode-------------------"+decodedModelNumber);
-			/*List<MachineDocument> machineDocumentList = machineDocumentDAO.findAllByManIdAndModelNumber(manufacturerId,
-					modelNumber);*/			
-			List<MachineDocument> machineDocumentList = machineDocumentDAO.findAllByManIdAndModelNumber(manufacturerId, decodedModelNumber);
-			
+			// modelNumber input should be encoded into apk build before call to
+			// this api
+			String decodedModelNumber = URLDecoder.decode(modelNumber);
+			System.out.println("Decode-------------------" + decodedModelNumber);
+			/*
+			 * List<MachineDocument> machineDocumentList =
+			 * machineDocumentDAO.findAllByManIdAndModelNumber(manufacturerId,
+			 * modelNumber);
+			 */
+			List<MachineDocument> machineDocumentList = machineDocumentDAO.findAllByManIdAndModelNumber(manufacturerId,
+					decodedModelNumber);
 
 			List<MachineDocument> newMachineDocumentList = new ArrayList<>();
 
@@ -221,13 +213,14 @@ public class MachineDocumentsResource {
 				machineDocument.setDescription(machineDocumentList.get(i).getDescription());
 
 				// create url for mobile app using document_name
-//				String domainUrl = ApplicationContext.getInstance().getConfig().getDomainurl();
-				String domainUrl = "http://localhost:8080";
-				System.out.println("URL-----------------------"+domainUrl);
+				String domainUrl = ApplicationContext.getInstance().getConfig().getDomainurl();
+
+				// String domainUrl = "http://localhost:8080";
+				System.out.println("URL-----------------------" + domainUrl);
 				String documentPathUrl = domainUrl + "/api/machinedoc/fetch/"
 						+ machineDocumentList.get(i).getManufacturerId() + "/"
 						+ machineDocumentList.get(i).getDocumentPath();
-				System.out.println("Path--Get---"+machineDocumentList.get(i).getDocumentPath());
+				System.out.println("Path--Get---" + machineDocumentList.get(i).getDocumentPath());
 				machineDocument.setDocumentPath(documentPathUrl);
 
 				newMachineDocumentList.add(machineDocument);
@@ -240,5 +233,4 @@ public class MachineDocumentsResource {
 					.entity(JsonUtils.getErrorJson("Unable to find Machine Documents")).build();
 		}
 	}
-   // just testing
 }

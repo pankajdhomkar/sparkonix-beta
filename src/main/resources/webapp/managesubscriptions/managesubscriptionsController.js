@@ -90,6 +90,7 @@ function managesubscriptionsController($scope, $rootScope, restAPIService,
 		if ($rootScope.user.role == "SUPERADMIN") {
 			// get all active records
 			onBoardedBy=0;
+			
 			promise1 = restAPIService.subscriptionReportResource(
 					attendmeSubEndMonth, attendmeSubEndYear,
 					warrantyExpEndMonth, warrantyExpEndYear, amcSubEndMonth,
@@ -98,7 +99,15 @@ function managesubscriptionsController($scope, $rootScope, restAPIService,
 		if ($rootScope.user.role == "MANUFACTURERADMIN"
 				|| $rootScope.user.role == "RESELLERADMIN") {
 			onBoardedBy= Number($rootScope.user.id);
-
+			console.log("Check for subscription report tab manu or res-->");
+			console.log("attendmeSubEndMonth--",attendmeSubEndMonth);
+			console.log("attendmeSubEndYear--",attendmeSubEndYear);
+			console.log("warrantyExpEndMonth--",warrantyExpEndMonth);
+			console.log("warrantyExpEndYear--",warrantyExpEndYear);
+			console.log("amcSubEndMonth--",amcSubEndMonth);
+			console.log("amcSubEndYear--",amcSubEndYear);
+			console.log("onBoardedBy--",onBoardedBy);
+			
 			promise1 = restAPIService.subscriptionReportResource(
 					attendmeSubEndMonth, attendmeSubEndYear,
 					warrantyExpEndMonth, warrantyExpEndYear, amcSubEndMonth,
@@ -107,7 +116,7 @@ function managesubscriptionsController($scope, $rootScope, restAPIService,
 
 		promise1.$promise.then(function(response) {
 			$scope.subscriptionData = response;
-			
+			console.log("Check for subscription report tab  \n",$scope.subscriptionData);
 			if(!$scope.subscriptionData.length>0){
 				$scope.searchResultMsg="No records found.";	
 			}

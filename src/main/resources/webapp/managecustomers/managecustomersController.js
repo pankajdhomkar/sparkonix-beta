@@ -12,7 +12,7 @@ function manageCustomersController($scope, $state, restAPIService, $rootScope,
 	$scope.totalMachines = 0;
 	$scope.totalLocations = 0;
 	$scope.totalOperators = 0;
-
+	$scope.showBtn = false;
 	// ------------- PRIVATE VARIABLES ----------------
 
 	// ------------- CONTROLLER CODE ----------------
@@ -21,7 +21,9 @@ function manageCustomersController($scope, $state, restAPIService, $rootScope,
 	// ------------- PRIVATE FUNCTIONS ----------------
 	function getCustomerDetails() {
 		var promise;
-		console.log("Customer-->",$rootScope.user.id+" ",$rootScope.user.resellerId);
+		console.log("Customer-->",$rootScope.user.id);
+		console.log("resellerID -->",$rootScope.user.resellerId);
+		console.log( "role--->",$rootScope.user.role);
 		promise = restAPIService.companyDetailsByOnBoarded($rootScope.user.id,
 				$rootScope.user.role, "CUSTOMER", $rootScope.user.resellerId).query();
 		promise.$promise.then(function(response) {

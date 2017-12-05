@@ -274,8 +274,10 @@ function waResellerController($scope, $state, restAPIService, dialogs,
 		
 		console.log("Checking filter--",$scope.filter);
 			$scope.complaintSearchFilter = {};
-			$scope.complaintSearchFilter.customerId = Number($scope.companyDetailData.customer);
-			console.log("Customer-----",Number($scope.companyDetailData.customerId));
+			console.log("Customer-----whole info",$scope.companyDetailData);
+			console.log("-----------------------------------------------------");
+			$scope.complaintSearchFilter.customerId = Number($scope.companyDetailData.id);
+			console.log("Customer-----",$scope.companyDetailData.id);
 			$scope.complaintSearchFilter.startDate = $scope.companyDetailData.startDate;
 			$scope.complaintSearchFilter.endDate = $scope.companyDetailData.endDate;
 			$scope.complaintSearchFilter.manResId = Number($rootScope.user.companyDetailsId);

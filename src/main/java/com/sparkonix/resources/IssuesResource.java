@@ -103,6 +103,7 @@ public class IssuesResource {
 					.build();
 		}
 
+		System.out.println(authUser.getEmail());
 		PhoneDevice phoneDevice = phoneDeviceDAO.getOperatorByPhoneNumber(authUser.getEmail());
 		if (phoneDevice == null) {
 			log.severe("This is not authorized mobile number.");

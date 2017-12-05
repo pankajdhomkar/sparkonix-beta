@@ -60,7 +60,6 @@ public class MachineDocumentResource {
 			return Response.ok(filePath, MediaType.APPLICATION_OCTET_STREAM)
 					.header("Content-Disposition", "inline; filename=\"" + docName + "\"").build();
 		} else {
-			System.out.println("Doucments-->");
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Machine Document"))
 					.build();
 		}

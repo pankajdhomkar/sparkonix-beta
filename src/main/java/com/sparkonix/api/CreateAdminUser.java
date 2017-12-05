@@ -60,7 +60,6 @@ public class CreateAdminUser {
 		} finally {
 			if (session != null)
 				session.close();
-
 			ManagedSessionContext.unbind(sessionFactory);
 		}
 	}

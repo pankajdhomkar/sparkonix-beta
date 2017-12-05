@@ -30,7 +30,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 		$scope.opened[$event.target.id] = true;
 	};
 	$scope.format = 'dd-MM-yyyy'
-
+		console.log("herer",$scope.mode);
 	if ($scope.mode == "add") {
 		if($scope.role != "MANUFACTURERADMIN"){
 			$scope.headerTitleText = "Add New Reseller";

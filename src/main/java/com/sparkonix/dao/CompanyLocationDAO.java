@@ -54,10 +54,10 @@ public class CompanyLocationDAO extends AbstractDAO<CompanyLocation> {
 		return listCompanyLocations;
 	}
 
-	public List<CompanyLocation> findAllByCompanyId(long companyDetailsId) throws Exception {
+	public List<CompanyLocation> findAllByCompanyId(long companyDetailsID) throws Exception {
 		@SuppressWarnings("unchecked")
 		List<CompanyLocation> list = namedQuery("com.sparkonix.entity.CompanyLocation.findAllByCompanyId")
-				.setParameter("COMPANY_DETAILS_ID", companyDetailsId).list();
+				.setParameter("COMPANY_DETAILS_ID", companyDetailsID).list();
 
 		List<CompanyLocation> listCompanyLocations = new ArrayList<>();
 		for (int i = 0; i < list.size(); i++) {
