@@ -10,45 +10,46 @@ function waProfileController($scope, $rootScope, restAPIService, dialogs,
 	$scope.resetPasswordDTO = {};
 	$scope.userRole = "";
 	getCompanyDetails();
-	$scope.ManResDTO = {};
+	$scope.ManufacturerResellerDTO = {};
 
+	//It will return the details of manufacturer or reseller
 	function getCompanyDetails() {
 		var promise1;
-		$scope.userRole = $rootScope.user.role;
-		console.log("Role-"+$scope.userRole);
-		if ($scope.userRole == "MANUFACTURERADMIN") {
+		$scope.userRoleId = $rootScope.user.user_role_id;
+		console.log("Role-"+$scope.userRoleId);
+		
+		if ($scope.userRoleId == 3) { //MANUFACTURERADMIN = 3
 			// use .get() to fetch single record
 			// use .query() to fetch multiple record
-			console.log("type===" + $rootScope.user.role);
-			 
-			promise1 = restAPIService.companyDetailResource(
-					$rootScope.user.companyDetailsId,"MANUFACTURER").get();
+			//Here we call the manufacturer resource(table) to get the manufacturer info			 
+			promise1 = restAPIService.companyManufacturerName(
+					$rootScope.user.manufacturer_id).get();
 
 			promise1.$promise.then(function(response) {
 				console.log("Response print company name-->", response);
-				$scope.companyDetails = response.manResDetail;				
+				$scope.companyDetails = response.manufacturer;				
 				
-				$scope.ManResDTO = response;
+				$scope.ManufacturerResellerDTO = response;
 				
-				$scope.ManResDTO.companyType = "MANUFACTURER";
+//				$scope.ManufacturerResellerDTO.companyType = "MANUFACTURER";
 
 			}, function(error) {
 				dialogs.error("Error", error.data.error, {
 					'size' : 'sm'
 				});
 			});
-		} else if ($scope.userRole == "RESELLERADMIN") {
+		} else if ($scope.userRoleId == 4) { // RESELLERADMIN = 4
 			
 			console.log("type====" + $rootScope.user.role);
-			promise1 = restAPIService.companyDetailResource(
-					$rootScope.user.reseller_id, "RESELLER").get();
+			promise1 = restAPIService.companyResellerName(
+					$rootScope.user.reseller_id).get();
 			promise1.$promise.then(function(response) {
 				$scope.companyDetails = response.reseller;
-				console.log("12Response print company name-->", $scope.companyDetails);
-				$scope.ManResDTO = response;
+				console.log("Response print company name-->", $scope.companyDetails);
+				$scope.ManufacturerResellerDTO = response;
 				
-				$scope.ManResDTO.companyType = "RESELLER";
-				console.log("ManDTO-->",$scope.ManResDTO);
+//				$scope.ManufacturerResellerDTO.companyType = "RESELLER";
+				console.log("ManDTO-->",$scope.ManufacturerResellerDTO);
 			}, function(error) {
 				dialogs.error("Error", error.data.error, {
 					'size' : 'sm'
@@ -59,16 +60,13 @@ function waProfileController($scope, $rootScope, restAPIService, dialogs,
 
 	$scope.onSaveCustomerSupportDetails = function() {
 
-		var companyDetailsId = Number($rootScope.user.companyDetailsId);
-
-		if ($rootScope.user.role == "MANUFACTURERADMIN") {
-			console.log("MANUFACTURERADMIN -------------------"+$scope.ManResDTO.companyName);
-			console.log("Manu variable ----------->"+$scope.ManResDTO);
-			
-			
-			var promise = restAPIService.companyDetailResource(
-					companyDetailsId, "MANUFACTURER").update(
-							$scope.ManResDTO);
+		if ($scope.userRoleId == 3) { //MANUFACTURERADMIN = 3
+			var manufacturerId = Number($rootScope.user.manufacturer_id);
+			console.log("Manu variable ----------->"+$scope.ManufacturerResellerDTO);
+						
+			var promise = restAPIService.companyManufacturerName(
+					manufacturerId).update(
+							$scope.ManufacturerResellerDTO);
 			console.log("After manufacturer -------------------");
 			promise.$promise.then(function(response) {
 				dialogs.notify("Success", response.success, {
@@ -80,19 +78,12 @@ function waProfileController($scope, $rootScope, restAPIService, dialogs,
 					'size' : 'sm'
 				});
 			});
-		} else {
+		} else if ($scope.userRoleId == 4) { // RESELLERADMIN = 4
 			$scope.manufacturerName = "TEST 3";
-			console.log("Reseller -------------------"+$scope.ManResDTO.companyName);
-			console.log("Reseller resources-->>>", $scope.ManResDTO);
+			var resellerId = Number($rootScope.user.reseller_id);
+			console.log("Reseller resources-->>>", $scope.ManufacturerResellerDTO);
 		
-			var promise1 = restAPIService.companyDetailResource(companyDetailsId,"RESELLER").update($scope.ManResDTO);
-				
-				
-				/*restAPIService.companyDetailResource(companyDetailsId, "RESELLER").update(
-					$scope.ManResDTO);*/
-				
-				
-			console.log("After Reseller -------------------");
+			var promise1 = restAPIService.companyDetailResource(resellerId).update($scope.ManufacturerResellerDTO);
 			promise1.$promise.then(function(response) {
 				dialogs.notify("Success", response.success, {
 					'size' : 'sm'

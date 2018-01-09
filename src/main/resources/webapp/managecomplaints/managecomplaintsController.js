@@ -7,7 +7,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		dialogs, $state, $http) {
 	// ------------- PUBLIC VARIABLES ----------------
 	$scope.activeTabNumber = 1;
-	$scope.complaints = [];
+	$scope.complaints = []; // Here Complaints get the response of complete DTO of complaint
 	$scope.services = [];
 	$scope.machinesList = [];
 	$scope.viewComplaint = {};
@@ -16,36 +16,48 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 	$scope.searchForm = {};
 	$scope.displayFlag = true;
 	// date-picker format
-	$scope.format = 'dd-MM-yyyy'
-		$scope.showtext = 'Assign';
+	$scope.format = 'dd-MM-yyyy';
+	$scope.showtext = 'Assign';
 
 	// ------------- PRIVATE VARIABLES ----------------
 
 	// ------------- CONTROLLER CODE ----------------
-	getComplaintsData();
-	getServiceHistoryList();
+	getComplaintsData(); // get the all complaints from the database
+	getServiceHistoryList(); // this will get the servicing history from database
 
 	// ------------- PRIVATE FUNCTIONS ----------------
+	//-------------------Complaint---------------------
 	function getComplaintsData() {
 		var promise1;
-		// if man/res web admin logged in
-		// get complaint by man/res id & support_assistance
-		if ($rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
+		/* if manufacturer- 3 or reseller - 4  web admin logged in
+		 * get complaint by man/res id & support_assistance
+		 * 
+		 */
+		if ($rootScope.user.users_role_id == 3) { // For Manufacturer
 			// companyDetailsId of logged in web admin
-			console.log("LOGIN---->",$rootScope.user.role);
-			var manResId = Number($rootScope.user.companyDetailsId);
+			console.log("LOGIN---->",$rootScope.user.users_role_id);
+			var manResId = Number($rootScope.user.manufacturer_id);
 
 			promise1 = restAPIService.complaintsByManResRoleAndCompanyId(
-					$rootScope.user.role, manResId).query();
+					$rootScope.user.users_role_id, manResId).query();
 		}
-		if ($rootScope.user.role == "TECHNICIAN") {
+		if($rootScope.user.role == 4){ // Reseller
+			// companyDetailsId of logged in web admin
+			console.log("LOGIN---->",$rootScope.user.users_role_id);
+			var manResId = Number($rootScope.user.reseller_id);
+
+			promise1 = restAPIService.complaintsByManResRoleAndCompanyId(
+					$rootScope.user.users_role_id, manResId).query();
+		}
+		// Check if user is technician
+		if ($rootScope.user.users_role_id == 6) { 
 			// if technician logged in
 			var technicianId = Number($rootScope.user.id);
 			promise1 = restAPIService.complaintsByTechnicianId(technicianId)
-					.query();
+			.query();
 		}
-		if ($rootScope.user.role == "SUPERADMIN") {
+		//Check if user is superadmin
+		if ($rootScope.user.users_role_id == 1) {
 			// if superadmin logged in
 			promise1 = restAPIService.issuesResource().query();
 		}
@@ -59,14 +71,22 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 			});
 		});
 	}
-
+	//--------------------------------------------------------
+	/*
+	 * Sparkonix v2 getMachine list only see a his own machine who is logged in
+	 * 
+	 */
 	function getMachinesList() {
 		var promise2;
-		var manResId = Number($rootScope.user.companyDetailsId);
+		var manResId;
+		if($rootScope.user.users_role_id == 3){ // For Manufacturers machines
+			manResId = Number($rootScope.user.manufacturer_id);
+		}else if($rootScope.user.users_role_id == 4){ // For resellers machines
+			manResId = Number($rootScope.user.resellerId);
+		}
 		promise2 = restAPIService.getAllMachinesForCompany(manResId).query();
 		promise2.$promise.then(function(response) {
 			$scope.machineList = response;
-			console.log("In the get Machine list method --->",$scope.machineList);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
@@ -77,17 +97,19 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 	function getTechniciansByCompanyId() {
 		// for Man/Res
 		var promise;
-		 if($rootScope.user.role == "MANUFACTURERADMIN"){
-				console.log("Manufacturers Techincian--");
-				// for Manufacturer
-				promise = restAPIService.usersByRoleByCompanyResource(
-						$rootScope.user.role, $rootScope.user.companyDetailsId, -1).query();
-			} else{
-				console.log("Call For Reseller Technician",$rootScope.user.companyDetailsId);
-				promise = restAPIService.usersByRoleByCompanyResource(
-						$rootScope.user.role, 0, $rootScope.user.companyDetailsId).query();
-			}
-		
+		if($rootScope.user.users_role_id == 3){ //"MANUFACTURERADMIN"
+			console.log("Manufacturer Techincian--");
+			// for Manufacturer
+			promise = restAPIService.usersByRoleByCompanyResource(
+					// User Role id, Manufacturer Id, Reseller Id
+					$rootScope.user.users_role_id, $rootScope.user.manufacturer_id, 0).query();
+		} else{
+			console.log("Call For Reseller Technician",$rootScope.user.companyDetailsId);
+			// User Role id, Manufacturer Id, Reseller Id
+			promise = restAPIService.usersByRoleByCompanyResource(
+					$rootScope.user.users_role_id, 0, $rootScope.user.resellerId).query();
+		}
+
 		/*var promise1 = restAPIService.usersByRoleByCompanyResource(
 				"TECHNICIAN", $rootScope.user.companyDetailsId).query();*/
 		promise.$promise.then(function(response) {
@@ -99,7 +121,14 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		});
 	}
 
-	$scope.viewDetails = function(complaintObj) {
+	/*
+	 * For viewing a complaint all by issue number 
+	 * 
+	 */
+	$scope.viewDetails = function(issueNumberId) {
+		var promise;
+		promise = restAPIService.complaintViewAllStatusByIssueNumberId(issueNumberId).query();
+		
 		$scope.viewComplaint = complaintObj;
 
 		$('#viewIssueDetails').modal().show();
@@ -115,18 +144,18 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 
 	$scope.onEditComplaint = function(complaintObj) {
 		$scope.updateIssueRecord = complaintObj;
-		if ($rootScope.user.role == "TECHNICIAN") {
+		if ($rootScope.user.users_role_id == 5) { //"TECHNICIAN"
 			$('#actionTechnician').modal().show();
 		} else {
 			// load technnician dropdown
 			getTechniciansByCompanyId();
 			$('#actionWebAdmin').modal().show();
-			
+
 		}
 	}
-	
+
 	$scope.textSetter = function(){
-		if ($rootScope.user.role == "TECHNICIAN") {
+		if ($rootScope.user.users_role_id == 5) { // "TECHNICIAN"
 			console.log("------TECHNICIAN--------");
 			if ($scope.complaint.status == "INPROGRESS") {
 				console.log("1-->", $scope.complaint.status);
@@ -150,45 +179,46 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		}
 	}
 
+	/*Assign a complaint to technician by Manufacturer/Reseller admin*/
 	$scope.assignComplaintToTechnician = function() {
 		var dlg = dialogs.confirm("Are you sure?",
 				"Are you sure you want to update this record?", {
-					'size' : 'sm'
-				});
+			'size' : 'sm'
+		});
 		dlg.result
-				.then(
-						function() {
-							$scope.updateIssueRecord.assignedTo = Number($scope.updateIssueRecord.assignedTo);
-							$scope.updateIssueRecord.status = "ASSIGNED";
-
-							var promise = restAPIService.IssueResource(
-									$scope.updateIssueRecord.id).update(
+		.then(
+				function() {
+					$scope.updateIssueRecord.assignedTo = Number($scope.updateIssueRecord.assignedTo);
+					$scope.updateIssueRecord.status = "ASSIGNED";
+//					here it will update the record that technician is alloted.
+					var promise = restAPIService.IssueResource(
+							$scope.updateIssueRecord.id).update(
 									$scope.updateIssueRecord);
-							promise.$promise.then(function(response) {
-								getComplaintsData();
-								dialogs.notify("Success", response.success, {
-									'size' : 'sm'
-								});
-							}, function(error) {
-								dialogs.error("Error", error.data.error, {
-									'size' : 'sm'
-								});
-							});
-						}, function() {
-							console.log("3");
-							$state.reload();
+					promise.$promise.then(function(response) {
+						getComplaintsData();
+						dialogs.notify("Success", response.success, {
+							'size' : 'sm'
 						});
+					}, function(error) {
+						dialogs.error("Error", error.data.error, {
+							'size' : 'sm'
+						});
+					});
+				}, function() {
+					console.log("3");
+					$state.reload();
+				});
 	}
-
+	/*Update the status by technician*/
 	$scope.updateComplaintByTechnician = function() {
 		var dlg = dialogs.confirm("Are you sure?",
 				"Are you sure you want to update this record?", {
-					'size' : 'sm'
-				});
+			'size' : 'sm'
+		});
 		dlg.result.then(function() {
 			var promise = restAPIService.IssueResource(
 					$scope.updateIssueRecord.id).update(
-					$scope.updateIssueRecord);
+							$scope.updateIssueRecord);
 			promise.$promise.then(function(response) {
 				getComplaintsData();
 				dialogs.notify("Success", response.success, {
@@ -205,11 +235,11 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 			$scope.updateIssueRecord = {};
 		});
 	}
-
+//------------------------------Complaint section end-------------
+	// -------------------------Service -------------------------
 	$scope.newServiceReq = function() {
 		$scope.newServiceRequest = '';
 		// load machine drop-down
-		console.log("New Service Request Generated");
 		getMachinesList();
 		// load technician drop-down
 		getTechniciansByCompanyId();
@@ -229,7 +259,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 			$('body').removeClass('modal-open');
 			dialogs.notify("Success", "New servie request added successfully",
 					{
-						'size' : 'sm'
+				'size' : 'sm'
 					});
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
@@ -239,23 +269,28 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 	}
 
 	function getServiceHistoryList() {
-		var category;
+		var category; // here category use as role.
 		var parameter;
 		var promise2;
 
-		if ($rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
-			category = "company";
-			parameter = $rootScope.user.companyDetailsId;
+		if ($rootScope.user.users_role_id == 3){ //"MANUFACTURERADMIN"
+			category = "manufacturer";
+			parameter = $rootScope.user.manufacturer_id;
 		}
-		if ($rootScope.user.role == "TECHNICIAN") {
+		
+		if($rootScope.user.users_role_id == 4) { //"RESELLERADMIN"
+			category = "reseller";
+			parameter = $rootScope.user.resellerId;
+		}
+		
+		if ($rootScope.user.users_role_id == 5) { //"TECHNICIAN"
 			category = "technician";
 			parameter = $rootScope.user.id;
 		}
 
-		if ($rootScope.user.role == "SUPERADMIN") {
+		if ($rootScope.user.users_role_id == 1) { //"SUPERADMIN"
 			promise2 = restAPIService.MachineAmcServiceHistoriesResource()
-					.query();
+			.query();
 		} else {
 			promise2 = restAPIService.serviceHistoryByCategoryResource(
 					category, parameter).query();
@@ -275,7 +310,7 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		if ($rootScope.user.role == "TECHNICIAN") {
 			$('#editServiceRequestByTechnician').modal().show();
 		} else if ($rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
+			|| $rootScope.user.role == "RESELLERADMIN") {
 			// load machine drop-down
 			getMachinesList();
 			// load technician drop-down
@@ -283,14 +318,14 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 
 			$('#editServiceRequest').modal().show();
 		}
-		
+
 	}
 
 	$scope.assignServiceRequestToTechnician = function() {
 		var dlg = dialogs.confirm("Are you sure?",
 				"Are you sure you want to update this record?", {
-					'size' : 'sm'
-				});
+			'size' : 'sm'
+		});
 		dlg.result.then(function() {
 			var promise = restAPIService.MachineAmcServiceHistoryResource(
 					$scope.updatedRecord.id).update($scope.updatedRecord);
@@ -313,9 +348,10 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 
 	$scope.onCancelRegularService = function() {
 		$scope.setTab(2);
+		$state.reload();
 		getServiceHistoryList();
 	};
-	
+
 	//cancel Technician change modal
 	$scope.cancelComplaintByTechnician = function() {
 		console.log("1");
@@ -323,10 +359,10 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 			console.log("2");
 			$state.reload();
 			$scope.updateIssueRecord = {};
-	    });	
+		});	
 		console.log("3");
 	}
-	
+
 	// admin to technician cancel.
 	$scope.cancelActionWebAdmin = function() {
 		console.log("1");
@@ -334,11 +370,11 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 			console.log("2");
 			$state.reload();
 			$scope.updateIssueRecord = {};
-	    });	
+		});	
 		console.log("3");
 	}
-	
-	
+
+
 	$scope.onResetSearchForm = function() {
 		$scope.searchForm = '';
 		$state.reload();
@@ -347,8 +383,8 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 	$scope.onSubmitSearchForm = function() {
 
 		var promise1;
-		if ($rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
+		if ($rootScope.user.users_role_id == 4 // "MANUFACTURERADMIN"
+			|| $rootScope.user.role == "RESELLERADMIN") {
 			// companyDetailsId of logged in web admin
 			$scope.complaintSearchFilter = {};
 			$scope.complaintSearchFilter.customerId = Number($scope.searchForm.customer);
@@ -380,13 +416,13 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		});
 
 	};
-	
+
 	// download as excel using $http post
 	$scope.onDownloadAsExcel = function() {
 		angular.element(document.getElementById('btnDownloadAsExcel'))[0].disabled = true;
 
 		if ($rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
+			|| $rootScope.user.role == "RESELLERADMIN") {
 			// companyDetailsId of logged in web admin
 			$scope.complaintSearchFilter = {};
 			$scope.complaintSearchFilter.customerId = Number($scope.searchForm.customer);
@@ -409,21 +445,21 @@ function manageComplaintsController($scope, $rootScope, restAPIService,
 		var fileName = "complaint_list.xlsx";
 		var url = $rootScope.apiUrl + "issues/listbyfilter/excel";
 		$scope.Authorization = "Basic " + btoa($rootScope.token + "1:");
-		
+
 		$http
-				.post(url, $scope.complaintSearchFilter,{ 
-					responseType : 'arraybuffer',
-					'Authorization' : $scope.Authorization
+		.post(url, $scope.complaintSearchFilter,{ 
+			responseType : 'arraybuffer',
+			'Authorization' : $scope.Authorization
+		})
+		.success(
+				function(data) {
+					angular.element(document
+							.getElementById('btnDownloadAsExcel'))[0].disabled = false;
+					var file = new Blob([ data ], {
+						type : 'application/octet-stream'
+					});
+					saveAs(file, fileName);
 				})
-				.success(
-						function(data) {
-							angular.element(document
-									.getElementById('btnDownloadAsExcel'))[0].disabled = false;
-							var file = new Blob([ data ], {
-								type : 'application/octet-stream'
-							});
-							saveAs(file, fileName);
-						})
 				.error(
 						function(data, status) {
 							angular.element(document

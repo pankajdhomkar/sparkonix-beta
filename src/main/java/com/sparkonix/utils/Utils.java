@@ -6,7 +6,7 @@ import org.apache.commons.codec.binary.Base64;
 
 public class Utils {
 	private static HashMap<String, String> mimeTypesMap = new HashMap<>();
-
+	
 	static {
 		mimeTypesMap.put(".jpg", "image/jpeg");
 		mimeTypesMap.put(".doc", "application/msword");

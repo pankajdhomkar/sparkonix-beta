@@ -11,8 +11,8 @@ function viewResellerController($scope, $state, restAPIService, dialogs,
 
 	// ------------- CONTROLLER CODE ------------------
 	$scope.mode = $stateParams.mode;
-	$scope.manResId = $stateParams.manResId;
-	$scope.companyType = $stateParams.companyType;
+	$scope.manResId = $stateParams.manResId; // Reseller ID
+	$scope.companyType = $stateParams.companyType; // Here Reseller (company type is long value 2)
 	$scope.parent = $stateParams.parent;
 	if ($scope.mode == "view") {
 
@@ -24,7 +24,8 @@ function viewResellerController($scope, $state, restAPIService, dialogs,
 		// get ManResDTO from db by manResId
 		console.log("Herer in view company type is ",$scope.companyType);
 		console.log("data from api-->");
-		var promise1 = restAPIService.companyDetailManResResource(
+		//Sparkonix v2 here view a reseller information of manufacturer
+		var promise1 = restAPIService.companyDetailResellerResource(
 				$scope.manResId, $scope.companyType).get();
 		promise1.$promise.then(function(response) {
 			// populate value of ManRes for edit form
@@ -65,8 +66,9 @@ function viewResellerController($scope, $state, restAPIService, dialogs,
 	}
 	
 	function getManuList(){
-		promise1 = restAPIService.companyDetailResource(
-				$scope.number,"MANUFACTURER").get();
+		//This will get the manufacturer information for the showing on pagecompanyManufacturerName
+		promise1 = restAPIService.companyManufacturerName(
+				$scope.number).get();
 
 		promise1.$promise.then(function(response) {
 			console.log("Response print company name-->", response);

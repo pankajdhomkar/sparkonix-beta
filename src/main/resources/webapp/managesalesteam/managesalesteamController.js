@@ -17,7 +17,8 @@ function manageSalesTeamController($scope, restAPIService, dialogs) {
 	
 	// ------------- PRIVATE FUNCTIONS ----------------
 	function getEntireSalesTeam(){
-		var promise = restAPIService.usersByRoleResource("SALESTEAM").query();
+		//Here we use a role id no string comparisons 
+		var promise = restAPIService.usersByRoleResource(2).query();
 		promise.$promise.then(function(response) {
 			$scope.salesteammembers = response;
 		}, function(error) {
@@ -28,7 +29,7 @@ function manageSalesTeamController($scope, restAPIService, dialogs) {
 	// ------------- PUBLIC FUNCTIONS ----------------
 	$scope.addNewSalesTeamMember = function(){
 		$scope.newMember.password = CryptoJS.MD5($scope.newMember.password).toString();
-		$scope.newMember.role = "SALESTEAM";
+		$scope.newMember.role = 2; // Here Sales team role id is 2
 		var promise = restAPIService.usersResource().save($scope.newMember);
 		promise.$promise.then(function(response) {
 			$scope.salesteammembers.push(response);

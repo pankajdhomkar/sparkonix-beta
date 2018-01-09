@@ -1,50 +1,50 @@
 'use strict';
 
 angular.module('sparkonixWebApp').controller('addcustomerController',
-		addcustomerController);
+	addcustomerController);
 
 function addcustomerController($scope, $state, restAPIService, dialogs,
-		$rootScope, parseExcelService) {
+	$rootScope, parseExcelService) {
 	// $state.reload();
 	// ------------- PUBLIC VARIABLES ----------------
 	$scope.activeTabNumber = 1;
 	$scope.saveButtonText = "Save and Next";
 	$scope.paneltitles = [ "Provide company details",
-			"Add the locations of the machines", "Give machine details",
-			"Provide the mobile numbers that will be allowed to scan the machine codes." ];
+		"Add the locations of the machines", "Give machine details",
+		"Provide the mobile numbers that will be allowed to scan the machine codes." ];
 	$scope.panelTitle = $scope.paneltitles[0];
 	$scope.factoryLocations = [];
 	$scope.machinesData = [];
 	$scope.mobilenumbers = [];
 	$scope.manufacturersList = [];
 	$scope.resellersList = [];
-	//----This two arrays for getting a name of resller and manufacturer when reseller is login
+	//----This two arrays for getting a name of reseller and manufacturer when reseller is login
 	$scope.getResellerData = {}; // For reseller information
 	$scope.getManufacturerData = {}; // For manufacturer name 
 	//------------------------------------------------------------
 	$scope.companyLocationsDropdown = [];
-	$scope.phoneDevicesData = [];
-	$scope.curSubscriptionTypes = [ "BASIC", "PREMIUM" ];
-	$scope.curSubscriptionStatusData = [ "ACTIVE", "PAYMENT_DUE", "INACTIVE",
-			"EXPIRED" ];
-	$scope.curAmcTypes = [ "BASIC", "PREMIUM" ];
-	$scope.curAmcStatusData = [ "ACTIVE", "PAYMENT_DUE", "INACTIVE", "EXPIRED" ];
+//	$scope.phoneDevicesData = [];
+	//	$scope.curSubscriptionTypes = [ "BASIC", "PREMIUM" ];
+	//	$scope.curSubscriptionStatusData = [ "ACTIVE", "PAYMENT_DUE", "INACTIVE",
+	//			"EXPIRED" ];
+	//	$scope.curAmcTypes = [ "BASIC", "PREMIUM" ];
+	$scope.curAmcStatusData = [ "ACTIVE", "INACTIVE" ];
 
 	$scope.allMachines = [];
 	$scope.machineGroupedByLocation;
 	$scope.locationNames = [];
 	$scope.qrcode = {};
 	$scope.panValidationMsg = "";
-	$scope.companyDetail = {};
+	$scope.customerDetail = {};
 	$scope.qrCodeValidationMsg = "";
 	$scope.assignedQrCodeList = [];
 	$scope.finalMachineBulkList = [];
 	// $scope.newMachineObj = {};
 	$scope.sampleFilePath = "/assets/BulkMachineSample.xlsx";
 	$scope.sampleFileName = "BulkMachineSample.xlsx"
-	$scope.machine={};
+	$scope.machine = {};
 	$scope.id = 0; // get the manufacturer id so we can find appropriate reseller
-	
+
 	$scope.opened = {};
 	$scope.open = function($event) {
 
@@ -56,14 +56,12 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	};
 	$scope.format = 'dd-MM-yyyy'
 
-	// ------------- PRIVATE VARIABLES --------------
-
 	// ------------- CONTROLLER CODE ----------------
 
 	// load all qr codes list
 	getAssignedQrCodeList();
-	// load all man/res list
-	getManResList();
+	// load all manufacturer and reseller list
+//	getManResList();
 	// begin();
 	if ($scope.mode == "add") {
 		$scope.activeTabNumber = 1;
@@ -71,7 +69,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		$scope.headerTitleText = "Add Customer Details";
 		// disable tab links except first tab
 		$scope.tabDetails = [ {
-			title : 'Company Details',
+			title : 'Customer Details',
 			click : ''
 		}, {
 			title : 'Factory Locations',
@@ -79,20 +77,16 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		}, {
 			title : 'Machines',
 			click : ''
-		}/*, {
-			title : 'Authorized	Operators',
-			click : ''
-		}*/ ];
-		console.log("IN Add-------------------------------",$rootScope.user);
-		if($rootScope.user.role == "MANUFACTURERADMIN"){
-			console.log("1---------------------");
-			console.log("Manufacturer show only reseller dropdown-->"+$rootScope.user.companyDetailsId);
-			$scope.id = $rootScope.user.companyDetailsId;
-			console.log("get the id "+$scope.id);
+		} ];
+		console.log("IN Add-------------------------------", $rootScope.user);
+		if ($rootScope.user.users_role_id == 3) { // Manufacturer admin login
+			console.log("1- Get the reseller of the perticular manufacturers");
+			$scope.id = $rootScope.user.manufacturerid;
+			console.log("get the id " + $scope.id);
 			getListResellerofManufacturer($scope.id);
 		}
-		if($rootScope.user.role == "RESELLERADMIN"){
-			console.log("Manufacturer show only reseller dropdown-->",$rootScope.user);
+		if ($rootScope.user.users_role_id == 4) { //Reseller admin login
+			console.log("Manufacturer show only reseller dropdown-->", $rootScope.user);
 			getResellerName();
 		}
 
@@ -108,49 +102,36 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		}, {
 			title : 'Machines',
 			click : $scope.setTab
-		}/*, {
-			title : 'Authorized	Operators',
-			click : $scope.setTab
-		}*/ ];
+		} ];
 
 		$scope.paneltitles = [ "Edit company details",
-				"Edit locations of the machines", "Edit machine details",
-				"Edit the mobile numbers that will be allowed to scan the machine codes." ];
+			"Edit locations of the machines", "Edit machine details",
+			"Edit the mobile numbers that will be allowed to scan the machine codes." ];
 		$scope.panelTitle = $scope.paneltitles[$scope.activeTabNumber - 1];
 
 		// fetch & set customer detail data
 		$scope.companyDetail = $scope.customer;
-		
+
 		// fetch & set factory location data
 		getFactoryLocations();
 		console.log("1-before manufacturer list");
 		// fetch manufacturer dropdown list
-		getCompanyDetailListByType("manufacturer");
+		//Sparkonix v2 changed a method name to get the list of manufacturers all
+//		getCompanyDetailListByType("manufacturer"); <--previous
+		getManufacturerDetailList();
 		console.log("2-after manufacturer list");
-//		// fetch reseller dropdown list
-//		getCompanyDetailListByType("reseller");
-		console.log("3-before if of manuf");
-//		getListResellerofManufacturer($scope.id);
-		if($rootScope.user.role == "MANUFACTURERADMIN"){
-			console.log("4 - in if of manuf");
-			console.log("Manufacturer show only reseller dropdown-->"+$rootScope.user.companyDetailsId);
-			$scope.id = $rootScope.user.companyDetailsId;
-			console.log("get the id "+$scope.id);
+
+		if ($rootScope.user.users_role_id == 3) {// Manufacturer admin	
+			console.log("Manufacturer show only reseller dropdown-->" + $rootScope.user.reseller_id);
+			$scope.id = $rootScope.user.reseller_id;
+			console.log("get the id " + $scope.id);
 			getListResellerofManufacturer($scope.id);
 		}
-		if($rootScope.user.role == "RESELLERADMIN"){
-			console.log("Manufacturer show only reseller dropdown-->",$rootScope.user);
+		if ($rootScope.user.users_role_id == 4) { //Reseller admin
+			console.log("Manufacturer show only reseller dropdown-->", $rootScope.user);
 			getResellerName();
 		}
-		//This if case for check weather the reseller login an who is a manufacturer of him
-//		if($rootScope.user.role == "RESELLERADMIN"){
-//			console.log("6- resell in if");
-//			console.log("Manufacturer show only reseller dropdown-->"+$rootScope.user.companyDetailsId);
-//			//$scope.id = $rootScope.user.companyDetailsId;
-//			//console.log("get the id "+$scope.id);
-//			//getListResellerofManufacturer($scope.id);
-//		}
-//		console.log("7 - after resell if");
+
 		// fetch location dropdown list by onBoardedBy
 		getCompanyLocationsListByOnBoarded();
 
@@ -159,25 +140,26 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		// getMobileNumbers();
 
 		// fetch & set phone devices data
-		getPhoneDevicesByCustomerIdAndOnboaradedBy();
+//		getPhoneDevicesByCustomerIdAndOnboaradedBy();
 	}
 
 	// ------------- PRIVATE FUNCTIONS ----------------
 	function getFactoryLocations() {
 		var promise;
-		if ($rootScope.user.role == "SALESTEAM") // let sales team see all
-		{ // locations
-			promise = restAPIService.companyLocationsByCompanyId(
-					$scope.customer.id).query();
-
-		} else if ($rootScope.user.role == "SUPERADMIN") {
-			promise = restAPIService.companyLocationsByCompanyId(
-					$scope.customer.id).query();
-		} else {
-			// WEBADMIN
-			promise = restAPIService.companyLocationsForCompanyOnboardedBy(
-					$scope.customer.id, $rootScope.user.id).query();
-		}
+		//		 comment code is not needed in the sparkonix v2
+		//		if ($rootScope.user.users_role_id == "SALESTEAM") // let sales team see all
+		//		{ // locations
+		promise = restAPIService.companyLocationsByCompanyId(
+			$scope.customer.id).query();
+		/*
+				} else if ($rootScope.user.role == "SUPERADMIN") {
+					promise = restAPIService.companyLocationsByCompanyId(
+							$scope.customer.id).query();
+				} else {
+					// WEBADMIN
+					promise = restAPIService.companyLocationsForCompanyOnboardedBy(
+							$scope.customer.id, $rootScope.user.id).query();
+				}*/
 		promise.$promise.then(function(response) {
 			$scope.factoryLocations = response;
 		}, function(error) {
@@ -187,16 +169,15 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		});
 	}
 
-	function getResellerName(){// This method for the getting a reseller name
-		
-		console.log("GET ID------------>",$rootScope.user.companyDetailsId);
-		
-		var promise3 = restAPIService.companyResellerName($rootScope.user.companyDetailsId,
-				"RESELLER").query();
-			promise3.$promise.then(function(response) {
-				console.log("resposne--",response);
+	function getResellerName() { // This method for the getting a reseller name
+
+		console.log("GET ID------------>", $rootScope.user.reseller_id);
+
+		var promise3 = restAPIService.companyResellerName($rootScope.user.reseller_id).query();
+		promise3.$promise.then(function(response) {
+			console.log("resposne--", response);
 			$scope.getResellerData = response.reseller;
-			console.log("GET Reseller Data----------->",$scope.getResellerData);
+			console.log("GET Reseller Data----------->", $scope.getResellerData);
 			getManufacturerName($scope.getResellerData.fld_manufid);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
@@ -204,56 +185,54 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			});
 		});
 	}
-	
-	function getManufacturerName(id){//This method for getting a manufacturer name
-		var promise = restAPIService.companyManufacturerName(id,
-		"MANUFACTURER").query();
+
+	function getManufacturerName(id) { //This method for getting a manufacturer name
+		var promise = restAPIService.companyManufacturerName(id).query();
 		promise.$promise.then(function(response) {
-			console.log("Response of manufacturer",response);
-			$scope.getManufacturerData = response.manResDetail;
+			console.log("Response of manufacturer", response);
+			$scope.getManufacturerData = response.manufacturer;
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
 			});
 		});
 	}
-	function getCompanyDetailListByType(companyType) {
-		var promise = restAPIService.companyDetailsByCompanyTypeResource(
-				companyType).query();
 
+//	function getCompanyDetailListByType(companyType) {
+	function getManufacturerDetailList(){
+//		var promise = restAPIService.companyDetailsByCompanyTypeResource(
+//			companyType).query();
+		var promise = restAPIService.manufacturerDetailsList().query();
 		// dropdwon should display all Man/Res while adding new machine
 		promise.$promise.then(function(response) {
-			if (companyType == "manufacturer") {
 				$scope.manufacturersList = response;
-			}
-//			if (companyType == "reseller") {
-//				$scope.resellersList = response;
-//			}
-//			console.log("List-->"+$scope.manufacturerId);
-//			getListResellerofManufacturer($scope.id);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
 			});
 		});
 	}
-// getting the id from the user
-	$scope.getIdofMan = function(){
+	
+	// getting the id from the user
+	$scope.getIdofMan = function() {
 		//console.log(angular.element("#w")[0].value);
 		var count = angular.element("#w")[0].value;
 		$scope.id = $scope.manufacturersList[count].id;
 		getListResellerofManufacturer($scope.id);
 	}
 
-	function getListResellerofManufacturer(manufacurerId){
-		console.log("ID--------->"+manufacurerId);
-		var promise = restAPIService.companyDetailsResllerByManufactrer(manufacurerId).query();
+	//It will return the all resellers of perticular manufacturer 
+	function getListResellerofManufacturer(manufacurerId) {
+		console.log("(In getListResellerofManufacturer method) manufacturer id ->" + manufacurerId);
+		//		var promise = restAPIService.companyDetailsResllerByManufactrer(manufacurerId).query();
+		//		Sparkonix v2 here get the reseller list by manufacturer id
+		var promise = restAPIService.resellerDetailsByManufactrer(manufacurerId).query();
 		console.log("Method Start------->");
 		// dropdwon should display Reseller while adding new machine
 		promise.$promise.then(function(response) {
-		$scope.resellersList = response;
-		console.log("Method in Reseller list------->"+$scope.resellersList);
-		},function(error) {
+			$scope.resellersList = response;
+			console.log("Method in Reseller list------->" + $scope.resellersList);
+		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
 			});
@@ -262,17 +241,10 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	}
 	function getCompanyLocationsListByOnBoarded() {
 		var promise;
-
-		if ($rootScope.user.role == "SUPERADMIN") {
-			promise = restAPIService.companyLocationsByCompanyId(
-					$scope.customer.id).query();
-		} else {
-			promise = restAPIService.companyLocationsForCompanyOnboardedBy(
-					$scope.customer.id, $rootScope.user.id).query();
-		}
+		promise = restAPIService.companyLocationsByCustomerId(
+				$scope.customer.id).query();
 		promise.$promise.then(function(response) {
 			$scope.companyLocationsDropdown = response;
-			console.log("TEst---->>>",$scope.companyLocationsDropdown);
 		}, function(error) {
 			dialogs.error("Error", error.data.error, {
 				'size' : 'sm'
@@ -282,30 +254,30 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 	function getMachinesListByCustomerIdAndOnBoardedBy() {
 		var promise;
-
+//SAPRKONIX V2 
 		// display all
-		if ($rootScope.user.role == "SUPERADMIN") {
+//		if ($rootScope.user.users_role_id == 1) { // SuperAdmin
 			promise = restAPIService.machinesByCustomerId($scope.customer.id)
-					.query();
-		} else {
-			promise = restAPIService.machinesByCustomerIdAndOnBoardedBy(
-					$scope.customer.id, $rootScope.user.id).query();
-		}
+				.query();
+//		} else {
+//			promise = restAPIService.machinesByCustomerIdAndOnBoardedBy(
+//				$scope.customer.id, $rootScope.user.id).query();
+//		}
 		promise.$promise.then(
-				function(response) {
-					$scope.machinesData = response;
+			function(response) {
+				$scope.machinesData = response;
 
-					$scope.allMachines = response;
-					$scope.machineGroupedByLocation = groupBy(
-							$scope.allMachines, 'location');
-					$scope.locationNames = Object
-							.keys($scope.machineGroupedByLocation);
+				$scope.allMachines = response;
+				$scope.machineGroupedByLocation = groupBy(
+					$scope.allMachines, 'location');
+				$scope.locationNames = Object
+					.keys($scope.machineGroupedByLocation);
 
-				}, function(error) {
-					dialogs.error("Error", error.data.error, {
-						'size' : 'sm'
-					});
+			}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
 				});
+			});
 	}
 
 	function groupBy(xs, key) {
@@ -313,29 +285,8 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			(rv[x[key]] = rv[x[key]] || []).push(x);
 			return rv;
 		}, {});
-	};
-
-	function getPhoneDevicesByCustomerIdAndOnboaradedBy() {
-		var promise;
-		if ($rootScope.user.role == "SUPERADMIN") {
-			promise = restAPIService.phoneDevicesByCustomerId(
-					$scope.customer.id).query();
-		} else if ($rootScope.user.role == "SALESTEAM"
-				|| $rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
-			// for WWEBADMIN & SALESTEAM
-			promise = restAPIService.phoneDevicesByCustomerIdAndOnBoardedBy(
-					$scope.customer.id, $rootScope.user.id).query();
-		}
-		promise.$promise.then(function(response) {
-			$scope.phoneDevicesData = response;
-
-		}, function(error) {
-			dialogs.error("Error", error.data.error, {
-				'size' : 'sm'
-			});
-		});
 	}
+	;
 
 	// ------------- PUBLIC FUNCTIONS ----------------
 	$scope.onBack = function() {
@@ -346,13 +297,13 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		if ($scope.mode == "add") {
 			//disable submit btn
 			angular.element(document.getElementById('btnSaveAndNext'))[0].disabled = true;
-			
-			$scope.companyDetail.companyType = "CUSTOMER";
-			$scope.companyDetail.onBoardedBy = Number($rootScope.user.id);
 
-			
-			var customerObj = restAPIService.companyDetailsResource().save(
-					$scope.companyDetail);
+			$scope.companyDetail.companyType = "CUSTOMER";
+			$scope.companyDetail = Number($rootScope.user.id);
+
+
+			var customerObj = restAPIService.customerDetailsResource().save(
+				$scope.companyDetail);
 			customerObj.$promise.then(function(response) {
 				$scope.customer = JSON.parse(response.entity);
 
@@ -361,32 +312,14 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				$scope.setTabId = 2;
 
 				$scope.companyDetail = $scope.customer;
-				// convert string to Date
-				if ($scope.companyDetail.curSubscriptionStartDate != null) {
-					$scope.companyDetail.curSubscriptionStartDate = new Date(
-							$scope.companyDetail.curSubscriptionStartDate);
-				}
-				if ($scope.companyDetail.curSubscriptionEndDate != null) {
-					$scope.companyDetail.curSubscriptionEndDate = new Date(
-							$scope.companyDetail.curSubscriptionEndDate);
-
-				}
-				
-				if($scope.companyDetail.curSubscriptionStatus=="INACTIVE"){					
-					$scope.companyDetail.curSubscriptionStartDate="";
-					$scope.companyDetail.curSubscriptionEndDate="";
-				}
-				
+			
 				// fetch manufacturer dropdown list
-				getCompanyDetailListByType("manufacturer");
-
+//				getCompanyDetailListByType("manufacturer");
+//				Sparkonix v2 get the list of manufacturer
+				getManufacturerDetailList();
 				//Instead of this get the manufacturer id and get its reseller according to that
-				
-				//getListResellerofManufacturer($scope.machine.manufacturerId);
-
-
-//				// fetch reseller dropdown list
-//				getCompanyDetailListByType("reseller");
+				//				// fetch reseller dropdown list
+				//				getCompanyDetailListByType("reseller");
 				dialogs.notify("Success", response.message, {
 					'size' : 'sm'
 				});
@@ -402,7 +335,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				});
 			});
 			$scope.panValidationMsg = "";
-			// $scope.setTab(2);
+		// $scope.setTab(2);
 		} else if ($scope.mode == "edit") {
 			angular.element(document.getElementById('btnSaveAndNext'))[0].disabled = true;
 			$scope.bulkUploadDivFlag = false;
@@ -410,19 +343,19 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			// update customer detail
 			if (cuurentTab == 1) {
 				var companyDetailId = Number($scope.customer.id);
-				
-				if($scope.companyDetail.curSubscriptionStatus=="INACTIVE"){					
-					$scope.companyDetail.curSubscriptionStartDate="";
-					$scope.companyDetail.curSubscriptionEndDate="";
-				}
-				
-				$scope.manDto = {};
-				$scope.manDto.manResDetail = $scope.customer;
-				$scope.manDto.reseller = null;
+
+//				if ($scope.companyDetail.curSubscriptionStatus == "INACTIVE") {
+//					$scope.companyDetail.curSubscriptionStartDate = "";
+//					$scope.companyDetail.curSubscriptionEndDate = "";
+//				}
+
+				$scope.custDto = {};
+				$scope.custDto.manResDetail = $scope.customer;
+				$scope.custDto.reseller = null;
 				$scope.manDto.companyType = $scope.companyDetail.companyType;
-				
-				var promise = restAPIService.companyDetailResource(
-						companyDetailId,$scope.companyDetail.companyType).update($scope.manDto);
+/*-----*/
+//				var promise = restAPIService.companyDetailResource(
+//					companyDetailId, $scope.companyDetail.companyType).update($scope.manDto);
 				promise.$promise.then(function(response) {
 					dialogs.notify("Success", response.success, {
 						'size' : 'sm'
@@ -440,10 +373,10 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			if (cuurentTab == 2) {
 				$scope.setTab($scope.activeTabNumber + 1);
 			}
-			/*if (cuurentTab == 3) {
+		/*if (cuurentTab == 3) {
 
-				$scope.setTab($scope.activeTabNumber + 1);
-			} 
+			$scope.setTab($scope.activeTabNumber + 1);
+		} 
 */
 		}
 	};
@@ -460,8 +393,8 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	$scope.removeLocationRow = function(index) {
 		if ($scope.factorylocations.length > 1) {
 			$scope.factorylocations.splice(index, 1);
-			// remove value of that index too from companyLocations obj
-			// delete $scope.companyLocations[index];
+		// remove value of that index too from companyLocations obj
+		// delete $scope.companyLocations[index];
 		}
 	}
 
@@ -480,7 +413,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 		$scope.activeTabNumber = tabId;
 		$scope.panelTitle = $scope.paneltitles[tabId - 1];
-		 
+
 		if (tabId == 3) {
 			$scope.saveButtonText = "Submit";
 		} else {
@@ -493,7 +426,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		return $scope.activeTabNumber === tabId;
 	};
 
-	/** ******************************************************* */
+	/******************************************************** */
 	// add/edit factory location
 	$scope.addNewLocation = function() {
 		$scope.locationModalTitle = "Add Location";
@@ -510,7 +443,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		// get all detail by $location id
 		if ($scope.locationId != null) {
 			var locationObj = restAPIService.companyLocationResource(
-					$scope.locationId).get();
+				$scope.locationId).get();
 			locationObj.$promise.then(function(response) {
 				$scope.companyLocation = response;
 			}, function(error) {
@@ -526,7 +459,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			$scope.companyLocation.onBoardedBy = $rootScope.user.id;
 			$scope.companyLocation.companyDetailsId = $scope.customer.id;
 			var locationObj = restAPIService.companyLocationsResource().save(
-					$scope.companyLocation);
+				$scope.companyLocation);
 			locationObj.$promise.then(function(response) {
 				// $scope.factoryLocations.push(response);
 				getFactoryLocations();
@@ -539,7 +472,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			$scope.companyLocation.onBoardedBy = $rootScope.user.id;
 			var locationId = Number($scope.companyLocation.id);
 			var promise = restAPIService.companyLocationResource(locationId)
-					.update($scope.companyLocation);
+				.update($scope.companyLocation);
 			promise.$promise.then(function(response) {
 				dialogs.notify("Success", response.success, {
 					'size' : 'sm'
@@ -554,7 +487,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			$state.go("home.managecustomers.addcustomer");
 		}
 	}
-//---------------------------------------------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------------------------------------------------
 	/** **************** add/edit machine ************************************* */
 	$scope.addNewMachine = function() {
 		$scope.machineModalTitle = "Add Machine";
@@ -575,6 +508,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		$scope.machine = '';
 		$scope.machineId = machine.machineId;
 		$scope.qrcode = {};
+		$scope.tempqrCode = {};
 		/*$scope.qrcode.part1 = undefined;
 		$scope.qrcode.part2 = undefined;
 		$scope.qrcode.part3 = undefined;*/
@@ -582,56 +516,63 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		// get all detail by machine id
 		if ($scope.machineId != null) {
 			var machineObj = restAPIService.machineResource($scope.machineId)
-					.get();
+				.get();
 			machineObj.$promise.then(function(response) {
-				console.log("----222",response);
+				console.log("----222", response);
 				$scope.machine = response;
-				
-				
+				// Get the qr code by qrCode id 
+				var qrCodeGetobj = restAPIService.qrCodeById($scope.machine.qrCodeId).get();
+				qrCodeGetobj.$promise.then(function(response){
+					$scope.tempqrCode = response;
+				}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
+			});
 				// split & set qrcode data
-				var qrCodeString = $scope.machine.qrCode;
-				console.log("In the Edit method - qr code is--",$scope.machine.qrCode);
-				
+				var qrCodeString = $scope.tempqrCode.qr_Code;
+				console.log("In the Edit method - qr code is--", $scope.tempqrCode.qr_Code);
+
 				if (qrCodeString != undefined || qrCodeString != null) {
-					console.log("In the Edit method - qr code is--",$scope.machine.qrCode);
+					console.log("In the Edit method - qr code is--", $scope.machine.qrCode);
 					var qrCodeArr = qrCodeString.split("-");
-					console.log("In the Edit method - 1 ",qrCodeArr[0]);
+					console.log("In the Edit method - 1 ", qrCodeArr[0]);
 					$scope.qrcode.part1 = qrCodeArr[0];
-					console.log("In the Edit method - qr 1--",$scope.qrcode.part1);
-					console.log("In the Edit method - 2--",qrCodeArr[1]);
+					console.log("In the Edit method - qr 1--", $scope.qrcode.part1);
+					console.log("In the Edit method - 2--", qrCodeArr[1]);
 					$scope.qrcode.part2 = qrCodeArr[1];
-					console.log("In the Edit method - qr 2--",$scope.qrcode.part2);
-					console.log("In the Edit method 3 --",qrCodeArr[2]);
+					console.log("In the Edit method - qr 2--", $scope.qrcode.part2);
+					console.log("In the Edit method 3 --", qrCodeArr[2]);
 					$scope.qrcode.part3 = qrCodeArr[2];
-					console.log("In the Edit method - qr 3--",$scope.qrcode.part3);
+					console.log("In the Edit method - qr 3--", $scope.qrcode.part3);
 
 				}
 
 				// convert long to Date
 				if ($scope.machine.installationDate != null) {
 					$scope.machine.installationDate = new Date(
-							$scope.machine.installationDate);
+						$scope.machine.installationDate);
 				}
 				if ($scope.machine.warrantyExpiryDate != null) {
 					$scope.machine.warrantyExpiryDate = new Date(
-							$scope.machine.warrantyExpiryDate);
+						$scope.machine.warrantyExpiryDate);
 				}
 				if ($scope.machine.curAmcStartDate != null) {
 					$scope.machine.curAmcStartDate = new Date(
-							$scope.machine.curAmcStartDate);
+						$scope.machine.curAmcStartDate);
 				}
 				if ($scope.machine.curAmcEndDate != null) {
 					$scope.machine.curAmcEndDate = new Date(
-							$scope.machine.curAmcEndDate);
+						$scope.machine.curAmcEndDate);
 				}
-				if ($scope.machine.curSubscriptionStartDate != null) {
-					$scope.machine.curSubscriptionStartDate = new Date(
-							$scope.machine.curSubscriptionStartDate);
-				}
-				if ($scope.machine.curSubscriptionEndDate != null) {
-					$scope.machine.curSubscriptionEndDate = new Date(
-							$scope.machine.curSubscriptionEndDate);
-				}
+//				if ($scope.machine.curSubscriptionStartDate != null) {
+//					$scope.machine.curSubscriptionStartDate = new Date(
+//						$scope.machine.curSubscriptionStartDate);
+//				}
+//				if ($scope.machine.curSubscriptionEndDate != null) {
+//					$scope.machine.curSubscriptionEndDate = new Date(
+//						$scope.machine.curSubscriptionEndDate);
+//				}
 
 			}, function(error) {
 				dialogs.error("Error", error.data.error, {
@@ -643,60 +584,73 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 	$scope.onSaveMachine = function() {
 		console.log("-----Submit button click-----");
-		console.log("modal machine mode---",$scope.modalMachineMode);
+		console.log("modal machine mode---", $scope.modalMachineMode);
+		//--------------------------------ADD-------------------------------------------------
 		if ($scope.modalMachineMode == "add") {
 			//disable submit btn
 			angular.element(document.getElementById('btnSaveMachine'))[0].disabled = true;
-			
-			if ($rootScope.user.role == "MANUFACTURERADMIN"){
+
+			if ($rootScope.user.user_role_id == 3) {//"MANUFACTURERADMIN"
 				//-----------------------------------------1--------------------------
-				$scope.machine.manufacturerId=$rootScope.user.companyDetailsId;
-				console.log("Id of role---"+$scope.machine.manufacturerId+"name"+$scope.machine.name);
+				$scope.machine.manufacturerId = $rootScope.user.manufacturerId;
+				console.log("Id of role---" + $scope.machine.manufacturerId + "name" + $scope.machine.name);
 			}
-			if ($rootScope.user.role == "RESELLERADMIN"){
-				$scope.machine.resellerId=$rootScope.user.companyDetailsId;
+			if ($rootScope.user.user_role_id == 4 ) {//"RESELLERADMIN"
+				$scope.machine.resellerId = $rootScope.user.companyDetailsId;
 				$scope.machine.manufacturerId = $scope.getResellerData.fld_manufid;
-				console.log("manuf id--",$scope.machine.manufacturerId);
-			} 
-			 
+				console.log("manuf id--", $scope.machine.manufacturerId);
+			}
+
 			$scope.machine.onBoardedBy = $rootScope.user.id;
 			$scope.machine.customerId = $scope.customer.id;
 
 			// construct QRcode		 
-			
-			if (($scope.qrcode.part1 == undefined || $scope.qrcode.part1=='' || $scope.qrcode.part1==null ) 
-					&& ($scope.qrcode.part2 == undefined || $scope.qrcode.part2=='' || $scope.qrcode.part2==null)
-					&& ($scope.qrcode.part3 == undefined || $scope.qrcode.part3=='' || $scope.qrcode.part3==null)){
+
+			if (($scope.qrcode.part1 == undefined || $scope.qrcode.part1 == '' || $scope.qrcode.part1 == null)
+				&& ($scope.qrcode.part2 == undefined || $scope.qrcode.part2 == '' || $scope.qrcode.part2 == null)
+				&& ($scope.qrcode.part3 == undefined || $scope.qrcode.part3 == '' || $scope.qrcode.part3 == null)) {
 				$scope.machine.qrCode = null;
-			}else{
-				$scope.machine.qrCode = $scope.qrcode.part1 + "-"
+			} else {
+//				$scope.machine.qrCode = $scope.qrcode.part1 + "-"
+//				+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
+				var code = $scope.qrcode.part1 + "-"
 				+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
+				var qrid = restAPIService.checkMachineQrCode(code).get();
+				$scope.tempqrCode1 = {};
+				qrid.$promise.then(function(response){
+					$scope.tempqrCode1 = response;
+					$scope.machine.qrCodeId = $scope.tempqrCode1.id;
+				}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
+				});
 			}
-			
+
 			if ($scope.machine.curAmcStatus == "INACTIVE") {
 				$scope.machine.curAmcStartDate = "";
 				$scope.machine.curAmcEndDate = "";
 			}
-			if ($scope.machine.curSubscriptionStatus == "INACTIVE") {
-				$scope.machine.curSubscriptionStartDate = "";
-				$scope.machine.curSubscriptionEndDate= "";
-			}
-			
-			console.log("Machine information --->",$scope.machine);
+//			if ($scope.machine.curSubscriptionStatus == "INACTIVE") {
+//				$scope.machine.curSubscriptionStartDate = "";
+//				$scope.machine.curSubscriptionEndDate = "";
+//			}
+
+			console.log("Machine information --->", $scope.machine);
 			var machineObj = restAPIService.machinesResource().save(
-					$scope.machine);
+				$scope.machine);
 			machineObj.$promise.then(function(response) {
 				angular.element(document.getElementById('btnSaveMachine'))[0].disabled = false;
 				$("#addMachine").modal('hide');
 				$('.modal-backdrop').remove();
 				$('body').removeClass('modal-open');
-				
+
 				// $scope.machinesData.push(response);
 				dialogs.notify("Success", "Machine added successfully.", {
 					'size' : 'sm'
 				});
 				getMachinesListByCustomerIdAndOnBoardedBy();
-				
+
 
 			}, function(error) {
 				angular.element(document.getElementById('btnSaveMachine'))[0].disabled = false;
@@ -706,44 +660,59 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				});
 			});
 		}
+		//--------------------------------ADD Closed-------------------------------------------------
+		//--------------------------------Edit start-------------------------------------------------
 		if ($scope.modalMachineMode == "edit") {
 			angular.element(document.getElementById('btnSaveMachine'))[0].disabled = true;
-			
-			if ($rootScope.user.role == "MANUFACTURERADMIN"){
+
+			if ($rootScope.user.user_role_id == 3) { //"MANUFACTURERADMIN"
 				//=----------------------------------2---------------------------
-				$scope.machine.manufacturerId=$rootScope.user.companyDetailsId;
-//				console.log("Id in edit--"+$scope.machine.manufacturerId+"--name--"+$scope.resellerId.companyName);
+				$scope.machine.manufacturerId = $rootScope.user.manufacturerId;
+			//				console.log("Id in edit--"+$scope.machine.manufacturerId+"--name--"+$scope.resellerId.companyName);
 			}
-			if ($rootScope.user.role == "RESELLERADMIN"){
-				$scope.machine.resellerId=$rootScope.user.companyDetailsId;	
-				
-			} 
-			
+			if ($rootScope.user.user_role_id == 4) {//"RESELLERADMIN"
+				$scope.machine.resellerId = $rootScope.user.manufacturerId;
+
+			}
+
 			$scope.machine.onBoardedBy = $rootScope.user.id;
 			var machineId = Number($scope.machine.id);
 
 			// construct QRcode
-			if (($scope.qrcode.part1 == undefined || $scope.qrcode.part1=='' || $scope.qrcode.part1==null ) 
-					&& ($scope.qrcode.part2 == undefined || $scope.qrcode.part2=='' || $scope.qrcode.part2==null)
-					&& ($scope.qrcode.part3 == undefined || $scope.qrcode.part3=='' || $scope.qrcode.part3==null)){
+			if (($scope.qrcode.part1 == undefined || $scope.qrcode.part1 == '' || $scope.qrcode.part1 == null)
+				&& ($scope.qrcode.part2 == undefined || $scope.qrcode.part2 == '' || $scope.qrcode.part2 == null)
+				&& ($scope.qrcode.part3 == undefined || $scope.qrcode.part3 == '' || $scope.qrcode.part3 == null)) {
 				$scope.machine.qrCode = null;
-			}else{
-				$scope.machine.qrCode = $scope.qrcode.part1 + "-"
+			} else {
+//				$scope.machine.qrCode = $scope.qrcode.part1 + "-"
+//				+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
+				
+				var code = $scope.qrcode.part1 + "-"
 				+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
+				var qrid = restAPIService.checkMachineQrCode(code).get();
+				$scope.tempqrCode1 = {};
+				qrid.$promise.then(function(response){
+					$scope.tempqrCode1 = response;
+					$scope.machine.qrCodeId = $scope.tempqrCode1.id;
+				}, function(error) {
+				dialogs.error("Error", error.data.error, {
+					'size' : 'sm'
+				});
+				});
 			}
-			
-		
+
+
 			if ($scope.machine.curAmcStatus == "INACTIVE") {
 				$scope.machine.curAmcStartDate = "";
 				$scope.machine.curAmcEndDate = "";
 			}
-			if ($scope.machine.curSubscriptionStatus == "INACTIVE") {
-				$scope.machine.curSubscriptionStartDate = "";
-				$scope.machine.curSubscriptionEndDate= "";
-			}
+//			if ($scope.machine.curSubscriptionStatus == "INACTIVE") {
+//				$scope.machine.curSubscriptionStartDate = "";
+//				$scope.machine.curSubscriptionEndDate = "";
+//			}
 
 			var promise = restAPIService.machineResource(machineId).update(
-					$scope.machine);
+				$scope.machine);
 			promise.$promise.then(function(response) {
 				angular.element(document.getElementById('btnSaveMachine'))[0].disabled = false;
 				dialogs.notify("Success", response.success, {
@@ -752,11 +721,11 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				getMachinesListByCustomerIdAndOnBoardedBy();
 				$scope.setTabId = 3;
 				$state.go("home.managecustomers.addcustomer");
-				
+
 				$("#addMachine").modal('hide');
 				$('.modal-backdrop').remove();
 				$('body').removeClass('modal-open');
-				
+
 			}, function(error) {
 				angular.element(document.getElementById('btnSaveMachine'))[0].disabled = false;
 				dialogs.error("Error", error.data.error, {
@@ -766,33 +735,33 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 		}
 	}
-	
-//	$scope.cancelSaveMachine = function() {
-//		console.log("1");
-//		$("#addMachine").on('hidden.bs.modal', function () {	
-//			console.log("2");
-//			$state.reload();
-//			$scope.setTabId = 3;
-//			$state.go("home.managecustomers.addcustomer");
-////			$scope.machine = {};
-//	    });	
-//		console.log("3");
-//	}
-//-------------------------------------------------------------------------------------------------------------------
-	
+
+	//	$scope.cancelSaveMachine = function() {
+	//		console.log("1");
+	//		$("#addMachine").on('hidden.bs.modal', function () {	
+	//			console.log("2");
+	//			$state.reload();
+	//			$scope.setTabId = 3;
+	//			$state.go("home.managecustomers.addcustomer");
+	////			$scope.machine = {};
+	//	    });	
+	//		console.log("3");
+	//	}
+	//-------------------------------------------------------------------------------------------------------------------
+
 	/**
 	 * **************** add/edit phone devices[OPERATOR]
-	 * *************************************
+	 * ************************************* removed
 	 */
-	$scope.addNewOperator = function() {
+/*	$scope.addNewOperator = function() {
 		$scope.operatorModalTitle = "Add Operator";
 		$scope.operatorModalMode = "add";
 		$scope.operator = '';
-
+*/
 		// fetch location dropdown list by onBoardedBy
-		getCompanyLocationsListByOnBoarded();
-	}
-	$scope.editOperator = function(phoneDevice) {
+//		getCompanyLocationsListByOnBoarded();
+//	}
+	/*$scope.editOperator = function(phoneDevice) {
 		$scope.operatorModalTitle = "Edit Operator";
 		$scope.operatorModalMode = "edit";
 		$scope.phoneDevice = phoneDevice;
@@ -800,35 +769,35 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 
 		// get all detail by machine id
 		if ($scope.phoneDeviceId != null) {
-			var promise = restAPIService.phoneDeviceResource(
-					$scope.phoneDeviceId).get();
+			var promise = restAPIService.phoneOperatorResource(
+				$scope.phoneDeviceId).get();
 			promise.$promise
-					.then(
-							function(response) {
-								$scope.operator = response;
-								//$scope.operator.phoneNumber = Number($scope.operator.phoneNumber);
-							}, function(error) {
-								dialogs.error("Error", error.data.error, {
-									'size' : 'sm'
-								});
-							});
+				.then(
+					function(response) {
+						$scope.operator = response;
+					//$scope.operator.phoneNumber = Number($scope.operator.phoneNumber);
+					}, function(error) {
+						dialogs.error("Error", error.data.error, {
+							'size' : 'sm'
+						});
+					});
 		}
-	}
+	}*/
 
-	$scope.onSaveOperator = function() {
+	/*$scope.onSaveOperator = function() {
 		if ($scope.operatorModalMode == "add") {
-			
+
 			angular.element(document.getElementById('btnSaveOperator'))[0].disabled = true;
 			$scope.operator.onBoardedBy = $rootScope.user.id;
 			$scope.operator.customerId = $scope.customer.id;
 			var promise = restAPIService.phoneDevicesResource().save(
-					$scope.operator);
+				$scope.operator);
 			promise.$promise.then(function(response) {
 				angular.element(document.getElementById('btnSaveOperator'))[0].disabled = false;
 				$("#addOperator").modal('hide');
 				$('.modal-backdrop').remove();
 				$('body').removeClass('modal-open');
-				
+
 				dialogs.notify("Success", "Operator created successfully", {
 					'size' : 'sm'
 				});
@@ -844,13 +813,13 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			// $scope.operator.onBoardedBy = $rootScope.user.id;
 			var phoneDeviceId = Number($scope.phoneDevice.id);
 			var promise = restAPIService.phoneDeviceResource(phoneDeviceId)
-					.update($scope.operator);
+				.update($scope.operator);
 			promise.$promise.then(function(response) {
 				angular.element(document.getElementById('btnSaveOperator'))[0].disabled = false;
 				$("#addOperator").modal('hide');
 				$('.modal-backdrop').remove();
 				$('body').removeClass('modal-open');
-				
+
 				dialogs.notify("Success", response.success, {
 					'size' : 'sm'
 				});
@@ -864,7 +833,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			$scope.setTabId = 4;
 			$state.go("home.managecustomers.addcustomer");
 		}
-	}
+	}*/
 
 	$scope.checkCompanyPanAvailability = function() {
 		$scope.panValidationMsgColor = "red";
@@ -872,19 +841,19 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		if ($scope.companyDetail.pan != undefined) {
 			if (($scope.companyDetail.pan).length == 10) {
 				var promise = restAPIService
-						.companyDetailByCompanyTypeAndCompanyPan("CUSTOMER",
-								$scope.companyDetail.pan).get();
+					.companyDetailByCompanyTypeAndCompanyPan("CUSTOMER",
+						$scope.companyDetail.pan).get();
 				promise.$promise
-						.then(function(response) {
-							if (response.isCompanyPanExist == true) {
-								// pan already used by this company type
-								$scope.panValidationMsg = "This company PAN is not available";
-							} else {
-								$scope.panValidationMsgColor = "green";
-								// pan not being used by this company type
-								$scope.panValidationMsg = "This company PAN is available";
-							}
-						});
+					.then(function(response) {
+						if (response.isCompanyPanExist == true) {
+							// pan already used by this company type
+							$scope.panValidationMsg = "This company PAN is not available";
+						} else {
+							$scope.panValidationMsgColor = "green";
+							// pan not being used by this company type
+							$scope.panValidationMsg = "This company PAN is available";
+						}
+					});
 			} else {
 				$scope.panValidationMsg = "Enter 10 digit in company PAN ";
 			}
@@ -898,35 +867,35 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 		$scope.qrCodeValidationMsgColor = "red";
 
 		if ($scope.qrcode.part1 != undefined
-				&& $scope.qrcode.part2 != undefined
-				&& $scope.qrcode.part3 != undefined) {
+			&& $scope.qrcode.part2 != undefined
+			&& $scope.qrcode.part3 != undefined) {
 			if (($scope.qrcode.part1).length == 4
-					&& ($scope.qrcode.part2).length == 4
-					&& ($scope.qrcode.part3).length == 4) {
+				&& ($scope.qrcode.part2).length == 4
+				&& ($scope.qrcode.part3).length == 4) {
 
 				// construct QRcode
 				var qrCodeString;
 				if ($scope.qrcode != null) {
 					qrCodeString = $scope.qrcode.part1 + "-"
-							+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
+					+ $scope.qrcode.part2 + "-" + $scope.qrcode.part3;
 				} else {
 					qrCodeString = "";
 				}
 
 				var promise = restAPIService.checkMachineQrCode(qrCodeString)
-						.get();
+					.get();
 				promise.$promise
-						.then(function(response) {
-							if (response.isQRcodeAssigned == true) {
-								// qr code already used by this machine
-								$scope.qrCodeValidationMsg = "This QR code is not available";
-							} else {
-								$scope.qrCodeValidationMsgColor = "green";
-								// this qr code is not being used by this
-								// machine
-								$scope.qrCodeValidationMsg = "This QR code is available";
-							}
-						});
+					.then(function(response) {
+						if (response.isQRcodeAssigned == true) {
+							// qr code already used by this machine
+							$scope.qrCodeValidationMsg = "This QR code is not available";
+						} else {
+							$scope.qrCodeValidationMsgColor = "green";
+							// this qr code is not being used by this
+							// machine
+							$scope.qrCodeValidationMsg = "This QR code is available";
+						}
+					});
 			} else {
 				$scope.qrCodeValidationMsg = "Enter 4 char of QR code into each box";
 			}
@@ -963,7 +932,7 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	// upload excel sheet
 	$scope.showBulkUploadDiv = function() {
 		$scope.bulkUploadDivFlag = true;
-		$scope.btnUploadBulkMachine="Upload";
+		$scope.btnUploadBulkMachine = "Upload";
 		// clear earlier selected file
 		if (document.getElementById("uploadFile").value != "") {
 			document.getElementById("uploadFile").value = "";
@@ -976,9 +945,9 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	}
 
 	$scope.uploadExcelFile = function() {
-		if (document.getElementById("uploadFile").value != "") {		
+		if (document.getElementById("uploadFile").value != "") {
 			uploadConvertExcelFile();
-			
+
 		} else {
 			dialogs.error("Error", "Please choose file to upload.", {
 				'size' : 'sm'
@@ -988,276 +957,275 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	}
 
 	function uploadConvertExcelFile() {
-		
 		angular.element(document.getElementById('btnUploadBulkMachine'))[0].disabled = true;
-		$scope.btnUploadBulkMachine="Uploading.."; 
-		 
-		var fileName=document.getElementById("uploadFile");
-		var extArray = ['xlsx'];          
-        var extension = fileName.value.substring(fileName.value.lastIndexOf('.') + 1).toLowerCase();
-          if (extArray.indexOf(extension) <= -1) {
-            
-	        angular.element(document.getElementById('btnUploadBulkMachine'))[0].disabled = false;
-	  		$scope.btnUploadBulkMachine="Upload";
-	  			dialogs.error("Error", "Please choose file with .xlsx extention.", {
-					'size' : 'sm'
-				});
-            return false;
-          }
-		   
-        var file = document.getElementById('uploadFile').files[0];   
-		var ej = parseExcelService.excelUploadService();
-		ej.parseExcel(file).then(function success(data) {			
-			parserJsonData(data.finalData);
-			
-		}, function failure(err) {			
+		$scope.btnUploadBulkMachine = "Uploading..";
+
+		var fileName = document.getElementById("uploadFile");
+		var extArray = [ 'xlsx' ];
+		var extension = fileName.value.substring(fileName.value.lastIndexOf('.') + 1).toLowerCase();
+		if (extArray.indexOf(extension) <= -1) {
+
 			angular.element(document.getElementById('btnUploadBulkMachine'))[0].disabled = false;
-			$scope.btnUploadBulkMachine="Upload";
-			 
+			$scope.btnUploadBulkMachine = "Upload";
+			dialogs.error("Error", "Please choose file with .xlsx extention.", {
+				'size' : 'sm'
+			});
+			return false;
+		}
+
+		var file = document.getElementById('uploadFile').files[0];
+		var ej = parseExcelService.excelUploadService();
+		ej.parseExcel(file).then(function success(data) {
+			parserJsonData(data.finalData);
+
+		}, function failure(err) {
+			angular.element(document.getElementById('btnUploadBulkMachine'))[0].disabled = false;
+			$scope.btnUploadBulkMachine = "Upload";
+
 			dialogs.error("Error", err, {
 				'size' : 'sm'
 			});
-			
+
 		});
 	}
 
 	function parserJsonData(jsonData) {
-		var errorMessage = "";		 
+		var errorMessage = "";
 		var uploadErrorMessage = "";
 		var keepGoing = true;
 
 		angular
-				.forEach(
-						jsonData,
-						function(obj, key) {
-							if (keepGoing) {
-								// skip row in sheet which has comment text
-								if (key == 0) {
-									// skip it
-									// console.log("skiped comment row")
-								} else {
-									// execute it
-									var machineObj = {};
-									machineObj.name = obj["MachineName"];
-									machineObj.qrCode = obj["QRcode"];
-									machineObj.serialNumber = obj["SerialNumber*"];
-									machineObj.modelNumber = obj["ModelNumber*"];
-									machineObj.description = obj["Description"];
-									machineObj.machineYear = obj["MachineYear"];
-									machineObj.manufacturerName = obj["ManufacturerName"];
-									machineObj.manufacturerPAN = obj["ManufacturerPAN*"];
-									machineObj.resellerName = obj["ResellerName"];
-									machineObj.resellerPAN = obj["ResellerPAN"];
-									machineObj.installationDate = obj["InstallationDate"];
-									machineObj.warrantyExpiryDate = obj["WarrantyExpiryDate"];
-									machineObj.locationId = obj["Location*"];
-									machineObj.supportAssistance = obj["SupportAssistancAttendMe(M/R)*"];
-									machineObj.curAmcType = obj["AmcType"];
-									machineObj.curAmcStatus = obj["AmcStatus"];
-									machineObj.curAmcStartDate = obj["AmcStartDate"];
-									machineObj.curAmcEndDate = obj["AmcEndDate"];
-									machineObj.curSubscriptionType = obj["AttendMeSubscriptionType*"];
-									machineObj.curSubscriptionStatus = obj["AttendMeSubscriptionStatus*"];
-									machineObj.curSubscriptionStartDate = obj["AttendMeSubscriptionStartDate"];
-									machineObj.curSubscriptionEndDate = obj["AttendMeSubscriptionEndDate"];
+			.forEach(
+				jsonData,
+				function(obj, key) {
+					if (keepGoing) {
+						// skip row in sheet which has comment text
+						if (key == 0) {
+							// skip it
+							// console.log("skiped comment row")
+						} else {
+							// execute it
+							var machineObj = {};
+							machineObj.name = obj["MachineName"];
+							machineObj.qrCode = obj["QRcode"];
+							machineObj.serialNumber = obj["SerialNumber*"];
+							machineObj.modelNumber = obj["ModelNumber*"];
+							machineObj.description = obj["Description"];
+							machineObj.machineYear = obj["MachineYear"];
+							machineObj.manufacturerName = obj["ManufacturerName"];
+							machineObj.manufacturerPAN = obj["ManufacturerPAN*"];
+							machineObj.resellerName = obj["ResellerName"];
+							machineObj.resellerPAN = obj["ResellerPAN"];
+							machineObj.installationDate = obj["InstallationDate"];
+							machineObj.warrantyExpiryDate = obj["WarrantyExpiryDate"];
+							machineObj.locationId = obj["Location*"];
+							machineObj.supportAssistance = obj["SupportAssistancAttendMe(M/R)*"];
+							machineObj.curAmcType = obj["AmcType"];
+							machineObj.curAmcStatus = obj["AmcStatus"];
+							machineObj.curAmcStartDate = obj["AmcStartDate"];
+							machineObj.curAmcEndDate = obj["AmcEndDate"];
+							machineObj.curSubscriptionType = obj["AttendMeSubscriptionType*"];
+							machineObj.curSubscriptionStatus = obj["AttendMeSubscriptionStatus*"];
+							machineObj.curSubscriptionStartDate = obj["AttendMeSubscriptionStartDate"];
+							machineObj.curSubscriptionEndDate = obj["AttendMeSubscriptionEndDate"];
 
-									machineObj.customerId = "";
-									machineObj.manufacturerId = "";
-									machineObj.resellerId = "";
+							machineObj.customerId = "";
+							machineObj.manufacturerId = "";
+							machineObj.resellerId = "";
 
-									if (machineObj.serialNumber != undefined
-											&& machineObj.modelNumber != undefined
-											&& machineObj.serialNumber != undefined
-											&& machineObj.manufacturerPAN != undefined
-											&& machineObj.locationId != undefined
-											&& machineObj.supportAssistance != undefined
-											&& machineObj.curSubscriptionType != undefined
-											&& machineObj.curSubscriptionStatus != undefined) {
+							if (machineObj.serialNumber != undefined
+								&& machineObj.modelNumber != undefined
+								&& machineObj.serialNumber != undefined
+								&& machineObj.manufacturerPAN != undefined
+								&& machineObj.locationId != undefined
+								&& machineObj.supportAssistance != undefined
+								&& machineObj.curSubscriptionType != undefined
+								&& machineObj.curSubscriptionStatus != undefined) {
 
-										// find into loaded list
-										if (machineObj.qrCode != undefined) {
-											$scope.assignedQrCode = checkAssignedQrCode(machineObj.qrCode);
-											if ($scope.assignedQrCode == null) {
-												keepGoing = false;
-												errorMessage = "This is not valid AttendMe QR code.";
-											}
-											if (keepGoing
-													&& $scope.assignedQrCode != null
-													&& $scope.assignedQrCode.status == "ASSIGNED") {
-												// qr code is not available.
-												// already assigned to other
-												// machine
-												keepGoing = false;
-												errorMessage = "This QR code not available since it is already assigned.";
-											}
-										}
-										
-										
-										// check PAN-manufacturer
-										$scope.existingManRes = existingManResListByPAN(machineObj.manufacturerPAN
-												, "MANUFACTURER");
-										if (keepGoing
-												&& $scope.existingManRes == null) {
-											// this is not valid PAN
-											keepGoing = false;
-											errorMessage = "Unable to find manufacturer with this PAN.";
-										}
-										if (keepGoing
-												&& $scope.existingManRes != null
-												&& $scope.existingManRes.companyType == "MANUFACTURER") {
-											// set manufacturer id
-											machineObj.manufacturerId = $scope.existingManRes.id;
-										}
-										// check PAN-reseller
-										if (keepGoing
-												&& machineObj.resellerPAN != undefined) {
-											$scope.existingManRes2 = existingManResListByPAN(machineObj.resellerPAN
-													, "RESELLER");
-											if (keepGoing
-													&& $scope.existingManRes2 == null) {
-												// this is not valid PAN
-												keepGoing = false;
-												errorMessage = "Unable to find reseller with this PAN.";
-											}
-											if (keepGoing
-													&& $scope.existingManRes2 != null
-													&& $scope.existingManRes2.companyType == "RESELLER") {
-												// set reseller id
-												machineObj.resellerId = $scope.existingManRes2.id;
-											}
-										}
-										// check date
-										if (keepGoing) {
-											if (machineObj.installationDate != undefined
-													&& validateDate(machineObj.installationDate)) {
-												machineObj.installationDate = new Date(
-														machineObj.installationDate);
-											} else {
-												keepGoing = false;
-												errorMessage = "Instatllation date is not valid.";
-											}
-										}
-
-										if (keepGoing) {
-											if (machineObj.warrantyExpiryDate != undefined
-													&& validateDate(machineObj.warrantyExpiryDate)) {
-												machineObj.warrantyExpiryDate = new Date(
-														machineObj.warrantyExpiryDate);
-											} else {
-												keepGoing = false;
-												errorMessage = "Warranty expiry date is not valid.";
-											}
-										}
-
-										// check supportAssistance
-										if (keepGoing) {
-											if ((machineObj.supportAssistance
-													.toUpperCase()) == "M") {
-												machineObj.supportAssistance = "MANUFACTURER";
-											} else if ((machineObj.supportAssistance
-													.toUpperCase()) == "R") {
-												machineObj.supportAssistance = "RESELLER";
-											} else {
-												keepGoing = false;
-												errorMessage = "Support assistance should be either M or R.";
-											}
-										}
-										// check subscription date
-										if (keepGoing) {
-											if (machineObj.curSubscriptionStatus != "INACTIVE") {
-												// start /end date required
-												if (machineObj.curSubscriptionStartDate != undefined
-														&& validateDate(machineObj.curSubscriptionStartDate)) {
-													machineObj.curSubscriptionStartDate = new Date(
-															machineObj.curSubscriptionStartDate);
-												} else {
-													keepGoing = false;
-													errorMessage = "AttendMe subscription start date is not valid.";
-												}
-											} else {
-												machineObj.curSubscriptionStartDate = "";
-											}
-										}
-
-										if (keepGoing) {
-											if (machineObj.curSubscriptionStatus != "INACTIVE") {
-												if (machineObj.curSubscriptionEndDate != undefined
-														&& validateDate(machineObj.curSubscriptionEndDate)) {
-													machineObj.curSubscriptionEndDate = new Date(
-															machineObj.curSubscriptionEndDate);
-												} else {
-													keepGoing = false;
-													errorMessage = "AttendMe subscription end date is not valid.";
-												}
-											} else {
-												machineObj.curSubscriptionEndDate = "";
-											}
-										}
-
-									} else {
-										// end of required field validation
+								// find into loaded list
+								if (machineObj.qrCode != undefined) {
+									$scope.assignedQrCode = checkAssignedQrCode(machineObj.qrCode);
+									if ($scope.assignedQrCode == null) {
 										keepGoing = false;
-										errorMessage = "Required field is missing.";
+										errorMessage = "This is not valid AttendMe QR code.";
 									}
-
-									// if error occurred then break & return
-									// error message
-									if (!keepGoing) {
-										uploadErrorMessage = "Error occured in row number "
-												+ (key + 2)
-												+ ". \n Reason: "
-												+ errorMessage;
-
-									} else {
-										// if error not occurred then push this
-										// object into finalMachineBulkList
-										$scope.newMachineObj = {};
-
-										$scope.newMachineObj.name = machineObj.name;
-										$scope.newMachineObj.qrCode = machineObj.qrCode;
-										$scope.newMachineObj.modelNumber = machineObj.modelNumber;
-										$scope.newMachineObj.serialNumber = machineObj.serialNumber;
-										$scope.newMachineObj.description = machineObj.description;
-										$scope.newMachineObj.machineYear = machineObj.machineYear;
-										$scope.newMachineObj.manufacturerId = machineObj.manufacturerId;
-										$scope.newMachineObj.resellerId = machineObj.resellerId;
-										$scope.newMachineObj.installationDate = machineObj.installationDate;
-										$scope.newMachineObj.warrantyExpiryDate = machineObj.warrantyExpiryDate;
-										$scope.newMachineObj.locationId = Number(machineObj.locationId);
-										$scope.newMachineObj.supportAssistance = machineObj.supportAssistance;
-										$scope.newMachineObj.curAmcType = machineObj.curAmcType;
-										$scope.newMachineObj.curAmcStatus = machineObj.curAmcStatus;
-										$scope.newMachineObj.curAmcStartDate = machineObj.curAmcStartDate;
-										$scope.newMachineObj.curAmcEndDate = machineObj.curAmcEndDate;
-										$scope.newMachineObj.curSubscriptionType = machineObj.curSubscriptionType;
-										$scope.newMachineObj.curSubscriptionStatus = machineObj.curSubscriptionStatus;
-										$scope.newMachineObj.curSubscriptionStartDate = machineObj.curSubscriptionStartDate;
-										$scope.newMachineObj.curSubscriptionEndDate = machineObj.curSubscriptionEndDate;
-										$scope.newMachineObj.customerId = $scope.customer.id;
-										$scope.newMachineObj.onBoardedBy = $rootScope.user.id;
-
-										$scope.finalMachineBulkList
-												.push($scope.newMachineObj);
+									if (keepGoing
+										&& $scope.assignedQrCode != null
+										&& $scope.assignedQrCode.status == "ASSIGNED") {
+										// qr code is not available.
+										// already assigned to other
+										// machine
+										keepGoing = false;
+										errorMessage = "This QR code not available since it is already assigned.";
 									}
 								}
+
+
+								// check PAN-manufacturer
+								$scope.existingManRes = existingManResListByPAN(machineObj.manufacturerPAN
+									, "MANUFACTURER");
+								if (keepGoing
+									&& $scope.existingManRes == null) {
+									// this is not valid PAN
+									keepGoing = false;
+									errorMessage = "Unable to find manufacturer with this PAN.";
+								}
+								if (keepGoing
+									&& $scope.existingManRes != null
+									&& $scope.existingManRes.companyType == "MANUFACTURER") {
+									// set manufacturer id
+									machineObj.manufacturerId = $scope.existingManRes.id;
+								}
+								// check PAN-reseller
+								if (keepGoing
+									&& machineObj.resellerPAN != undefined) {
+									$scope.existingManRes2 = existingManResListByPAN(machineObj.resellerPAN
+										, "RESELLER");
+									if (keepGoing
+										&& $scope.existingManRes2 == null) {
+										// this is not valid PAN
+										keepGoing = false;
+										errorMessage = "Unable to find reseller with this PAN.";
+									}
+									if (keepGoing
+										&& $scope.existingManRes2 != null
+										&& $scope.existingManRes2.companyType == "RESELLER") {
+										// set reseller id
+										machineObj.resellerId = $scope.existingManRes2.id;
+									}
+								}
+								// check date
+								if (keepGoing) {
+									if (machineObj.installationDate != undefined
+										&& validateDate(machineObj.installationDate)) {
+										machineObj.installationDate = new Date(
+											machineObj.installationDate);
+									} else {
+										keepGoing = false;
+										errorMessage = "Instatllation date is not valid.";
+									}
+								}
+
+								if (keepGoing) {
+									if (machineObj.warrantyExpiryDate != undefined
+										&& validateDate(machineObj.warrantyExpiryDate)) {
+										machineObj.warrantyExpiryDate = new Date(
+											machineObj.warrantyExpiryDate);
+									} else {
+										keepGoing = false;
+										errorMessage = "Warranty expiry date is not valid.";
+									}
+								}
+
+								// check supportAssistance
+								if (keepGoing) {
+									if ((machineObj.supportAssistance
+											.toUpperCase()) == "M") {
+										machineObj.supportAssistance = "MANUFACTURER";
+									} else if ((machineObj.supportAssistance
+											.toUpperCase()) == "R") {
+										machineObj.supportAssistance = "RESELLER";
+									} else {
+										keepGoing = false;
+										errorMessage = "Support assistance should be either M or R.";
+									}
+								}
+								// check subscription date
+								if (keepGoing) {
+									if (machineObj.curSubscriptionStatus != "INACTIVE") {
+										// start /end date required
+										if (machineObj.curSubscriptionStartDate != undefined
+											&& validateDate(machineObj.curSubscriptionStartDate)) {
+											machineObj.curSubscriptionStartDate = new Date(
+												machineObj.curSubscriptionStartDate);
+										} else {
+											keepGoing = false;
+											errorMessage = "AttendMe subscription start date is not valid.";
+										}
+									} else {
+										machineObj.curSubscriptionStartDate = "";
+									}
+								}
+
+								if (keepGoing) {
+									if (machineObj.curSubscriptionStatus != "INACTIVE") {
+										if (machineObj.curSubscriptionEndDate != undefined
+											&& validateDate(machineObj.curSubscriptionEndDate)) {
+											machineObj.curSubscriptionEndDate = new Date(
+												machineObj.curSubscriptionEndDate);
+										} else {
+											keepGoing = false;
+											errorMessage = "AttendMe subscription end date is not valid.";
+										}
+									} else {
+										machineObj.curSubscriptionEndDate = "";
+									}
+								}
+
+							} else {
+								// end of required field validation
+								keepGoing = false;
+								errorMessage = "Required field is missing.";
 							}
 
-						});
+							// if error occurred then break & return
+							// error message
+							if (!keepGoing) {
+								uploadErrorMessage = "Error occured in row number "
+									+ (key + 2)
+									+ ". \n Reason: "
+									+ errorMessage;
+
+							} else {
+								// if error not occurred then push this
+								// object into finalMachineBulkList
+								$scope.newMachineObj = {};
+
+								$scope.newMachineObj.name = machineObj.name;
+								$scope.newMachineObj.qrCode = machineObj.qrCode;
+								$scope.newMachineObj.modelNumber = machineObj.modelNumber;
+								$scope.newMachineObj.serialNumber = machineObj.serialNumber;
+								$scope.newMachineObj.description = machineObj.description;
+								$scope.newMachineObj.machineYear = machineObj.machineYear;
+								$scope.newMachineObj.manufacturerId = machineObj.manufacturerId;
+								$scope.newMachineObj.resellerId = machineObj.resellerId;
+								$scope.newMachineObj.installationDate = machineObj.installationDate;
+								$scope.newMachineObj.warrantyExpiryDate = machineObj.warrantyExpiryDate;
+								$scope.newMachineObj.locationId = Number(machineObj.locationId);
+								$scope.newMachineObj.supportAssistance = machineObj.supportAssistance;
+								$scope.newMachineObj.curAmcType = machineObj.curAmcType;
+								$scope.newMachineObj.curAmcStatus = machineObj.curAmcStatus;
+								$scope.newMachineObj.curAmcStartDate = machineObj.curAmcStartDate;
+								$scope.newMachineObj.curAmcEndDate = machineObj.curAmcEndDate;
+								$scope.newMachineObj.curSubscriptionType = machineObj.curSubscriptionType;
+								$scope.newMachineObj.curSubscriptionStatus = machineObj.curSubscriptionStatus;
+								$scope.newMachineObj.curSubscriptionStartDate = machineObj.curSubscriptionStartDate;
+								$scope.newMachineObj.curSubscriptionEndDate = machineObj.curSubscriptionEndDate;
+								$scope.newMachineObj.customerId = $scope.customer.id;
+								$scope.newMachineObj.onBoardedBy = $rootScope.user.id;
+
+								$scope.finalMachineBulkList
+									.push($scope.newMachineObj);
+							}
+						}
+					}
+
+				});
 
 		if (!keepGoing) {
 			angular.element(document.getElementById('btnUploadBulkMachine'))[0].disabled = false;
-			$scope.btnUploadBulkMachine="Upload";
-			
+			$scope.btnUploadBulkMachine = "Upload";
+
 			dialogs.error("Error", uploadErrorMessage, {
 				'size' : 'sm'
 			});
 		} else {
 			var promise = restAPIService.uploadBulkMachineList().save(
-					$scope.finalMachineBulkList);
+				$scope.finalMachineBulkList);
 			promise.$promise.then(function(response) {
 				angular.element(document.getElementById('btnUploadBulkMachine'))[0].disabled = false;
-				$scope.btnUploadBulkMachine="Upload";
-				
+				$scope.btnUploadBulkMachine = "Upload";
+
 				dialogs.notify("Success", response.success, {
 					'size' : 'sm'
 				});
@@ -1266,8 +1234,8 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 				$scope.bulkUploadDivFlag = false;
 			}, function(error) {
 				angular.element(document.getElementById('btnUploadBulkMachine'))[0].disabled = false;
-				$scope.btnUploadBulkMachine="Upload";
-				
+				$scope.btnUploadBulkMachine = "Upload";
+
 				dialogs.error("Error", error.data.error, {
 					'size' : 'sm'
 				});
@@ -1294,7 +1262,6 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			console.log(error.data.error);
 
 		});
-
 	}
 
 	function checkAssignedQrCode(qrCodeString) {
@@ -1307,7 +1274,6 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 	}
 
 	function existingManResListByPAN(manResPAN, manResType) {
-		
 		for (var i = 0; i < ($scope.manResList).length; i++) {
 			if ($scope.manResList[i]["pan"] == manResPAN && $scope.manResList[i]["companyType"] == manResType) {
 				return ($scope.manResList[i]);
@@ -1326,10 +1292,10 @@ function addcustomerController($scope, $state, restAPIService, dialogs,
 			return true;
 		}
 	}
-	
-	$rootScope.goBack = function(){
-		    $window.history.back();
-		  }
-	
+
+	$rootScope.goBack = function() {
+		$window.history.back();
+	}
+
 
 }

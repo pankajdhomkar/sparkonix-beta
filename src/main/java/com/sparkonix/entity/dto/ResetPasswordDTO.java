@@ -1,7 +1,12 @@
 package com.sparkonix.entity.dto;
 
-public class ResetPasswordDTO {
+/**
+ * @author Pankaj Dhomkar
+ * 
+ */
 
+public class ResetPasswordDTO {
+	
 	private String oldPassword;
 	private String newPassword;
 	private long userId;

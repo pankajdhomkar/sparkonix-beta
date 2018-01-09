@@ -19,18 +19,19 @@ function manageMachineDocumentsController($scope, $rootScope, restAPIService,
 	getAllDocuments();
 	getAllMachineModelNumbers();
 
-	if ($rootScope.user.role != "MANUFACTURERADMIN")
+//	changed here a if case that is on the basis of id 3 = manufacturer admin
+	if ($rootScope.user.user_role_id != 3) //"MANUFACTURERADMIN"
 		getAllManufacturers();
 
 	// ------------- PRIVATE FUNCTIONS ----------------
 	function getAllDocuments() {
 		var promise1;
-		if ($rootScope.user.role == "MANUFACTURERADMIN") { // manufacturer can
+		if ($rootScope.user.user_role_id == 3) { // "MANUFACTURERADMIN"manufacturer can
 			// see only his
 			// documents
 			$scope.colOrder = 0; // set column to be in ascending order
 			promise1 = restAPIService.machineDocumentsByManufacturerResource(
-					$rootScope.user.companyDetailsId).query();
+					$rootScope.user.manufacturer_id).query();
 		} else {
 			// superadmin and reseller can see all documents
 			$scope.colOrder = 1;
@@ -55,10 +56,11 @@ function manageMachineDocumentsController($scope, $rootScope, restAPIService,
 		});
 	}
 
-	// get list of all machine model numbers
+	// get list of all machine model numbers changes done V2
 	function getAllMachineModelNumbers() {
 		var promise;
-		if ($rootScope.user.role == "MANUFACTURERADMIN") {
+		//Sparkonix v2
+		if ($rootScope.user.user_role_id  == 3) { //"MANUFACTURERADMIN"
 			var manufacturerId = Number($scope.user.companyDetailsId);
 			promise = restAPIService.getMachineModelNumberListByManId(
 					manufacturerId).query();
@@ -84,10 +86,12 @@ function manageMachineDocumentsController($scope, $rootScope, restAPIService,
 	}
 	;
 
+//	Function change a its REST API service method this method request for a list of manufacturer
 	function getAllManufacturers() {
 		var promise1;
-		promise1 = restAPIService.companyDetailsByCompanyTypeResource(
-				"MANUFACTURER").query();
+//		promise1 = restAPIService.companyDetailsByCompanyTypeResource(
+//				"MANUFACTURER").query();
+		promise1 = restAPIService.manufacturerDetailsList().query();
 		promise1.$promise.then(function(response) {
 			$scope.manufacturers = response;
 		}, function(error) {
@@ -126,7 +130,7 @@ function manageMachineDocumentsController($scope, $rootScope, restAPIService,
 			}
 		}
 	}
-
+	
 	$scope.startUpload = function() {
 
 		if (document.getElementById("fileLoader").value != "") {
@@ -135,8 +139,8 @@ function manageMachineDocumentsController($scope, $rootScope, restAPIService,
 			$('.modal-backdrop').remove();
 			$('body').removeClass('modal-open');
 
-			if ($rootScope.user.role == "MANUFACTURERADMIN") {
-				$scope.newDocument.manufacturerId = $rootScope.user.companyDetailsId;
+			if ($rootScope.user.user_role_id  == 3 ) {// Sparkonix v2 "MANUFACTURERADMIN"
+				$scope.newDocument.manufacturerId = $rootScope.user.manufacturer_id;
 			}
 
 			var fd = new FormData();

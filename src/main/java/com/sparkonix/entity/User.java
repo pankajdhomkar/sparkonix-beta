@@ -16,28 +16,28 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 import com.sparkonix.entity.dialect.StringJsonUserType;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user", schema = "public")
 @TypeDefs({ @TypeDef(name = "CustomJsonObject", typeClass = StringJsonUserType.class) })
 @NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.User.findAll", query = "SELECT u FROM User u"),
-		@NamedQuery(name = "com.sparkonix.entity.User.findByRole", query = "SELECT u FROM User u WHERE u.role = :ROLE"),
-		@NamedQuery(name = "com.sparkonix.entity.User.findByID", query = "SELECT u FROM User u WHERE u.id = :ID"),
 		@NamedQuery(name = "com.sparkonix.entity.User.findUserByUsernameAndPassword", query = "SELECT u FROM User u WHERE u.email = :USERNAME and u.password = :PASSWORD"),
-		@NamedQuery(name = "com.sparkonix.entity.User.checkSuperAdminByUsername", query = "SELECT u FROM User u WHERE u.email = :USERNAME and u.role= :ROLE "),
+		@NamedQuery(name = "com.sparkonix.entity.User.checkSuperAdminByUsername", query = "SELECT u FROM User u WHERE u.email = :USERNAME and u.user_role_id= :ROLEID"),
+		@NamedQuery(name = "com.sparkonix.entity.User.findByManufacturerIdRoleID", query = "SELECT u FROM User u WHERE u.manufacturer_id = :MANUFACTURER_ID and u.user_role_id= :ROLEID"),
+		@NamedQuery(name = "com.sparkonix.entity.User.findByResellerIdRoleID", query = "SELECT u FROM User u WHERE u.reseller_id = :RESELLER_ID and u.user_role_id= :ROLEID"),
 		@NamedQuery(name = "com.sparkonix.entity.User.findByEmail", query = "SELECT u FROM User u WHERE u.email = :EMAIL"),
-		@NamedQuery(name = "com.sparkonix.entity.User.findByCompanyDetailsIdAndRole", query = "SELECT u FROM User u WHERE u.companyDetailsId = :COMPANY_DETAIL_ID AND u.role = :ROLE"),
-		@NamedQuery(name = "com.sparkonix.entity.User.findByTechnicianByReseller", query="SELECT u FROM User u WHERE u.reseller_id = :RESELLER_ID AND u.role = :ROLE")
+		@NamedQuery(name = "com.sparkonix.entity.User.findByRoleID", query = "SELECT u FROM User u WHERE u.user_role_id = :USERROLEID")
 })
 
 public class User implements Serializable, Principal {
-
-	private static final long serialVersionUID = -234346468969928079L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,51 +50,34 @@ public class User implements Serializable, Principal {
 	private String email;
 
 	@Column(name = "alt_email")
-	private String altEmail;
+	private String alt_email;
 
-	@Column(name = "password", nullable = false)
+	@Column(name = "password")
 	private String password;
 
-	@Column(name = "mobile", nullable = false)
+	@Column(name = "mobile")
 	private String mobile;
 
-	@Column(name = "company_details_id")
-	private long companyDetailsId;
-
-	@Column(name = "role", nullable = false)
-	private String role;
+	@Column(name = "user_role_id")
+	private int user_role_id;
+	/*
+	 * 1 = super admin, 2 = sales team, 3 = manufacturer, 4 = reseller, 5 = customer,
+	 * 6 = technician
+	 */
 
 	@Column(name = "notification_type")
-	private String notificationType;
+	private String notification_type;
 
-	@Type(type = "CustomJsonObject")
-	@Column(name = "metadata")
-	private String metadata;
-	
+	@Column(name = "manufacturer_id")
+	private long manufacturer_id;
+
 	@Column(name = "reseller_id")
 	private long reseller_id;
-
+	
 	private transient String token; // transient variable not serialized
 
-	// @JsonBackReference("assignedToRef")
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "assignedTo")
 	private List<MachineAmcServiceHistory> machineAmcServiceHistories;
-
-	// @JsonBackReference("createdByRef")
-	/*@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "createdBy")
-	private List<QRCode> qrCodeList;
-
-	public List<QRCode> getQrCodeList() {
-		return qrCodeList;
-	}
-
-	public void setQrCodeList(List<QRCode> qrCodeList) {
-		this.qrCodeList = qrCodeList;
-	}*/
-
-	public static enum ROLE_TYPE {
-		SUPERADMIN, SALESTEAM, MANUFACTURERADMIN, RESELLERADMIN, TECHNICIAN, OPERATOR
-	}
 
 	public static enum NOTIFICATION_TYPE {
 		EMAIL, SMS, BOTH
@@ -104,42 +87,14 @@ public class User implements Serializable, Principal {
 		//
 	}
 
-	public User(String username, String password, String role) {
+	public User(String username, String password, int role) {
 		this.email = username;
 		this.password = password;
-		this.role = role;
+		this.user_role_id = role;
 	}
 
-	public boolean isUserInRole(String roleToCheck) {
+	public boolean isUserInRole(String role) {
 		return true;
-	}
-
-	public void setCompanyDetailsId(long companyDetailsId) {
-		this.companyDetailsId = companyDetailsId;
-	}
-
-	public List<MachineAmcServiceHistory> getMachineAmcServiceHistories() {
-		return machineAmcServiceHistories;
-	}
-
-	public void setMachineAmcServiceHistories(List<MachineAmcServiceHistory> machineAmcServiceHistories) {
-		this.machineAmcServiceHistories = machineAmcServiceHistories;
-	}
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	public String getNotificationType() {
-		return notificationType;
-	}
-
-	public void setNotificationType(String notificationType) {
-		this.notificationType = notificationType;
 	}
 
 	public long getId() {
@@ -150,6 +105,7 @@ public class User implements Serializable, Principal {
 		this.id = id;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -166,12 +122,12 @@ public class User implements Serializable, Principal {
 		this.email = email;
 	}
 
-	public String getAltEmail() {
-		return altEmail;
+	public String getAlt_email() {
+		return alt_email;
 	}
 
-	public void setAltEmail(String altEmail) {
-		this.altEmail = altEmail;
+	public void setAlt_email(String alt_email) {
+		this.alt_email = alt_email;
 	}
 
 	public String getPassword() {
@@ -190,24 +146,28 @@ public class User implements Serializable, Principal {
 		this.mobile = mobile;
 	}
 
-	public Long getCompanyDetailsId() {
-		return companyDetailsId;
+	public int getUser_role_id() {
+		return user_role_id;
 	}
 
-	public String getRole() {
-		return role;
+	public void setUser_role_id(int user_role_id) {
+		this.user_role_id = user_role_id;
 	}
 
-	public void setRole(String role) {
-		this.role = role;
+	public String getNotification_type() {
+		return notification_type;
 	}
 
-	public String getMetadata() {
-		return metadata;
+	public void setNotification_type(String notification_type) {
+		this.notification_type = notification_type;
 	}
 
-	public void setMetadata(String metadata) {
-		this.metadata = metadata;
+	public long getManufacturer_id() {
+		return manufacturer_id;
+	}
+
+	public void setManufacturer_id(long manufacturer_id) {
+		this.manufacturer_id = manufacturer_id;
 	}
 
 	public long getReseller_id() {
@@ -218,6 +178,20 @@ public class User implements Serializable, Principal {
 		this.reseller_id = reseller_id;
 	}
 
+	public List<MachineAmcServiceHistory> getMachineAmcServiceHistories() {
+		return machineAmcServiceHistories;
+	}
 
+	public void setMachineAmcServiceHistories(List<MachineAmcServiceHistory> machineAmcServiceHistories) {
+		this.machineAmcServiceHistories = machineAmcServiceHistories;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 
 }

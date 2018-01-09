@@ -31,35 +31,42 @@ public class CreateAdminUser {
 		String encryptedPassword = md5.generateMD5(saPassword);
 
 		try {
+		    log.info("1.createSuperAdminUser");
 			session = sessionFactory.openSession();
 			ManagedSessionContext.bind(session);
 			transaction = session.beginTransaction();
-
+			 log.info("2.createSuperAdminUser");
 			User user = userDAO.checkSuperAdminByUsername(saUsername);
+			
 			if (user == null) {
 				User newUser = new User();
 				newUser.setName("Anand Pathak");
 				newUser.setMobile("0");
 				newUser.setEmail(saUsername);
 				newUser.setPassword(encryptedPassword);
-				newUser.setRole("SUPERADMIN");
-				newUser.setNotificationType(User.NOTIFICATION_TYPE.BOTH.toString());
-
+				newUser.setUser_role_id(1);//("SUPERADMIN");
+				newUser.setNotification_type(User.NOTIFICATION_TYPE.BOTH.toString());
+				log.info("4.createSuperAdminUser");
 				userDAO.save(newUser);
 				log.info("Super admin created");
 			} else {
+			    log.info("5.createSuperAdminUser");
 				user.setPassword(encryptedPassword);
 				userDAO.save(user);
 				log.info("Super admin updated");
 			}
 			transaction.commit();
 		} catch (Exception e) {
+		    log.info("6.createSuperAdminUser");
 			if (transaction != null)
+			    log.info("7.createSuperAdminUser");
 				transaction.rollback();
 			log.error("Failed to create super admin. Error: " + e.getMessage(), e);
 		} finally {
+		    log.info("8.createSuperAdminUser");
 			if (session != null)
 				session.close();
+			log.info("9.createSuperAdminUser");
 			ManagedSessionContext.unbind(sessionFactory);
 		}
 	}

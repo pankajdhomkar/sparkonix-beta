@@ -11,7 +11,7 @@ database:
   user: postgres
   password: symphony
   # This URL is for testing purpose on main server
-  url: jdbc:postgresql://localhost:5433/attendme
+  url: jdbc:postgresql://localhost:5433/attendmetest
   properties:
     charSet: UTF-8
     hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -35,12 +35,12 @@ server:
   #here comment out if using lcoalhost as without ssl support else comment the port 8080
   # -type
    # port: 8080
-    - type: https
+    - type: http
       port: 8443
-      keyStorePath: sparkonix.jks
-      keyStorePassword: example
-      validateCerts: false
-      validatePeers: false
+     # keyStorePath: sparkonix.jks
+     # keyStorePassword: example
+      #validateCerts: false
+      #validatePeers: false
     #this requires the alpn-boot library on the JVM's boot classpath
     #- type: h2
     #  port: 8445

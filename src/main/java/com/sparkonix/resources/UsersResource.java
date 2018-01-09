@@ -6,29 +6,38 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.sparkonix.dao.UserDAO;
+import com.sparkonix.dao.UserRoleDAO;
+import com.sparkonix.dao.UserRoleIndexDAO;
 import com.sparkonix.entity.User;
+import com.sparkonix.entity.UserRoleIndex;
+import com.sparkonix.entity.dto.UserRoleIndexDTO;
 import com.sparkonix.utils.JsonUtils;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
-@Path("/users")
-@Produces(MediaType.APPLICATION_JSON)
+/**
+ * @author Pankaj Dhomkar
+ *
+ */
 public class UsersResource {
-
+	
 	private final UserDAO userDAO;
+	private final UserRoleDAO userRoleDAO;
+	private final UserRoleIndexDAO userRoleIndexDAO; 
+	
 	private final Logger log = Logger.getLogger(UsersResource.class.getName());
-
-	public UsersResource(UserDAO userDAO) {
+	
+	public UsersResource(UserDAO userDAO, UserRoleDAO userRoleDAO, UserRoleIndexDAO userRoleIndexDAO) {
 		this.userDAO = userDAO;
+		this.userRoleDAO = userRoleDAO;
+		this.userRoleIndexDAO = userRoleIndexDAO;
 	}
-
+	
 	@POST
 	@UnitOfWork
 	public Response createUser(@Auth User authUser, User user) throws Exception {
@@ -36,6 +45,33 @@ public class UsersResource {
 		System.out.println("-------------------"+user);
 		try {
 			if (dbUser == null) {
+				userDAO.save(user);
+				User userObject = userDAO.getById(user.getId());
+				
+				UserRoleIndexDTO obj = new UserRoleIndexDTO();
+				long role_id = userObject.getUser_role_id();
+				long userid = dbUser.getId();
+				if(role_id == 1){
+					obj.setUser_role_id(1);
+				}else if(role_id == 2){
+					obj.setUser_role_id(2);
+				}else if(role_id == 3){
+					obj.setUser_role_id(3);
+				}else if(role_id == 4){
+					obj.setUser_role_id(4);
+				}else if(role_id == 5){
+					obj.setUser_role_id(5);
+				}else if(role_id == 6){
+					obj.setUser_role_id(6);
+				}else{
+					obj.setUser_role_id(0);
+				}
+				obj.setUser_id(userid);
+				UserRoleIndex userRoleIndex = new UserRoleIndex();
+				userRoleIndex.setUser_id(userObject.getId());
+				userRoleIndex.setUser_role_id(obj.getUser_role_id());
+				userRoleIndexDAO.save(userRoleIndex);
+				
 				return Response.status(Status.OK).entity(userDAO.save(user)).build();
 			} else {
 				log.severe("User not created, Username/Email already exist.");
@@ -48,48 +84,40 @@ public class UsersResource {
 		}
 
 	}
-
+	
+	
 	@GET
+	@Path("/{roleId}")
 	@UnitOfWork
-	public Response listUsers(@Auth User authUser) {
-		try {
-			log.info(" In listUsers");
-			return Response.status(Status.OK).entity(JsonUtils.getJson(userDAO.findAll())).build();
-		} catch (Exception e) {
-			log.severe("Unable to find Users " + e);
-			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Users")).build();
-		}
-	}
-
-	@GET
-	@Path("/{role}")
-	@UnitOfWork
-	public Response listUsersByRole(@Auth User authUser, @PathParam("role") String role) {
+	public Response listUsersByRole(@Auth User authUser, @PathParam("roleId") long roleId) {
 		try {
 			log.info(" In listUsersByRole");
-			return Response.status(Status.OK).entity(JsonUtils.getJson(userDAO.findByRole(role))).build();
+			return Response.status(Status.OK).entity(JsonUtils.getJson(userDAO.findByRoleID(roleId))).build();
 		} catch (Exception e) {
 			log.severe("Unable to find users by given role" + e);
 			return Response.status(Status.BAD_REQUEST)
 					.entity(JsonUtils.getErrorJson("Unable to find users by given role")).build();
 		}
 	}
-
+	
+	/*
+	 * Here we get the technician by its role id and its manufacturers/resellers id 
+	 */
 	@GET
-	@Path("/{role}/{companyDetailsId}/{resellerID}")
+	@Path("/{roleid}/{manufacturer_id}/{resellerID}")
 	@UnitOfWork
-	public Response listUsersByRoleAndCompanyDetailsId(@Auth User authUser, @PathParam("role") String role,
-			@PathParam("companyDetailsId") long companyDetailsId, @PathParam("resellerID") long resellerID) {
+	public Response listUsersByRoleAndCompanyDetailsId(@Auth User authUser, @PathParam("roleid") long roleid,
+			@PathParam("manufacturer_id") long manufacturer_id, @PathParam("resellerID") long resellerID) {
 		try {
-			log.info(" In listUsersByRoleAndCompanyDetailsId"+role);
-			if(role.equals("MANUFACTURERADMIN")){
-				System.out.println("Manufacturer--"+companyDetailsId);
+			log.info(" In listUsersByRoleAndCompanyDetailsId"+roleid);
+			if(roleid == 3){ //.equals("MANUFACTURERADMIN")
+				System.out.println("Manufacturer--"+manufacturer_id);
 				return Response.status(Status.OK)
-						.entity(JsonUtils.getJson(userDAO.findAllByRoleCompanyDetailsId("TECHNICIAN", companyDetailsId))).build();
+						.entity(JsonUtils.getJson(userDAO.findAllByRoleManufacturerId(5, manufacturer_id))).build();
 			}else{
 				System.out.println("Reseller-->"+resellerID);
 				return Response.status(Status.OK)
-						.entity(JsonUtils.getJson(userDAO.findAllResellerTechnician("TECHNICIAN", resellerID))).build();
+						.entity(JsonUtils.getJson(userDAO.findAllByRoleResellerId(5, resellerID))).build();
 			}
 			
 		} catch (Exception e) {
@@ -98,4 +126,5 @@ public class UsersResource {
 					.entity(JsonUtils.getErrorJson("Unable to find users by given role & comany details id")).build();
 		}
 	}
+
 }

@@ -1,7 +1,6 @@
 package com.sparkonix.entity.dto;
 
 public class MachineDocumentDTO {
-
 	private long id;
 	private long manufacturerId;
 	private String manufacturerName;

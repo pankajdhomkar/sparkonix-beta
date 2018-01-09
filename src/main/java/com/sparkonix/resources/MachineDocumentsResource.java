@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -23,11 +22,10 @@ import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
-import com.sparkonix.ApplicationContext;
-import com.sparkonix.dao.CompanyDetailDAO;
 import com.sparkonix.dao.MachineDocumentDAO;
-import com.sparkonix.entity.CompanyDetail;
+import com.sparkonix.dao.ManufacturerDAO;
 import com.sparkonix.entity.MachineDocument;
+import com.sparkonix.entity.Manufacturer;
 import com.sparkonix.entity.User;
 import com.sparkonix.entity.dto.MachineDocumentDTO;
 import com.sparkonix.utils.JsonUtils;
@@ -38,25 +36,25 @@ import io.dropwizard.hibernate.UnitOfWork;
 @Path("/machinedocs")
 @Produces(MediaType.APPLICATION_JSON)
 public class MachineDocumentsResource {
-
+	
 	private final MachineDocumentDAO machineDocumentDAO;
-	private final CompanyDetailDAO companyDetailDAO;
+	private final ManufacturerDAO manufacturerDAO;
 	private final Logger log = Logger.getLogger(MachineDocumentsResource.class.getName());
 	private final String mahineDocsLocation;
-
-	public MachineDocumentsResource(MachineDocumentDAO machineDocumentDAO, String mahineDocsLocation,
-			CompanyDetailDAO companyDetailDAO) {
+	
+	public MachineDocumentsResource(MachineDocumentDAO machineDocumentDAO, ManufacturerDAO manufacturerDAO,
+			String mahineDocsLocation) {
 		this.machineDocumentDAO = machineDocumentDAO;
+		this.manufacturerDAO = manufacturerDAO;
 		this.mahineDocsLocation = mahineDocsLocation;
-		this.companyDetailDAO = companyDetailDAO;
 	}
-
+	
 	@POST
 	@UnitOfWork
 	public Response uploadMachineDocument(@Auth User authUser, FormDataMultiPart multiPart) throws Exception {
-		FormDataBodyPart manId = multiPart.getField("manufacturerid");
+		FormDataBodyPart manId = multiPart.getField("manufacturer_id");
 		String manufacturerId = manId.getEntityAs(String.class);
-		FormDataBodyPart model = multiPart.getField("modelnum");
+		FormDataBodyPart model = multiPart.getField("model_number");
 		String modelNumber = model.getEntityAs(String.class);
 		FormDataBodyPart desc = multiPart.getField("description");
 		String description = desc.getEntityAs(String.class);
@@ -99,9 +97,9 @@ public class MachineDocumentsResource {
 				// make entries in database
 				if (fileName != null) {
 					MachineDocument newDocument = new MachineDocument();
-					newDocument.setManufacturerId(Long.parseLong(manufacturerId));
-					newDocument.setModelNumber(modelNumber);
-					newDocument.setDocumentPath(fileName);
+					newDocument.setManufacturer_id(Long.parseLong(manufacturerId));
+					newDocument.setModel_number(modelNumber);
+					newDocument.setDocument_path(fileName);
 					newDocument.setDescription(description);
 
 					machineDocumentDAO.save(newDocument);
@@ -114,7 +112,8 @@ public class MachineDocumentsResource {
 		}
 		return Response.status(Status.OK).entity(JsonUtils.getSuccessJson("Files Uploaded Successfully")).build();
 	}
-
+	
+	
 	@GET
 	@UnitOfWork
 	public Response listMachineDocuments(@Auth User authUser) {
@@ -132,16 +131,16 @@ public class MachineDocumentsResource {
 
 				MachineDocumentDTO machineDocumentDTO = new MachineDocumentDTO();
 				machineDocumentDTO.setId(machineDocumentList.get(i).getId());
-				machineDocumentDTO.setManufacturerId(machineDocumentList.get(i).getManufacturerId());
-				machineDocumentDTO.setModelNumber(machineDocumentList.get(i).getModelNumber());
+				machineDocumentDTO.setManufacturerId(machineDocumentList.get(i).getManufacturer_id());
+				machineDocumentDTO.setModelNumber(machineDocumentList.get(i).getModel_number());
 				machineDocumentDTO.setDescription(machineDocumentList.get(i).getDescription());
-				machineDocumentDTO.setDocumentPath(machineDocumentList.get(i).getDocumentPath());
+				machineDocumentDTO.setDocumentPath(machineDocumentList.get(i).getDocument_path());
 
 				// get manufacturer name
-				CompanyDetail dbCompanyDetail = companyDetailDAO
-						.getById(machineDocumentList.get(i).getManufacturerId());
-				if (dbCompanyDetail != null) {
-					String manufacturerName = dbCompanyDetail.getCompanyName();
+				Manufacturer dbManufacturerDetail = manufacturerDAO
+						.getById(machineDocumentList.get(i).getManufacturer_id());
+				if (dbManufacturerDetail != null) {
+					String manufacturerName = dbManufacturerDetail.getCompany_name();
 
 					machineDocumentDTO.setManufacturerName(manufacturerName);
 				} else {
@@ -158,15 +157,15 @@ public class MachineDocumentsResource {
 					.entity(JsonUtils.getErrorJson("Unable to find Machine Documents")).build();
 		}
 	}
-
+	
 	@GET
-	@Path("/manufacturer/{companyID}")
+	@Path("/manufacturer/{manufacturerId}")
 	@UnitOfWork
-	public Response listMachineDocumentsForManufacturer(@Auth User authUser, @PathParam("companyID") long companyID) {
+	public Response listMachineDocumentsForManufacturer(@Auth User authUser, @PathParam("manufacturerId") long manufacturerId) {
 		try {
 			log.info(" In listMachineDocumentsForManufacturer");
 			return Response.status(Status.OK)
-					.entity(JsonUtils.getJson(machineDocumentDAO.findByManufacturer(companyID))).build();
+					.entity(JsonUtils.getJson(machineDocumentDAO.findByManufacturer(manufacturerId))).build();
 		} catch (Exception e) {
 			log.severe("Unable to find Machine Documents " + e);
 			return Response.status(Status.BAD_REQUEST)
@@ -174,63 +173,4 @@ public class MachineDocumentsResource {
 		}
 	}
 
-	/**
-	 * This method is used to fetch list of all documents by manufacturer id &
-	 * model number
-	 * 
-	 * @param authUser
-	 * @param manufacturerId
-	 * @param modelNumber
-	 * @return list of {@link MachineDocument}
-	 */
-	@GET
-	@Path("/{manufacturerId}/{modelNumber}")
-	@UnitOfWork
-	public Response listMachineDocumentsByManufacturerIdAndModelNumber(@Auth User authUser,
-			@PathParam("manufacturerId") long manufacturerId, @PathParam("modelNumber") String modelNumber) {
-		try {
-			log.info(" In listMachineDocumentsByManufacturerIdAndModelNumber");
-			// modelNumber input should be encoded into apk build before call to
-			// this api
-			String decodedModelNumber = URLDecoder.decode(modelNumber);
-			System.out.println("Decode-------------------" + decodedModelNumber);
-			/*
-			 * List<MachineDocument> machineDocumentList =
-			 * machineDocumentDAO.findAllByManIdAndModelNumber(manufacturerId,
-			 * modelNumber);
-			 */
-			List<MachineDocument> machineDocumentList = machineDocumentDAO.findAllByManIdAndModelNumber(manufacturerId,
-					decodedModelNumber);
-
-			List<MachineDocument> newMachineDocumentList = new ArrayList<>();
-
-			for (int i = 0; i < machineDocumentList.size(); i++) {
-
-				MachineDocument machineDocument = new MachineDocument();
-				machineDocument.setId(machineDocumentList.get(i).getId());
-				machineDocument.setManufacturerId(machineDocumentList.get(i).getManufacturerId());
-				machineDocument.setModelNumber(machineDocumentList.get(i).getModelNumber());
-				machineDocument.setDescription(machineDocumentList.get(i).getDescription());
-
-				// create url for mobile app using document_name
-				String domainUrl = ApplicationContext.getInstance().getConfig().getDomainurl();
-
-				// String domainUrl = "http://localhost:8080";
-				System.out.println("URL-----------------------" + domainUrl);
-				String documentPathUrl = domainUrl + "/api/machinedoc/fetch/"
-						+ machineDocumentList.get(i).getManufacturerId() + "/"
-						+ machineDocumentList.get(i).getDocumentPath();
-				System.out.println("Path--Get---" + machineDocumentList.get(i).getDocumentPath());
-				machineDocument.setDocumentPath(documentPathUrl);
-
-				newMachineDocumentList.add(machineDocument);
-			}
-			return Response.status(Status.OK).entity(newMachineDocumentList).build();
-
-		} catch (Exception e) {
-			log.severe("Unable to find Machine Documents " + e);
-			return Response.status(Status.BAD_REQUEST)
-					.entity(JsonUtils.getErrorJson("Unable to find Machine Documents")).build();
-		}
-	}
 }

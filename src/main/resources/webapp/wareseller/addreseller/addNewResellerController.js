@@ -8,8 +8,7 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 	// ------------- PUBLIC VARIABLES ----------------
 	$scope.companyTypes = "RESELLER";
 	$scope.curSubscriptionTypes = [ "BASIC", "PREMIUM" ];
-	$scope.curSubscriptionStatusData = [ "ACTIVE", "PAYMENT_DUE", "INACTIVE",
-		"EXPIRED" ];
+	$scope.curSubscriptionStatusData = [ "ACTIVE", "INACTIVE"];
 	$scope.ManResDTO = {}
 	$scope.opened = {};
 	$scope.manufacturersList = {};
@@ -47,7 +46,7 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 
 		var promise1;
 		console.log("2Reseller");
-		promise1 = restAPIService.companyDetailManResResource(
+		promise1 = restAPIService.companyDetailResellerResource(
 			$scope.manResId, "RESELLER").get();
 
 		promise1.$promise.then(function(response) {
@@ -121,11 +120,11 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 			$scope.nres = {};
 			$scope.nres.fld_manufid = $scope.manufacturerId;
 			$scope.ManResDTO.reseller = $scope.nres; // Manufacturer id stored here
-			$scope.ManResDTO.companyType = "RESELLER";
-			$scope.newManRes.companyType = "RESELLER"; // company details table beacuse it set as not null
+			$scope.ManResDTO.companyType = 4;
+			$scope.newManRes.companyType = 4; // company details table beacuse it set as not null
 
 			console.log("Manufacturer id ------" + $scope.ManResDTO.companyType);
-			var promise1 = restAPIService.companyDetailsManResResource().save(
+			var promise1 = restAPIService.companyDetailsResellerResource().save(
 				$scope.ManResDTO);
 
 			promise1.$promise.then(function(response) {
@@ -155,8 +154,8 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 			var promise2;
 			if ($scope.ManResDTO.reseller != null) {
 				console.log("II");
-				promise2 = restAPIService.companyDetailManResResource(
-					$scope.manResId, "RESELLER").update($scope.ManResDTO);
+				promise2 = restAPIService.companyDetailResellerResource(
+					$scope.manResId, 2).update($scope.ManResDTO);
 				console.log("Reseller response=" + promise2);
 			}
 			promise2.$promise.then(function(response) {
@@ -215,8 +214,8 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 				$scope.isCompanyPanFieldEmpty = false;
 				var promise = restAPIService
 					.companyDetailByCompanyTypeAndCompanyPan(
-						$scope.newManRes.companyType,
-						$scope.newManRes.pan).get();
+						4,
+						$scope.newManRes.pan).get(); // Reseller = 4 check by reseller
 				promise.$promise.then(function(response) {
 					if (response.isCompanyPanExist == true) {
 						// alert('not null');
@@ -246,7 +245,7 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 			if (($scope.newManRes.pan).length == 10) {
 				var promise = restAPIService
 					.companyDetailByCompanyTypeAndCompanyPan(
-						$scope.newManRes.companyType,
+						4,
 						$scope.newManRes.pan).get();
 				promise.$promise
 					.then(function(response) {
@@ -283,15 +282,15 @@ function addNewResellerController($scope, $state, restAPIService, dialogs,
 		$scope.newManRes.curSubscriptionEndDate = curSubEndDate;
 	}
 
-
+	//Here change is done is rootscope.user.companyDetailId to rootScope.user.manufacturer_id
 	function setManufacturerName() {
 		// It will get the name of manufacturer by manufacturer id
 		$scope.manufacturersList = {};
 		if ($rootScope.user.companyDetailsId != 0) {
 			var promise = restAPIService.companyManufacturerName(
-				$rootScope.user.companyDetailsId).query();
-			console.log("Manufacturer id is --", $rootScope.user.companyDetailsId);
-			$scope.manufacturerId = $rootScope.user.companyDetailsId;
+				$rootScope.user.manufacturer_id).query();
+			console.log("Manufacturer id is --", $rootScope.user.manufacturer_id);
+			$scope.manufacturerId = $rootScope.user.manufacturer_id;
 			promise.$promise.then(function(response) {
 				$scope.manufacturersList = response;
 				console.log(response);

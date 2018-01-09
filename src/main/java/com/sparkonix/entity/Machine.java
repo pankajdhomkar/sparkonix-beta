@@ -2,75 +2,43 @@ package com.sparkonix.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-
-import com.sparkonix.entity.dialect.StringJsonUserType;
+/*
+ * Database Table of Machine here declare a table and getter and setter method.
+ * Define query so that call by DAO 
+ */
 
 @Entity
-@Table(name = "machines")
-@NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.Machine.findAll", query = "SELECT m FROM Machine m"),
-		@NamedQuery(name = "com.sparkonix.entity.Machine.getMachineByQrCode", 
-		query = "SELECT m FROM Machine m WHERE m.qrCode= :QR_CODE"),
-		@NamedQuery(name = "com.sparkonix.entity.Machine.findAllByCustomerIdAndOnBoardedId",
-		query = "SELECT m FROM Machine m WHERE m.customerId= :CUSTOMER_ID AND m.onBoardedBy = :ON_BOARDED_BY"),
-		@NamedQuery(name = "com.sparkonix.entity.Machine.findMachineByQrCode", 
-		query = "SELECT m FROM Machine m WHERE m.qrCode= :QRCODE"),
-		@NamedQuery(name = "com.sparkonix.entity.Machine.findAllByCustomerId", 
-		query = "SELECT m FROM Machine m WHERE m.customerId= :CUSTOMER_ID"),
-		@NamedQuery(name = "com.sparkonix.entity.Machine.findAllCustomerIdByResellerId",
-		query = "SELECT DISTINCT(m.customerId) FROM Machine m WHERE m.resellerId = :RESELLER_ID")
-})
-@TypeDefs({ @TypeDef(name = "CustomJsonObject", typeClass = StringJsonUserType.class) })
+@Table(name = "machine")
+@NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.Machine.findAll", query = "SELECT mach FROM Machine mach"),
+		@NamedQuery(name = "com.sparkonix.entity.Machine.findAllByCustomerId", query = "SELECT mach FROM Machine mach "
+				+ "WHERE mach.customer_id = :CUSTOMER_ID") })
+
 public class Machine implements Serializable {
 
-	private static final long serialVersionUID = 8736782676950590497L;
-
-	public static enum CUR_SUBSCRIPTION_TYPE {
-		BASIC, PREMIUM
-	};
-
-	public static enum CUR_SUBSCRIPTION_STATUS {
-		ACTIVE, PAYMENT_DUE, INACTIVE, EXPIRED
-	};
-
-	public static enum CUR_AMC_TYPE {
-		BASIC, PREMIUM
-	};
-
-	public static enum CUR_AMC_STATUS {
-		ACTIVE, PAYMENT_DUE, INACTIVE, EXPIRED
-	};
-
-	public static enum SUPPORT_ASSISTANCE {
-		MANUFACTURER, RESELLER
-	};
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2358798360762574178L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	/* QR code */
-	@Column(name = "qr_code")
-	private String qrCode;
+	@Column(name = "qr_code_id")
+	private long qr_code_id;
 
 	@Column(name = "serial_number")
-	private String serialNumber;
+	private String serial_number;
 
 	@Column(name = "name")
 	private String name;
@@ -79,74 +47,55 @@ public class Machine implements Serializable {
 	private String description;
 
 	@Column(name = "model_number")
-	private String modelNumber;
+	private String model_number;
 
 	@Column(name = "machine_year")
-	private String machineYear;
+	private String machine_year;
 
 	@Column(name = "customer_id", nullable = false)
-	private long customerId;
+	private long customer_id;
 
 	@Column(name = "manufacturer_id", nullable = false)
-	private long manufacturerId;
+	private long manufacturer_id;
 
 	@Column(name = "reseller_id")
-	private long resellerId;
+	private long reseller_id;
 
 	@Column(name = "installation_date")
-	private Date installationDate;
+	private Date installation_date;
 
 	@Column(name = "warranty_expiry_date")
-	private Date warrantyExpiryDate;
+	private Date warranty_expiry_date;
 
 	@Column(name = "location_id", nullable = false)
-	private long locationId;
+	private long location_id;
 
 	@Column(name = "cur_amc_type")
-	private String curAmcType;
+	private String cur_amc_type;
 
 	@Column(name = "cur_amc_startdate")
-	private Date curAmcStartDate;
+	private Date cur_amc_startdate;
 
 	@Column(name = "cur_amc_enddate")
-	private Date curAmcEndDate;
+	private Date cur_amc_enddate;
 
 	@Column(name = "cur_amc_status")
-	private String curAmcStatus;
+	private String cur_amc_status;
 
-	@Type(type = "CustomJsonObject")
-	@Column(name = "cur_amc_documents")
-	private String curAmcDocuments;
-
-	@Column(name = "cur_subscription_type")
-	private String curSubscriptionType;
+	/*@Column(name = "cur_subscription_type")
+	private String cur_subscription_types;
 
 	@Column(name = "cur_subscription_startdate")
-	private Date curSubscriptionStartDate;
+	private Date cur_subscription_startdate;
 
 	@Column(name = "cur_subscription_enddate")
-	private Date curSubscriptionEndDate;
+	private Date cur_subscription_enddate;
 
 	@Column(name = "cur_subscription_status")
-	private String curSubscriptionStatus;
-
-	@Column(name = "on_boarded_by", nullable = false)
-	private long onBoardedBy;
+	private String cur_subscription_status;*/
 
 	@Column(name = "support_assistance")
-	private String supportAssistance;
-
-	// @JsonBackReference("machineIdRef")
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "machine")
-	private List<MachineAmcServiceHistory> machineAmcServiceHistories;
-
-	public List<MachineAmcServiceHistory> getMachineAmcServiceHistories() {
-		return machineAmcServiceHistories;
-	}
-
-	public void setMachineAmcServiceHistories(List<MachineAmcServiceHistory> machineAmcServiceHistories) {
-		this.machineAmcServiceHistories = machineAmcServiceHistories;
-	}
+	private long support_assistance;
 
 	public long getId() {
 		return id;
@@ -156,20 +105,20 @@ public class Machine implements Serializable {
 		this.id = id;
 	}
 
-	public String getQrCode() {
-		return qrCode;
+	public long getQr_code_id() {
+		return qr_code_id;
 	}
 
-	public void setQrCode(String qrCode) {
-		this.qrCode = qrCode;
+	public void setQr_code_id(long qr_code_id) {
+		this.qr_code_id = qr_code_id;
 	}
 
-	public String getSerialNumber() {
-		return serialNumber;
+	public String getSerial_number() {
+		return serial_number;
 	}
 
-	public void setSerialNumber(String serialNumber) {
-		this.serialNumber = serialNumber;
+	public void setSerial_number(String serial_number) {
+		this.serial_number = serial_number;
 	}
 
 	public String getName() {
@@ -188,156 +137,108 @@ public class Machine implements Serializable {
 		this.description = description;
 	}
 
-	public String getModelNumber() {
-		return modelNumber;
+	public String getModel_number() {
+		return model_number;
 	}
 
-	public void setModelNumber(String modelNumber) {
-		this.modelNumber = modelNumber;
+	public void setModel_number(String model_number) {
+		this.model_number = model_number;
 	}
 
-	public String getMachineYear() {
-		return machineYear;
+	public String getMachine_year() {
+		return machine_year;
 	}
 
-	public void setMachineYear(String machineYear) {
-		this.machineYear = machineYear;
+	public void setMachine_year(String machine_year) {
+		this.machine_year = machine_year;
 	}
 
-	public long getCustomerId() {
-		return customerId;
+	public long getCustomer_id() {
+		return customer_id;
 	}
 
-	public void setCustomerId(long customerId) {
-		this.customerId = customerId;
+	public void setCustomer_id(long customer_id) {
+		this.customer_id = customer_id;
 	}
 
-	public long getManufacturerId() {
-		return manufacturerId;
+	public long getManufacturer_id() {
+		return manufacturer_id;
 	}
 
-	public void setManufacturerId(long manufacturerId) {
-		this.manufacturerId = manufacturerId;
+	public void setManufacturer_id(long manufacturer_id) {
+		this.manufacturer_id = manufacturer_id;
 	}
 
-	public long getResellerId() {
-		return resellerId;
+	public long getReseller_id() {
+		return reseller_id;
 	}
 
-	public void setResellerId(long resellerId) {
-		this.resellerId = resellerId;
+	public void setReseller_id(long reseller_id) {
+		this.reseller_id = reseller_id;
 	}
 
-	public Date getInstallationDate() {
-		return installationDate;
+	public Date getInstallation_date() {
+		return installation_date;
 	}
 
-	public void setInstallationDate(Date installationDate) {
-		this.installationDate = installationDate;
+	public void setInstallation_date(Date installation_date) {
+		this.installation_date = installation_date;
 	}
 
-	public Date getWarrantyExpiryDate() {
-		return warrantyExpiryDate;
+	public Date getWarranty_expiry_date() {
+		return warranty_expiry_date;
 	}
 
-	public void setWarrantyExpiryDate(Date warrantyExpiryDate) {
-		this.warrantyExpiryDate = warrantyExpiryDate;
+	public void setWarranty_expiry_date(Date warranty_expiry_date) {
+		this.warranty_expiry_date = warranty_expiry_date;
 	}
 
-	public long getLocationId() {
-		return locationId;
+	public long getLocation_id() {
+		return location_id;
 	}
 
-	public void setLocationId(long locationId) {
-		this.locationId = locationId;
+	public void setLocation_id(long location_id) {
+		this.location_id = location_id;
 	}
 
-	public String getCurSubscriptionType() {
-		return curSubscriptionType;
+	public String getCur_amc_type() {
+		return cur_amc_type;
 	}
 
-	public void setCurSubscriptionType(String curSubscriptionType) {
-		this.curSubscriptionType = curSubscriptionType;
+	public void setCur_amc_type(String cur_amc_type) {
+		this.cur_amc_type = cur_amc_type;
 	}
 
-	public Date getCurSubscriptionStartDate() {
-		return curSubscriptionStartDate;
+	public Date getCur_amc_startdate() {
+		return cur_amc_startdate;
 	}
 
-	public void setCurSubscriptionStartDate(Date curSubscriptionStartDate) {
-		this.curSubscriptionStartDate = curSubscriptionStartDate;
+	public void setCur_amc_startdate(Date cur_amc_startdate) {
+		this.cur_amc_startdate = cur_amc_startdate;
 	}
 
-	public Date getCurSubscriptionEndDate() {
-		return curSubscriptionEndDate;
+	public Date getCur_amc_enddate() {
+		return cur_amc_enddate;
 	}
 
-	public void setCurSubscriptionEndDate(Date curSubscriptionEndDate) {
-		this.curSubscriptionEndDate = curSubscriptionEndDate;
+	public void setCur_amc_enddate(Date cur_amc_enddate) {
+		this.cur_amc_enddate = cur_amc_enddate;
 	}
 
-	public String getCurSubscriptionStatus() {
-		return curSubscriptionStatus;
+	public String getCur_amc_status() {
+		return cur_amc_status;
 	}
 
-	public void setCurSubscriptionStatus(String curSubscriptionStatus) {
-		this.curSubscriptionStatus = curSubscriptionStatus;
+	public void setCur_amc_status(String cur_amc_status) {
+		this.cur_amc_status = cur_amc_status;
 	}
 
-	public String getCurAmcType() {
-		return curAmcType;
+	public long getSupport_assistance() {
+		return support_assistance;
 	}
 
-	public void setCurAmcType(String curAmcType) {
-		this.curAmcType = curAmcType;
-	}
-
-	public Date getCurAmcStartDate() {
-		return curAmcStartDate;
-	}
-
-	public void setCurAmcStartDate(Date curAmcStartDate) {
-		this.curAmcStartDate = curAmcStartDate;
-	}
-
-	public Date getCurAmcEndDate() {
-		return curAmcEndDate;
-	}
-
-	public void setCurAmcEndDate(Date curAmcEndDate) {
-		this.curAmcEndDate = curAmcEndDate;
-	}
-
-	public String getCurAmcStatus() {
-		return curAmcStatus;
-	}
-
-	public void setCurAmcStatus(String curAmcStatus) {
-		this.curAmcStatus = curAmcStatus;
-	}
-
-	public String getCurAmcDocuments() {
-		return curAmcDocuments;
-	}
-
-	public void setCurAmcDocuments(String curAmcDocuments) {
-		this.curAmcDocuments = curAmcDocuments;
-	}
-
-	public long getOnBoardedBy() {
-		return onBoardedBy;
-	}
-
-	public void setOnBoardedBy(long onBoardedBy) {
-		this.onBoardedBy = onBoardedBy;
-	}
-
-	public String getSupportAssistance() {
-		return supportAssistance;
-	}
-
-	public void setSupportAssistance(String supportAssistance) {
-		this.supportAssistance = supportAssistance;
+	public void setSupport_assistance(long support_assistance) {
+		this.support_assistance = support_assistance;
 	}
 
 }

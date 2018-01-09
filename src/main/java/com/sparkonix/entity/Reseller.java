@@ -15,53 +15,61 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "reseller")
 @NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.Reseller.findAll", query = "SELECT re FROM Reseller re"),
-		@NamedQuery(name = "com.sparkonix.entity.Reseller.findResellerPan", query = "SELECT re FROM Reseller re WHERE re.pan= :PAN"),
-		@NamedQuery(name = "com.sparkonix.entity.Reseller.findAllByOnBoardedId", query = "SELECT re FROM Reseller re WHERE re.onBoardedBy= :ON_BOARDED_BY"),
-		 // For getting a list of Resellers of manufacturers
-		@NamedQuery(name = "com.sparkonix.entity.Reseller.findAllById", query = "SELECT re FROM Reseller re WHERE re.fld_manufid= :MANID"),
-		@NamedQuery(name = "com.sparkonix.entity.Reseller.findResellerId", query = "SELECT re FROM Reseller re WHERE re.id = :RESELLERID")
-})
-public class Reseller implements Serializable {
-	
-	private static final long serialVersionUID = -259263174740554225L;
+	// For getting a list of Resellers of manufacturers
+			
+    @NamedQuery(name = "com.sparkonix.entity.Reseller.findAllResellerByManufacturerId", query = "SELECT re FROM Reseller re WHERE re.fld_manuid= :MANUFACTURERID"),
+			
+    //This query find a reseller detail by its id
+    @NamedQuery(name = "com.sparkonix.entity.Reseller.findResellerId", query = "SELECT re FROM Reseller re WHERE re.id= :RESELLERID"),
+			
+    @NamedQuery(name = "com.sparkonix.entity.Reseller.findResellerPan", query = "SELECT re FROM Reseller re WHERE re.pan= :PAN"),
+			
+    @NamedQuery(name = "com.sparkonix.entity.Reseller.findAllByOnBoarded", query = "SELECT re FROM Reseller re WHERE re.onboardedby= :ON_BOARDED_BY")})
 
+public class Reseller implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4425403190567554106L;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
-	@Column(name = "fld_manufid", nullable = false)
-	private long fld_manufid;
-
+	
+	@Column(name = "fld_manuid", nullable = false)
+	private long fld_manuid;
+	
 	@Column(name = "company_name")
-	private String companyName;
-
+	private String company_name;
+	
 	@Column(name = "pan")
 	private String pan;
-
+	
 	@Column(name = "cust_support_name")
-	private String custSupportName;
-
+	private String cust_support_name;
+	
 	@Column(name = "cust_support_phone")
-	private String custSupportPhone;
-
+	private String cust_support_phone;
+	
 	@Column(name = "cust_support_email")
-	private String custSupportEmail;
-
+	private String cust_support_email;
+	
 	@Column(name = "cur_subscription_type")
-	private String curSubscriptionType;
-
+	private String cur_subscription_type;
+	
 	@Column(name = "cur_subscription_status")
-	private String curSubscriptionStatus;
-
+	private String cur_subscription_status;
+	
 	@Column(name = "cur_subscription_startdate")
-	private Date curSubscriptionStartDate;
-
+	private Date cur_subscription_startdate;
+	
 	@Column(name = "cur_subscription_enddate")
-	private Date curSubscriptionEndDate;
-
-	@Column(name = "on_boarded_by")
-	private long onBoardedBy;
-
+	private Date cur_subscription_enddate;
+	
+	@Column(name = "onboardedby")
+	private long onboardedby;
+	
 	public long getId() {
 		return id;
 	}
@@ -70,20 +78,20 @@ public class Reseller implements Serializable {
 		this.id = id;
 	}
 
-	public long getFld_manufid() {
-		return this.fld_manufid;
+	public long getFld_manuid() {
+		return fld_manuid;
 	}
 
-	public void setFld_manufid(long fld_manufid) {
-		this.fld_manufid = fld_manufid;
+	public void setFld_manuid(long fld_manuid) {
+		this.fld_manuid = fld_manuid;
 	}
 
-	public String getCompanyName() {
-		return companyName;
+	public String getCompany_name() {
+		return company_name;
 	}
 
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
+	public void setCompany_name(String company_name) {
+		this.company_name = company_name;
 	}
 
 	public String getPan() {
@@ -94,94 +102,79 @@ public class Reseller implements Serializable {
 		this.pan = pan;
 	}
 
-	public String getCustSupportName() {
-		return custSupportName;
+	public String getCust_support_name() {
+		return cust_support_name;
 	}
 
-	public void setCustSupportName(String custSupportName) {
-		this.custSupportName = custSupportName;
+	public void setCust_support_name(String cust_support_name) {
+		this.cust_support_name = cust_support_name;
 	}
 
-	public String getCustSupportPhone() {
-		return custSupportPhone;
+	public String getCust_support_phone() {
+		return cust_support_phone;
 	}
 
-	public void setCustSupportPhone(String custSupportPhone) {
-		this.custSupportPhone = custSupportPhone;
+	public void setCust_support_phone(String cust_support_phone) {
+		this.cust_support_phone = cust_support_phone;
 	}
 
-	public String getCustSupportEmail() {
-		return custSupportEmail;
+	public String getCust_support_email() {
+		return cust_support_email;
 	}
 
-	public void setCustSupportEmail(String custSupportEmail) {
-		this.custSupportEmail = custSupportEmail;
+	public void setCust_support_email(String cust_support_email) {
+		this.cust_support_email = cust_support_email;
 	}
 
-	public String getCurSubscriptionType() {
-		return curSubscriptionType;
+	public String getCur_subscription_type() {
+		return cur_subscription_type;
 	}
 
-	public void setCurSubscriptionType(String curSubscriptionType) {
-		this.curSubscriptionType = curSubscriptionType;
+	public void setCur_subscription_type(String cur_subscription_type) {
+		this.cur_subscription_type = cur_subscription_type;
 	}
 
-	public String getCurSubscriptionStatus() {
-		return curSubscriptionStatus;
+	public String getCur_subscription_status() {
+		return cur_subscription_status;
 	}
 
-	public void setCurSubscriptionStatus(String curSubscriptionStatus) {
-		this.curSubscriptionStatus = curSubscriptionStatus;
+	public void setCur_subscription_status(String cur_subscription_status) {
+		this.cur_subscription_status = cur_subscription_status;
 	}
 
-	public Date getCurSubscriptionStartDate() {
-		return curSubscriptionStartDate;
+	public Date getCur_subscription_startdate() {
+		return cur_subscription_startdate;
 	}
 
-	public void setCurSubscriptionStartDate(Date curSubscriptionStartDate) {
-		this.curSubscriptionStartDate = curSubscriptionStartDate;
+	public void setCur_subscription_startdate(Date cur_subscription_startdate) {
+		this.cur_subscription_startdate = cur_subscription_startdate;
 	}
 
-	public Date getCurSubscriptionEndDate() {
-		return curSubscriptionEndDate;
+	public Date getCur_subscription_enddate() {
+		return cur_subscription_enddate;
 	}
 
-	public void setCurSubscriptionEndDate(Date curSubscriptionEndDate) {
-		this.curSubscriptionEndDate = curSubscriptionEndDate;
+	public void setCur_subscription_enddate(Date cur_subscription_enddate) {
+		this.cur_subscription_enddate = cur_subscription_enddate;
 	}
 
-	public long getOnBoardedBy() {
-		return onBoardedBy;
+	public long getOnboardedby() {
+		return onboardedby;
 	}
 
-	public void setOnBoardedBy(long onBoardedBy) {
-		this.onBoardedBy = onBoardedBy;
+	public void setOnboardedby(long onboardedby) {
+		this.onboardedby = onboardedby;
 	}
+
 }
 
-// @NamedQuery(name = "com.sparkonix.entity.CompanyDetail.findAll",
-// query = "SELECT cd FROM CompanyDetail cd"),
-//
-// @NamedQuery(name = "com.sparkonix.entity.CompanyDetail.findAllByOnBoardedId",
-// query = "SELECT cd FROM CompanyDetail cd "
-// + "WHERE cd.onBoardedBy= :ON_BOARDED_BY AND cd.companyType= :COMPANY_TYPE"),
-//
-// @NamedQuery(name =
-// "com.sparkonix.entity.CompanyDetail.findByLocationOnBoardedId",
-// query = "SELECT DISTINCT cd FROM CompanyDetail cd, CompanyLocation loc WHERE
-// "
-// + "cd.onBoardedBy= :ON_BOARDED_BY AND " + "cd.companyType= :COMPANY_TYPE OR "
-// + "(loc.onBoardedBy= :ON_BOARDED_BY AND cd.id = loc. companyDetailsId)"),
-//
-// @NamedQuery(name = "com.sparkonix.entity.CompanyDetail.findAllByCompanyType",
-// query = "SELECT cd FROM CompanyDetail cd WHERE cd.companyType=
-// :COMPANY_TYPE"),
-//
-// @NamedQuery(name =
-// "com.sparkonix.entity.CompanyDetail.findCompanyDetailByPanAndCompanyType",
-// query = "SELECT cd FROM CompanyDetail cd WHERE cd.pan= :PAN AND
-// cd.companyType= :COMPANY_TYPE"),
-//
-// @NamedQuery(name =
-// "com.sparkonix.entity.CompanyDetail.findCompanyDetailByPan",
-// query = "SELECT cd FROM CompanyDetail cd WHERE cd.pan= :PAN")
+
+
+
+
+
+
+
+
+
+

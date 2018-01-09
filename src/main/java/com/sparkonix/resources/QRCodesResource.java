@@ -45,20 +45,22 @@ import com.sparkonix.utils.UniqueCode;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
+/*
+ * QR-code resource class where we get the all qr-code. 
+ */
 @Path("/qrcodes")
 @Produces(MediaType.APPLICATION_JSON)
 public class QRCodesResource {
-
 	private final QRCodeDAO qrCodeDAO;
 	private final UserDAO userDAO;
-
+	
 	private final Logger log = Logger.getLogger(QRCodesResource.class.getName());
 
-	public QRCodesResource(QRCodeDAO qrcodedao, UserDAO userDAO) {
-		this.qrCodeDAO = qrcodedao;
+	public QRCodesResource(QRCodeDAO qrCodeDAO, UserDAO userDAO) {
+		this.qrCodeDAO = qrCodeDAO;
 		this.userDAO = userDAO;
 	}
-
+	
 	@GET
 	@UnitOfWork
 	public Response listQRCodes(@Auth User authUser) {
@@ -71,7 +73,7 @@ public class QRCodesResource {
 					.build();
 		}
 	}
-
+	
 	@POST
 	@Path("/generate/{numCodes}")
 	@UnitOfWork
@@ -216,13 +218,13 @@ public class QRCodesResource {
 				return null;
 			}
 			QRCode qrcode = new QRCode();
-			qrcode.setBatchName(batchName);
-			qrcode.setQrCode(qrCodeText);
+			qrcode.setBatch_name(batchName);
+			qrcode.setQr_code(qrCodeText);
 			qrcode.setStatus(QRCode.QRCODE_STATUS.UNASSIGNED.toString());
 			qrcode.setCreatedBy(dbUser);
 			QRCode dbQrCode = qrCodeDAO.save(qrcode);
 			if (dbQrCode != null) {
-				finalQrCodeText = dbQrCode.getQrCode();
+				finalQrCodeText = dbQrCode.getQr_code();
 			} else {
 				finalQrCodeText = null;
 			}
@@ -304,7 +306,7 @@ public class QRCodesResource {
 		System.out.println("----file path---"+filePath);
 		File file = new File(filePath);
 		if (file.exists()) {
-			ResponseBuilder responseBuilder = Response.ok((Object) file);
+			ResponseBuilder responseBuilder = Response.ok(file);
 			responseBuilder.header("Content-Disposition", "attachment; filename=\"" + batchName + ".zip\"");
 			System.out.println("-------");
 			return responseBuilder.build();

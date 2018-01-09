@@ -11,13 +11,24 @@ import com.sparkonix.entity.jsonb.CompanyLocationAddress;
 
 import io.dropwizard.hibernate.AbstractDAO;
 
+/*
+ * CompanyLocation DAO data abstract object class to use communicate with database tables
+ * This is getting information of machine location of customers
+ */
 public class CompanyLocationDAO extends AbstractDAO<CompanyLocation> {
 
+	// Parameterized Constructor
 	public CompanyLocationDAO(SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
 
+	// This method store all data into a database table of company Location
 	public CompanyLocation save(CompanyLocation companyLocation) throws Exception {
+		/*
+		 * Either save or update the given instance, depending upon resolution
+		 * of the unsaved-value checks. This operation cascades to associated
+		 * instances if the association is mapped with cascade="save-update".
+		 */
 		return persist(companyLocation);
 	}
 
@@ -29,76 +40,36 @@ public class CompanyLocationDAO extends AbstractDAO<CompanyLocation> {
 		return list(namedQuery("com.sparkonix.entity.CompanyLocation.findAll"));
 	}
 
-	public List<CompanyLocation> findAllByCompanyIdAndOnBoardedId(long companyDetailsId, long onBoardedById)
-			throws Exception {
-
-		@SuppressWarnings("unchecked")
-		List<CompanyLocation> list = namedQuery("com.sparkonix.entity.CompanyLocation.findAllByCompanyIdAndOnBoardedId")
-				.setParameter("COMPANY_DETAILS_ID", companyDetailsId).setParameter("ON_BOARDED_BY", onBoardedById)
-				.list();
-
-		List<CompanyLocation> listCompanyLocations = new ArrayList<>();
-		for (int i = 0; i < list.size(); i++) {
-			CompanyLocation companyLocation = new CompanyLocation();
-			String address = list.get(i).getAddress();
-
-			companyLocation.setCompanyLocationAddress(CompanyLocationAddress.fromJson(address));
-			companyLocation.setId(list.get(i).getId());
-			companyLocation.setOnBoardedBy(list.get(i).getOnBoardedBy());
-			companyLocation.setCompanyDetailsId(list.get(i).getCompanyDetailsId());
-			companyLocation.setContactPerson(list.get(i).getContactPerson());
-			companyLocation.setContactMobile(list.get(i).getContactMobile());
-
-			listCompanyLocations.add(companyLocation);
-		}
-		return listCompanyLocations;
-	}
-
-	public List<CompanyLocation> findAllByCompanyId(long companyDetailsID) throws Exception {
-		@SuppressWarnings("unchecked")
-		List<CompanyLocation> list = namedQuery("com.sparkonix.entity.CompanyLocation.findAllByCompanyId")
-				.setParameter("COMPANY_DETAILS_ID", companyDetailsID).list();
-
-		List<CompanyLocation> listCompanyLocations = new ArrayList<>();
-		for (int i = 0; i < list.size(); i++) {
-			CompanyLocation companyLocation = new CompanyLocation();
-			String address = list.get(i).getAddress();
-			companyLocation.setCompanyLocationAddress(CompanyLocationAddress.fromJson(address));
-			companyLocation.setId(list.get(i).getId());
-			companyLocation.setOnBoardedBy(list.get(i).getOnBoardedBy());
-			companyLocation.setCompanyDetailsId(list.get(i).getCompanyDetailsId());
-			companyLocation.setContactPerson(list.get(i).getContactPerson());
-			companyLocation.setContactMobile(list.get(i).getContactMobile());
-
-			listCompanyLocations.add(companyLocation);
-		}
-		return listCompanyLocations;
-	}
-
-	public long getCountByCustomerIdAndOnBoardedBy(long customerId, long onBoardedById, String userRole) {
-		Query query;
-		if (userRole.equals("SUPERADMIN")) {
+	//It will return a count of location where machine is placed using customer id. 
+	public long getCountLocationByCustomerId(long customerId){
+		if(customerId != 0){
+			Query query;
 			query = currentSession().createQuery(
 					"select count(*) from CompanyLocation cl where cl.companyDetailsId= :COMPANY_DETAIL_ID");
 			query.setParameter("COMPANY_DETAIL_ID", customerId);
 			return (Long) query.uniqueResult();
+		}else{
+			return 0;
 		}
-
-		// SALESTEAM OR WEBADMIN
-		query = currentSession().createQuery(
-				"select count(*) from CompanyLocation cl where cl.companyDetailsId= :CUSTOMER_ID and cl.onBoardedBy= :ON_BOARDED_BY");
-		query.setParameter("CUSTOMER_ID", customerId);
-		query.setParameter("ON_BOARDED_BY", onBoardedById);
-
-		return (Long) query.uniqueResult();
 	}
 	
-	public long getCountLocationByCustomerId(long customerId) {
-		Query query;
-		query = currentSession()
-				.createQuery("select count(*) from CompanyLocation cl where cl.companyDetailsId= :COMPANY_DETAIL_ID");
-		query.setParameter("COMPANY_DETAIL_ID", customerId);
-		return (Long) query.uniqueResult();
-	}
+	public List<CompanyLocation> findAllByCompanyId(long customerId) throws Exception {
+		@SuppressWarnings("unchecked")
+		List<CompanyLocation> list = namedQuery("com.sparkonix.entity.CompanyLocation.findAllByCompanyId")
+				.setParameter("CUSTOMER_ID", customerId).list();
 
+		List<CompanyLocation> listCompanyLocations = new ArrayList<>();
+		for (int i = 0; i < list.size(); i++) {
+			CompanyLocation companyLocation = new CompanyLocation();
+			String address = list.get(i).getAddress();
+			companyLocation.setCompanyLocationAddress(CompanyLocationAddress.fromJson(address));
+			companyLocation.setId(list.get(i).getId());
+			companyLocation.setContactPerson(list.get(i).getContactPerson());
+			companyLocation.setContactMobile(list.get(i).getContactMobile());
+
+			listCompanyLocations.add(companyLocation);
+		}
+		return listCompanyLocations;
+	}
+	
 }

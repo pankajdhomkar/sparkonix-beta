@@ -3,7 +3,6 @@ package com.sparkonix.entity.dto;
 import java.util.Date;
 
 public class SubscriptionReportDTO {
-
 	private String machineModel;
 	private String machineSerial;
 	private String customerCompanyName;

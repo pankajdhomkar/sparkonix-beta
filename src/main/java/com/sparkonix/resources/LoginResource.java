@@ -32,37 +32,37 @@ public class LoginResource {
 	@UnitOfWork
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getUserAuthentication(User user) {
-
+	    System.out.println("1. Login resource- user "+user.getEmail()+" <-> Pass = "+user.getPassword());
 		User userObj = null;
 		try {
 			userObj = userDAO.findUserByUsernameAndPassword(user.getEmail(), user.getPassword());
-			System.out.println("HERE-->1 "+user.getEmail()+" <-> Pass = "+user.getPassword());
-			
+						
 			if (userObj != null) {
-				System.out.println("HERE-->2");
+			    System.out.println("2. Login resource- in if statement");
 				log.info("User found");
 				User tempUser = new User();
 				tempUser.setId(userObj.getId());
 				tempUser.setName(userObj.getName());
 				tempUser.setEmail(userObj.getEmail());
-				tempUser.setAltEmail(userObj.getAltEmail());
+				tempUser.setAlt_email(userObj.getAlt_email());
 				tempUser.setMobile(userObj.getMobile());
-				tempUser.setCompanyDetailsId(userObj.getCompanyDetailsId());
-				tempUser.setRole(userObj.getRole());
-				tempUser.setNotificationType(userObj.getNotificationType());
-				tempUser.setMetadata(userObj.getMetadata());
-				if(userObj.getRole().equals("RESELLERADMIN")){
-					tempUser.setReseller_id(userObj.getCompanyDetailsId());
+				tempUser.setManufacturer_id(userObj.getManufacturer_id());
+				tempUser.setUser_role_id(userObj.getUser_role_id());
+				tempUser.setNotification_type(userObj.getNotification_type());
+				
+				if(userObj.getReseller_id() == 4){
+					tempUser.setReseller_id(userObj.getManufacturer_id());
 				}else{
 					tempUser.setReseller_id(userObj.getReseller_id());
 				}
 				
 				String token = JwtToken.generateToken(userObj.getEmail(), tempUser);
 				userObj.setToken(token);
-				
+				System.out.println("3. Login resource- token generation "+ token);
 				return Response.status(Status.OK).entity(JsonUtils.getJson(userObj)).build();
 
 			} else {
+			    System.out.println("4. Login resource- no user ");
 				return Response.status(Status.BAD_REQUEST)
 						.entity(JsonUtils.getErrorJson("Username/Password is not valid")).build();
 			}

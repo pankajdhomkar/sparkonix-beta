@@ -6,7 +6,6 @@
 			<img src="/assets/images/customers.png"
 				style="width: 50px; height: 50px;"></img>&nbsp; <span>
 				Manufacturers and Resellers</span>
-
 		</h1>
 	</div>
 
@@ -52,20 +51,20 @@
 									<td class="text-left">
 										<button style="text-align: left;" class="btn-link"
 											type="button"
-											ng-click="viewManRes(manufacturer.id, 'MANUFACTURER')">{{manufacturer.companyName}}</button>
+											ng-click="viewManRes(manufacturer.id, 'MANUFACTURER')">{{manufacturer.company_name}}</button>
 
 									</td>
 									<td>{{manufacturer.pan}}</td>
 									<td class="text-left"><span
 										ng-if="customer.custSupportName!=''"> <span
 											title="Support Name" class="glyphicon glyphicon-user"></span>
-											{{manufacturer.custSupportName}}<br> <span
+											{{manufacturer.cust_support_name}}<br> <span
 											title="Phone No." class="glyphicon glyphicon-phone-alt"></span>
-											{{manufacturer.custSupportPhone}}<br> <span
+											{{manufacturer.cust_support_phone}}<br> <span
 											title="Email" class="glyphicon glyphicon-envelope"></span>
-											{{manufacturer.custSupportEmail}}
+											{{manufacturer.cust_support_email}}
 									</span></td>
-									<td title="Current Subscription Status">{{manufacturer.curSubscriptionStatus}}</td>
+									<td title="Current Subscription Status">{{manufacturer.cur_subscription_status}}</td>
 									<td>
 
 										<button type="button" ng-model="editMode"

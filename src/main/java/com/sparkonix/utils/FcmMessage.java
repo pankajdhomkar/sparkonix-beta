@@ -2,13 +2,16 @@ package com.sparkonix.utils;
 
 import com.google.gson.JsonObject;
 
+/*
+ * FcmMessage class used for set and getting a values. 
+ */
 public class FcmMessage {
-
+	
 	private String to;
 	private Notification notification;
 	private JsonObject data;
 	private String[] registration_ids;
-
+		
 	public String getTo() {
 		return to;
 	}
@@ -60,7 +63,8 @@ public class FcmMessage {
 		public void setBody(String body) {
 			this.body = body;
 		}
-
 	}
 
 }
+
+

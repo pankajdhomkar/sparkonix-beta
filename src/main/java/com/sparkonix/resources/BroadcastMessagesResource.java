@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.gson.JsonObject;
-import com.sparkonix.dao.PhoneDeviceDAO;
+import com.sparkonix.dao.PhoneOperatorDAO;
 import com.sparkonix.entity.User;
 import com.sparkonix.entity.dto.BroadcastMessageDTO;
 import com.sparkonix.utils.FcmMessage;
@@ -21,33 +21,32 @@ import com.sparkonix.utils.SendFcmPushNotification;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
+
 @Path("/broadcastmessages")
 @Produces(MediaType.APPLICATION_JSON)
 public class BroadcastMessagesResource {
-
-	private final PhoneDeviceDAO phoneDeviceDAO;
+	// Complaint operator is a device which raise the complaint its a mobile device
+	private final PhoneOperatorDAO complaintOperatorDAO;
 	private final Logger log = Logger.getLogger(BroadcastMessagesResource.class.getName());
-
-	public BroadcastMessagesResource(PhoneDeviceDAO phoneDeviceDAO) {
-		this.phoneDeviceDAO = phoneDeviceDAO;
+	
+	public BroadcastMessagesResource(PhoneOperatorDAO complaintOperatorDAO) {
+		this.complaintOperatorDAO = complaintOperatorDAO;
 	}
-
+	
 	@POST
 	@UnitOfWork
 	public Response broadcastNewMessage(@Auth User authUser, BroadcastMessageDTO broadcastMessageDTO) {
 		try {
-			List<String> fcmTokenList = phoneDeviceDAO.getAllFcmTokens();
-
-			// send push notification to operator
+			List<String> fcmTokenList = complaintOperatorDAO.getAllFcmTokens();
+			
 			FcmMessage fcmMessage = new FcmMessage();
-
+			
 			JsonObject data = new JsonObject();
 			data.addProperty("title", broadcastMessageDTO.getTitle());
 			data.addProperty("message", broadcastMessageDTO.getMessage());
 			data.addProperty("description", broadcastMessageDTO.getDescription());
-
+			
 			fcmMessage.setData(data);
-
 			String[] fcmTokenArr = new String[fcmTokenList.size()];
 			fcmTokenArr = fcmTokenList.toArray(fcmTokenArr);
 			fcmMessage.setRegistration_ids(fcmTokenArr);
@@ -63,7 +62,6 @@ public class BroadcastMessagesResource {
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Failed to broadcast message"))
 					.build();
 		}
-
 	}
 
 }

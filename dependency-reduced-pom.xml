@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sparkonix</groupId>
   <artifactId>sparkonix</artifactId>
-  <name>Sparkonix Web Application</name>
-  <version>1.0.0</version>
+  <name>Sparkonix Web Application V2</name>
+  <version>1.2.0</version>
   <prerequisites>
     <maven>3.0.0</maven>
   </prerequisites>
@@ -160,16 +160,12 @@
     <dependency>
       <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-testing</artifactId>
-      <version>1.0.0</version>
+      <version>1.2.0</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>junit</artifactId>
           <groupId>junit</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>mockito-core</artifactId>
-          <groupId>org.mockito</groupId>
         </exclusion>
         <exclusion>
           <artifactId>objenesis</artifactId>
@@ -184,7 +180,7 @@
     <dependency>
       <groupId>org.glassfish.jersey.test-framework.providers</groupId>
       <artifactId>jersey-test-framework-provider-inmemory</artifactId>
-      <version>2.23.1</version>
+      <version>2.25.1</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -199,16 +195,12 @@
           <artifactId>jersey-test-framework-core</artifactId>
           <groupId>org.glassfish.jersey.test-framework</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>asm-debug-all</artifactId>
-          <groupId>org.ow2.asm</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.test-framework.providers</groupId>
       <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-      <version>2.23.1</version>
+      <version>2.25.1</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -230,10 +222,6 @@
         <exclusion>
           <artifactId>jersey-test-framework-core</artifactId>
           <groupId>org.glassfish.jersey.test-framework</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>asm-debug-all</artifactId>
-          <groupId>org.ow2.asm</groupId>
         </exclusion>
       </exclusions>
     </dependency>

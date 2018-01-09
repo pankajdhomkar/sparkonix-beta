@@ -13,8 +13,8 @@ import org.apache.http.impl.client.HttpClients;
 import com.google.gson.Gson;
 import com.sparkonix.ApplicationContext;
 
-public class SendFcmPushNotification implements Runnable {
-
+public class SendFcmPushNotification implements Runnable{
+	
 	private Gson gson = new Gson();
 	private FcmMessage fcmMessage;
 	private final Logger log = Logger.getLogger(SendFcmPushNotification.class.getName());
@@ -25,24 +25,24 @@ public class SendFcmPushNotification implements Runnable {
 
 	@Override
 	public void run() {
-		log.info("sending FCM message");
-
-		String fcmServerKey = ApplicationContext.getInstance().getConfig().getFcmServerKey();
-		// String fcmServerKey="AIzaSyBulNyKkj2rj7SO8Poslc6bKO6IIKbl11o";
+		log.info("Sending FCM Message");
+		
+		String fcmSeverKey = ApplicationContext.getInstance().getConfig().getFcmServerKey();
+		
+		// Construct data
 		try {
-			// Construct data
 			URI uri = new URI("https://fcm.googleapis.com/fcm/send");
-			CloseableHttpClient httpclient = HttpClients.createDefault();
+			CloseableHttpClient httpClient = HttpClients.createDefault();
 			HttpPost httpPost = new HttpPost(uri);
-
+			
 			httpPost.setEntity(new StringEntity(gson.toJson(fcmMessage), ContentType.create("application/json")));
-			httpPost.setHeader("Authorization", "key=" + fcmServerKey);
+			httpPost.setHeader("Authorization", "key=" + fcmSeverKey);
 
 			Integer errorCode;
 			CloseableHttpResponse response = null;
-
+			
 			try {
-				response = httpclient.execute(httpPost);
+				response = httpClient.execute(httpPost);
 				errorCode = response.getStatusLine().getStatusCode();
 			} finally {
 				if (response != null) {
@@ -58,7 +58,10 @@ public class SendFcmPushNotification implements Runnable {
 			}
 
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			log.info("FCM message sending failed. Reason: " + e.getMessage());
 		}
+		
 	}
+
 }

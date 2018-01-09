@@ -13,32 +13,30 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "machine_documents")
-@NamedQueries({
-		@NamedQuery(name = "com.sparkonix.entity.MachineDocument.findAll", 
-				query = "SELECT md FROM MachineDocument md"),
-		@NamedQuery(name = "com.sparkonix.entity.MachineDocument.findByManufacturer", 
-		query = "SELECT md FROM MachineDocument md WHERE md.manufacturerId = :companyID"),
-		@NamedQuery(name = "com.sparkonix.entity.MachineDocument.findAllByManIdAndModelNumber", 
-		query = "SELECT md FROM MachineDocument md WHERE md.manufacturerId = :MANUFACTURER_ID AND md.modelNumber=:MODEL_NUMBER")		
-})
+@NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.MachineDocument.findAll", query = "SELECT md FROM MachineDocument md"),
+	@NamedQuery(name = "com.sparkonix.entity.MachineDocument.findByManufacturer", query = "SELECT md FROM MachineDocument md WHERE md.manufacturer_id = :MANUFACTURERID")})
 
-public class MachineDocument implements Serializable {
 
-	private static final long serialVersionUID = -8441913984745839437L;
+public class MachineDocument implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8994872172816270881L;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
+	
 	@Column(name = "manufacturer_id", nullable = false)
-	private long manufacturerId;
-
+	private long manufacturer_id;
+	
 	@Column(name = "model_number")
-	private String modelNumber;
-
+	private String model_number;
+	
 	@Column(name = "document_path")
-	private String documentPath;
-
+	private String document_path;
+	
 	@Column(name = "description")
 	private String description;
 
@@ -50,28 +48,28 @@ public class MachineDocument implements Serializable {
 		this.id = id;
 	}
 
-	public long getManufacturerId() {
-		return manufacturerId;
+	public long getManufacturer_id() {
+		return manufacturer_id;
 	}
 
-	public void setManufacturerId(long manufacturerId) {
-		this.manufacturerId = manufacturerId;
+	public void setManufacturer_id(long manufacturer_id) {
+		this.manufacturer_id = manufacturer_id;
 	}
 
-	public String getModelNumber() {
-		return modelNumber;
+	public String getModel_number() {
+		return model_number;
 	}
 
-	public void setModelNumber(String modelNumber) {
-		this.modelNumber = modelNumber;
+	public void setModel_number(String model_number) {
+		this.model_number = model_number;
 	}
 
-	public String getDocumentPath() {
-		return documentPath;
+	public String getDocument_path() {
+		return document_path;
 	}
 
-	public void setDocumentPath(String documentPath) {
-		this.documentPath = documentPath;
+	public void setDocument_path(String document_path) {
+		this.document_path = document_path;
 	}
 
 	public String getDescription() {
@@ -82,4 +80,5 @@ public class MachineDocument implements Serializable {
 		this.description = description;
 	}
 
+	
 }

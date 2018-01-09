@@ -20,17 +20,21 @@ import com.sparkonix.utils.JsonUtils;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
+/**
+ * @author Pankaj Dhomkar
+ *
+ */
 @Path("/companylocation/{companyLocationId}")
 @Produces(MediaType.APPLICATION_JSON)
 public class CompanyLocationResource {
-
 	private final CompanyLocationDAO companyLocationDAO;
+	
 	private final Logger log = Logger.getLogger(CompanyLocationResource.class.getName());
 
 	public CompanyLocationResource(CompanyLocationDAO companyLocationDAO) {
 		this.companyLocationDAO = companyLocationDAO;
 	}
-
+	
 	@GET
 	@UnitOfWork
 	public Response getCompanyLocationById(@Auth User authUser,
@@ -43,10 +47,10 @@ public class CompanyLocationResource {
 			CompanyLocation companyLocation = new CompanyLocation();
 
 			companyLocation.setId(dbCompanyLocation.getId());
-			companyLocation.setCompanyDetailsId(dbCompanyLocation.getCompanyDetailsId());
+			companyLocation.setCustomer_id(dbCompanyLocation.getCustomer_id());
 			companyLocation.setContactPerson(dbCompanyLocation.getContactPerson());
 			companyLocation.setContactMobile(dbCompanyLocation.getContactMobile());
-			companyLocation.setOnBoardedBy(dbCompanyLocation.getOnBoardedBy());
+//			companyLocation.setOnBoardedBy(dbCompanyLocation.getOnBoardedBy());
 
 			// convert string to json object
 			String address = dbCompanyLocation.getAddress();
@@ -59,7 +63,7 @@ public class CompanyLocationResource {
 					.build();
 		}
 	}
-
+	
 	@PUT
 	@UnitOfWork
 	public Response updateCompanyLocation(@Auth User authUser, @PathParam("companyLocationId") long companyLocationId,

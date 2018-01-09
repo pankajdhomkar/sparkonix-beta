@@ -57,7 +57,7 @@
 									class="item">
 									<td style="width: 30%;" class="text-left">
 										<button style="text-align: left;" class="btn-link"
-											type="button" ng-click="viewRes(reseller.id,'RESELLER')">
+											type="button" ng-click="viewRes(reseller.id, 4)">
 											{{reseller.companyName}}</button>
 									</td>
 									<td style="width: 20%;">{{reseller.pan}}</td>
@@ -74,7 +74,7 @@
 									<td>
 										<button type="button" ng-model="editMode"
 											class="btn btn-primary btn-xs"
-											ng-click="editRes(reseller.id, 'RESELLER')">
+											ng-click="editRes(reseller.id, 4)">
 											<span class="glyphicon glyphicon-edit"></span> Edit
 										</button> <br /> <br />
 									</td>
@@ -357,7 +357,7 @@
 							</td>
 						</tr>
 						<tr
-							ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'">
+							ng-if="user.user_role_id == 3 || user.user_role_id == 4">
 							<td><b>Assigned Technician</b></td>
 							<td>
 								<p class="view-detail-content">{{

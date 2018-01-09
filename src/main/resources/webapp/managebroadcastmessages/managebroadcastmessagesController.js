@@ -7,13 +7,6 @@ function managebroadcastmessagesController($scope, restAPIService, dialogs, $sta
 	// ------------- PUBLIC VARIABLES ----------------
 	$scope.broadcastMessage = {};
 
-	// ------------- PRIVATE VARIABLES ----------------
-
-	// ------------- CONTROLLER CODE ----------------
-
-	// ------------- PRIVATE FUNCTIONS ----------------
-
-	// ------------- PUBLIC FUNCTIONS ----------------
 	$scope.onSubmitBroadcastMessageForm = function() {
 		angular.element(document.getElementById('btnSubmit'))[0].disabled = true;
 		var dlg = dialogs.confirm("Are you sure?",

@@ -25,142 +25,127 @@ import com.sparkonix.utils.SendSMS;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
+/**
+ * @author Pankaj Dhomkar
+ *
+ */
+
 @Path("/machineamcservicehistory/{amcServiceHistoryId}")
 @Produces(MediaType.APPLICATION_JSON)
 public class MachineAmcServiceHistoryResource {
-
-	private final MachineAmcServiceHistoryDAO machineAmcServiceHistoryDAO;
-	private final MachineDAO machineDAO;
-	private final UserDAO userDAO;
-	private final Logger log = Logger.getLogger(MachineAmcServiceHistoryResource.class.getName());
-
-	public MachineAmcServiceHistoryResource(MachineAmcServiceHistoryDAO machineAmcServiceHistoryDAO,
-			MachineDAO machineDAO, UserDAO userDAO) {
-		this.machineAmcServiceHistoryDAO = machineAmcServiceHistoryDAO;
-		this.machineDAO = machineDAO;
-		this.userDAO = userDAO;
+    private final MachineAmcServiceHistoryDAO machineAmcServiceHistoryDAO;
+    private final MachineDAO machineDAO;
+    private final UserDAO userDAO;
+    private final Logger log = Logger.getLogger(MachineAmcServiceHistoryResource.class.getName());
+    
+    public MachineAmcServiceHistoryResource(MachineAmcServiceHistoryDAO machineAmcServiceHistoryDAO,
+	    MachineDAO machineDAO, UserDAO userDAO) {
+	this.machineAmcServiceHistoryDAO = machineAmcServiceHistoryDAO;
+	this.machineDAO = machineDAO;
+	this.userDAO = userDAO;
+    }
+    
+    /*
+     * return the MachineAmcServiceHistory whose id is passed in parameter 
+     */
+    @GET
+    @UnitOfWork
+    public Response getMachineAmcServiceHistoryById(@Auth User authUser,
+	    @PathParam("amcServiceHistoryId") long amcServiceHistoryId) {
+	try {
+	    log.info(" In getMachineAmcServiceHistoryById");
+	    return Response.status(Status.OK)
+		    .entity(JsonUtils.getJson(machineAmcServiceHistoryDAO.getById(amcServiceHistoryId))).build();
+	} catch (Exception e) {
+	    log.severe("Unable to find Machine AMC Service History " + e);
+	    return Response.status(Status.BAD_REQUEST)
+		    .entity(JsonUtils.getErrorJson("Unable to find  Machine AMC Service History")).build();
 	}
-
-	/**
-	 * return the MachineAmcServiceHistory whose id is passed in param
-	 * {@linkplain amcServiceHistoryId}
-	 * 
-	 * @param authUser
-	 * @param amcServiceHistoryId
-	 * 
-	 * @return {@link MachineAmcServiceHistory}
-	 * 
-	 * @author abhijeet
-	 */
-
-	@GET
-	@UnitOfWork
-	public Response getMachineAmcServiceHistoryById(@Auth User authUser,
-			@PathParam("amcServiceHistoryId") long amcServiceHistoryId) {
-		try {
-			log.info(" In getMachineAmcServiceHistoryById");
-			return Response.status(Status.OK)
-					.entity(JsonUtils.getJson(machineAmcServiceHistoryDAO.getById(amcServiceHistoryId))).build();
-		} catch (Exception e) {
-			log.severe("Unable to find Machine AMC Service History " + e);
-			return Response.status(Status.BAD_REQUEST)
-					.entity(JsonUtils.getErrorJson("Unable to find  Machine AMC Service History")).build();
-		}
-	}
-
-	/**
-	 * Update the MachineAmcServiceHistory whose id is passed in param
-	 * {@linkplain amcServiceHistoryId} and return success message
-	 * 
-	 * @param authUser
-	 * @param amcServiceHistoryId
-	 * @param machineAmcServiceHistory
-	 * 
-	 * @return success message
-	 * 
-	 * @author abhijeet
-	 */
-
-	@PUT
+    }
+    
+    /*
+     * Update the MachineAmcServiceHistory whose id is passed in parameter
+     */
+    @PUT
 	@UnitOfWork
 	public Response updateMachineAmcServiceHistoryById(@Auth User authUser,
 			@PathParam("amcServiceHistoryId") long amcServiceHistoryId,
 			MachineAmcServiceHistory machineAmcServiceHistory) {
-		try {
-			log.info(" In updateUserById");
-			MachineAmcServiceHistory amcServiceHistoryObj = machineAmcServiceHistoryDAO
-					.getById(machineAmcServiceHistory.getId());
+	try {
+	    log.info(" In updateUserById");
+	    MachineAmcServiceHistory amcServiceHistoryObj = machineAmcServiceHistoryDAO
+		    .getById(machineAmcServiceHistory.getId());
 
-			if (amcServiceHistoryObj == null) {
-				return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("AMC Service does not exist"))
-						.build();
-			}
-			if (machineAmcServiceHistory.getMachine() == null) {
-				return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Machine should not be blank"))
-						.build();
-			}
-			Machine machine = machineDAO.getById(machineAmcServiceHistory.getMachine().getId());
-			System.out.println("HERE COMES---------->>-"+machineDAO.getById(machineAmcServiceHistory.getMachine().getId()));
-			if (machine == null) {
-				return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Machine does not exist"))
-						.build();
-			}
+	    if (amcServiceHistoryObj == null) {
+		return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("AMC Service does not exist"))
+			.build();
+	    }
+	    if (machineAmcServiceHistory.getMachine() == null) {
+		return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Machine should not be blank"))
+			.build();
+	    }
+	    Machine machine = machineDAO.getById(machineAmcServiceHistory.getMachine().getId());
+	    System.out.println("HERE COMES---------->>-"+machineDAO.getById(machineAmcServiceHistory.getMachine().getId()));
+	    if (machine == null) {
+		return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Machine does not exist"))
+			.build();
+	    }
 
-			if (authUser.getRole().equals(User.ROLE_TYPE.TECHNICIAN.toString())) {
-				System.out.println("HERE COMES-----------");
-				if (machineAmcServiceHistory.getStatus().equals("CLOSED")) {
-					log.severe("Technician has changed service request status");
-					amcServiceHistoryObj.setServicingDoneDate(new Date());
-					amcServiceHistoryObj.setStatus("CLOSED");
-				}
-				if(machineAmcServiceHistory.getStatus().equals("INPROGRESS")){
-					log.severe("Technician has changed service request status");
-					amcServiceHistoryObj.setServicingDoneDate(new Date());
-					amcServiceHistoryObj.setStatus("INPROGRESS");
-				}
-			} else {
-				System.out.println("HERE COME else-----------");
-				if (machineAmcServiceHistory.getAssignedTo() != null
-						&& machineAmcServiceHistory.getAssignedTo().getId() > 0) {
-					System.out.println("HERE COME else-111----------");
-					User technician = userDAO.getById(machineAmcServiceHistory.getAssignedTo().getId());
-					System.out.println("HERE COME else-22----------"+userDAO.getById(machineAmcServiceHistory.getAssignedTo().getId()));
-					if (technician == null) {
-						return Response.status(Status.BAD_REQUEST)
-								.entity(JsonUtils.getErrorJson("Technician does not exist")).build();
-					}
-					// amcServiceHistoryObj.setMachine(machine);
-					// amcServiceHistoryObj.setCompanyId(machineAmcServiceHistory.getCompanyId());
-					amcServiceHistoryObj.setDetails(machineAmcServiceHistory.getDetails());
-					amcServiceHistoryObj.setServicingAssignedDate(new Date());
-					// amcServiceHistoryObj.setMetadata("{}");
-
-					// send sms to technician
-					JsonObject jsonObjSms = new JsonObject();
-					jsonObjSms.addProperty("toMobileNumber", technician.getMobile().replaceAll("\\+",""));
-					jsonObjSms.addProperty("smsMessage",
-							"A machine service reuest assigned to you by " + authUser.getName());
-
-					// send SMS
-					new SendSMS(jsonObjSms).run();
-					log.info("Machine service request sms sent to technician.");
-
-				} else {
-					amcServiceHistoryObj.setStatus("OPEN");
-					log.severe("Technician not assigned");
-
-				}
-
-			}
-			machineAmcServiceHistoryDAO.save(amcServiceHistoryObj);
-
-			return Response.status(Status.OK).entity(JsonUtils.getSuccessJson("Machine details updated successfully"))
-					.build();
-		} catch (Exception e) {
-			log.severe("Unable to Update  " + e.getMessage());
-			return Response.status(Status.BAD_REQUEST)
-					.entity(JsonUtils.getErrorJson("Unable to update machine details")).build();
+	    if (authUser.getUser_role_id() == 5) { //TECHNICIAN.toString()
+		System.out.println("HERE COMES-----------");
+		if (machineAmcServiceHistory.getStatus().equals("CLOSED")) {
+		    log.severe("Technician has changed service request status");
+		    amcServiceHistoryObj.setServicing_assigned_date(new Date());
+		    amcServiceHistoryObj.setStatus("CLOSED");
 		}
-	}
+		if(machineAmcServiceHistory.getStatus().equals("INPROGRESS")){
+		    log.severe("Technician has changed service request status");
+		    amcServiceHistoryObj.setServicing_assigned_date(new Date());
+		    amcServiceHistoryObj.setStatus("INPROGRESS");
+		}
+	    } else {
+		System.out.println("HERE COME else-----------");
+		if (machineAmcServiceHistory.getAssignedTo() != null
+			&& machineAmcServiceHistory.getAssignedTo().getId() > 0) {
+		    System.out.println("HERE COME else-111----------");
+		    User technician = userDAO.getById(machineAmcServiceHistory.getAssignedTo().getId());
+		    System.out.println("HERE COME else-22----------"+userDAO.getById(machineAmcServiceHistory.getAssignedTo().getId()));
+		    if (technician == null) {
+			return Response.status(Status.BAD_REQUEST)
+				.entity(JsonUtils.getErrorJson("Technician does not exist")).build();
+		    }
+		    
+		    amcServiceHistoryObj.setDetails(machineAmcServiceHistory.getDetails());
+		    amcServiceHistoryObj.setServicing_assigned_date(new Date());
+		  
 
+		    // send sms to technician
+		    JsonObject jsonObjSms = new JsonObject();
+		    jsonObjSms.addProperty("toMobileNumber", technician.getMobile().replaceAll("\\+",""));
+		    jsonObjSms.addProperty("smsMessage",
+			    "A machine service reuest assigned to you by " + authUser.getName());
+
+		    // send SMS
+		    new SendSMS(jsonObjSms).run();
+		    log.info("Machine service request sms sent to technician.");
+
+		} else {
+		    amcServiceHistoryObj.setStatus("OPEN");
+		    log.severe("Technician not assigned");
+
+		}
+
+	    }
+	    machineAmcServiceHistoryDAO.save(amcServiceHistoryObj);
+
+	    return Response.status(Status.OK).entity(JsonUtils.getSuccessJson("Machine details updated successfully"))
+		    .build();
+	} catch (Exception e) {
+	    log.severe("Unable to Update  " + e.getMessage());
+	    return Response.status(Status.BAD_REQUEST)
+		    .entity(JsonUtils.getErrorJson("Unable to update machine details")).build();
+	}
+    }
+	
+	
 }

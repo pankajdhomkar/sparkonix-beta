@@ -4,7 +4,7 @@
 		<h1 class="page-header">
 			<img src="/assets/images/customers.png"
 				style="width: 50px; height: 50px;"></img>&nbsp; <span> Manage
-				Customers</span>
+				Customers</span> <span ng-if="role != 'SUPERADMIN' || role != 'SALESTEAM'">
 				<button class="btn btn-primary pull-right" type="button"
 					ng-click="addNewCustomer()">
 					<i class="fa fa-plus-circle"></i>&nbsp; Add New Customer

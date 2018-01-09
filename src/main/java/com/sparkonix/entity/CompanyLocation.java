@@ -19,46 +19,40 @@ import com.sparkonix.entity.dialect.StringJsonUserType;
 import com.sparkonix.entity.jsonb.CompanyLocationAddress;
 
 @Entity
-@Table(name = "company_locations")
+@Table(name = "company_location")
 @NamedQueries({
-		@NamedQuery(name = "com.sparkonix.entity.CompanyLocation.findAll", query = "SELECT cl FROM CompanyLocation cl"),
-
-		@NamedQuery(name = "com.sparkonix.entity.CompanyLocation.findAllByCompanyId", 
-			query = "SELECT cl FROM CompanyLocation cl "
-					+ "WHERE cl.companyDetailsId= :COMPANY_DETAILS_ID"),
-
-		@NamedQuery(name = "com.sparkonix.entity.CompanyLocation.findAllByCompanyIdAndOnBoardedId", 
-			query = "SELECT cl FROM CompanyLocation cl "
-					+ "WHERE cl.companyDetailsId= :COMPANY_DETAILS_ID "
-					+ "AND cl.onBoardedBy = :ON_BOARDED_BY")
-
+	@NamedQuery(name = "com.sparkonix.entity.CompanyLocation.findAll", query = "SELECT cl FROM CompanyLocation cl"),
+	@NamedQuery(name = "com.sparkonix.entity.CompanyLocation.findAllByCompanyId", query = "SELECT cl FROM CompanyLocation cl"
+			+ " WHERE cl.customer_id =:CUSTOMER_ID")
 })
-@TypeDefs({ @TypeDef(name = "CustomJsonObject", typeClass = StringJsonUserType.class) })
-public class CompanyLocation implements Serializable {
+@TypeDefs({ @TypeDef (name = "CustomJsonObject", typeClass = StringJsonUserType.class)})
 
-	private static final long serialVersionUID = -5138810094316744450L;
+public class CompanyLocation implements Serializable{
 
+	private static final long serialVersionUID = -3074009469542765099L;
+
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
-	@Column(name = "company_details_id", nullable = false)
-	private long companyDetailsId;
-
+	
+	@Column(name = "customer_id", nullable = false)
+	private long customer_id;
+	
 	@Type(type = "CustomJsonObject")
 	@Column(name = "address")
 	private String address;
-
+	
 	private transient CompanyLocationAddress companyLocationAddress;
-
+	
 	@Column(name = "contact_person", nullable = false)
 	private String contactPerson;
 
 	@Column(name = "contact_mobile", nullable = false)
 	private String contactMobile;
 
-	@Column(name = "on_boarded_by", nullable = false)
-	private long onBoardedBy;
+	/*@Column(name = "on_boarded_by", nullable = false)
+	private long onBoardedBy;*/
 
 	public long getId() {
 		return id;
@@ -68,12 +62,12 @@ public class CompanyLocation implements Serializable {
 		this.id = id;
 	}
 
-	public long getCompanyDetailsId() {
-		return companyDetailsId;
+	public long getCustomer_id() {
+		return customer_id;
 	}
 
-	public void setCompanyDetailsId(long companyDetailsId) {
-		this.companyDetailsId = companyDetailsId;
+	public void setCustomer_id(long customer_id) {
+		this.customer_id = customer_id;
 	}
 
 	public String getAddress() {
@@ -82,6 +76,14 @@ public class CompanyLocation implements Serializable {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public CompanyLocationAddress getCompanyLocationAddress() {
+		return companyLocationAddress;
+	}
+
+	public void setCompanyLocationAddress(CompanyLocationAddress companyLocationAddress) {
+		this.companyLocationAddress = companyLocationAddress;
 	}
 
 	public String getContactPerson() {
@@ -100,20 +102,11 @@ public class CompanyLocation implements Serializable {
 		this.contactMobile = contactMobile;
 	}
 
-	public long getOnBoardedBy() {
+	/*public long getOnBoardedBy() {
 		return onBoardedBy;
 	}
 
 	public void setOnBoardedBy(long onBoardedBy) {
 		this.onBoardedBy = onBoardedBy;
-	}
-
-	public CompanyLocationAddress getCompanyLocationAddress() {
-		return companyLocationAddress;
-	}
-
-	public void setCompanyLocationAddress(CompanyLocationAddress companyLocationAddress) {
-		this.companyLocationAddress = companyLocationAddress;
-	}
-
+	}*/
 }

@@ -14,12 +14,15 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.gson.JsonObject;
 
+/**
+ * @author Pankaj Dhomkar
+ *
+ */
 @Path("/privacypolicy")
 public class PrivacyPolicyResource {
-
-	JsonObject json = new JsonObject();
+    JsonObject json = new JsonObject();
 	private static final Logger log = Logger.getLogger(PrivacyPolicyResource.class.getName());
-
+	
 	@GET
 	@Produces(MediaType.TEXT_HTML)
 	public InputStream getPrivacyPolicy() throws IOException {

@@ -16,94 +16,63 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-
-import com.sparkonix.entity.dialect.StringJsonUserType;
-
 @Entity
 @Table(name = "machine_amc_service_history")
-@NamedQueries({
-		@NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findAll", query = "SELECT m FROM MachineAmcServiceHistory m"),
-		@NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findByCompanyID", query = "SELECT m FROM MachineAmcServiceHistory m "
-				+ "WHERE m.companyId = :COMPANYID"),
-		@NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findByTechnician", query = "SELECT m FROM MachineAmcServiceHistory m "
-				+ "WHERE m.assignedTo = :TECHID"),
-		@NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findByMachineID", query = "SELECT m FROM MachineAmcServiceHistory m "
-				+ "WHERE m.machine = :MACHINEID"), 
-		@NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findAllByMachineId", query = "SELECT m FROM MachineAmcServiceHistory m "
-				+ "WHERE m.machine.id = :MACHINE_ID")
-		
-})
-@TypeDefs({ @TypeDef(name = "CustomJsonObject", typeClass = StringJsonUserType.class) })
-public class MachineAmcServiceHistory implements Serializable {
+@NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findAll", query = "SELECT m FROM MachineAmcServiceHistory m "),
+    @NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findByManufacturerID", query = "SELECT m FROM MachineAmcServiceHistory m "
+	    + "WHERE m.manufacturer_id = :MANID"),
+    @NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findByResellerID", query = "SELECT m FROM MachineAmcServiceHistory m "
+	    + "WHERE m.reseller_id = :RESELLERID"),
+    @NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findByTechnician", query = "SELECT m FROM MachineAmcServiceHistory m "
+	    + "WHERE m.assignedTo = :TECHID"),
+    @NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findByMachineID", query = "SELECT m FROM MachineAmcServiceHistory m "
+	    + "WHERE m.machine = :MACHINEID"), 
+    @NamedQuery(name = "com.sparkonix.entity.MachineAmcServiceHistory.findAllByMachineId", query = "SELECT m FROM MachineAmcServiceHistory m "
+	    + "WHERE m.machine.id = :MACHINE_ID")})
 
-	private static final long serialVersionUID = 938010620587582558L;
-
-	public static enum AMC_STATUS {
-		EXPIRED, CANCELED
-	};
-
+public class MachineAmcServiceHistory implements Serializable{
+    
+	private static final long serialVersionUID = 8310907395443757240L;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
+	
 	@Column(name = "amc_id")
-	private long amcId;
+	private long amc_id;
 	
 	@Column(name = "details")
 	private String details;
-
+	
 	@Column(name = "servicing_assigned_date")
-	private Date servicingAssignedDate;
-
+	private Date servicing_assigned_date;
+	
 	@Column(name = "servicing_done_date")
-	private Date servicingDoneDate;
-
+	private Date servicing_done_date;
+	
 	@Column(name = "action_taken")
-	private String actionTaken;
-
+	private String action_taken;
+	
 	@Column(name = "status")
 	private String status;
-
-	@Type(type = "CustomJsonObject")
-	@Column(name = "metadata")
-	private String metadata;
-
-	@Column(name = "company_id", nullable = false)
-	private long companyId;
-
+	
 	//@JsonManagedReference("machineIdRef")
+
 	@ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	@JoinColumn(name = "machine_id", nullable = false)
 	private Machine machine;
-	
+		
 	//@JsonManagedReference("assignedToRef")
 	@ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	@JoinColumn(name = "assigned_to", nullable = false)
 	private  User assignedTo;
 
 	
-	public Machine getMachine() {
-		return machine;
-	}
-
-	public void setMachine(Machine machine) {
-		this.machine = machine;
-	}
-
-	public long getAmcId() {
-		return amcId;
-	}
-
-	public void setAmcId(long amcId) {
-		this.amcId = amcId;
-	}
-
-	public String getDetails() {
-		return details;
-	}
+	@Column(name = "manufacturer_id")
+	private long manufacturer_id;
+	
+	@Column(name = "reseller_id")
+	private long reseller_id;
 
 	public long getId() {
 		return id;
@@ -113,41 +82,44 @@ public class MachineAmcServiceHistory implements Serializable {
 		this.id = id;
 	}
 
+	public long getAmc_id() {
+		return amc_id;
+	}
+
+	public void setAmc_id(long amc_id) {
+		this.amc_id = amc_id;
+	}
+
+	public String getDetails() {
+		return details;
+	}
+
 	public void setDetails(String details) {
 		this.details = details;
 	}
 
-	public Date getServicingAssignedDate() {
-		return servicingAssignedDate;
+	public Date getServicing_assigned_date() {
+		return servicing_assigned_date;
 	}
 
-	public void setServicingAssignedDate(Date servicingAssignedDate) {
-		this.servicingAssignedDate = servicingAssignedDate;
+	public void setServicing_assigned_date(Date servicing_assigned_date) {
+		this.servicing_assigned_date = servicing_assigned_date;
 	}
 
-	public Date getServicingDoneDate() {
-		return servicingDoneDate;
+	public Date getServicing_done_date() {
+		return servicing_done_date;
 	}
 
-	public void setServicingDoneDate(Date servicingDoneDate) {
-		this.servicingDoneDate = servicingDoneDate;
+	public void setServicing_done_date(Date servicing_done_date) {
+		this.servicing_done_date = servicing_done_date;
 	}
 
-
-	public User getAssignedTo() {
-		return assignedTo;
+	public String getAction_taken() {
+		return action_taken;
 	}
 
-	public void setAssignedTo(User assignedTo) {
-		this.assignedTo = assignedTo;
-	}
-
-	public String getActionTaken() {
-		return actionTaken;
-	}
-
-	public void setActionTaken(String actionTaken) {
-		this.actionTaken = actionTaken;
+	public void setAction_taken(String action_taken) {
+		this.action_taken = action_taken;
 	}
 
 	public String getStatus() {
@@ -158,20 +130,35 @@ public class MachineAmcServiceHistory implements Serializable {
 		this.status = status;
 	}
 
-	public String getMetadata() {
-		return metadata;
+	public long getManufacturer_id() {
+	    return manufacturer_id;
 	}
 
-	public void setMetadata(String metadata) {
-		this.metadata = metadata;
+	public void setManufacturer_id(long manufacturer_id) {
+	    this.manufacturer_id = manufacturer_id;
 	}
 
-	public long getCompanyId() {
-		return companyId;
+	public long getReseller_id() {
+	    return reseller_id;
 	}
 
-	public void setCompanyId(long companyId) {
-		this.companyId = companyId;
+	public void setReseller_id(long reseller_id) {
+	    this.reseller_id = reseller_id;
 	}
 
+	public Machine getMachine() {
+	    return machine;
+	}
+
+	public void setMachine(Machine machine) {
+	    this.machine = machine;
+	}
+
+	public User getAssignedTo() {
+	    return assignedTo;
+	}
+
+	public void setAssignedTo(User assignedTo) {
+	    this.assignedTo = assignedTo;
+	}
 }

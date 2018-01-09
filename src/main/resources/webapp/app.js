@@ -12,25 +12,27 @@ function appController ($scope,$cookies,$rootScope,$state,$http) {
 	var user= $cookies.user;
 	if (user == "" || user == undefined) {
 		window.location.href = "#/login";
+		console.log("If part user------>",$rootScope.user);
 	 }else{
 		 user= JSON.parse(user);
 		 $rootScope.user = user;
 		 $http.defaults.headers.common.Authorization = "Basic "
 				+ btoa($rootScope.user.token + ":");
-		 console.log("user------>",$rootScope.user.role);
-		 	if ($rootScope.user.role == "SALESTEAM") {
-				$state.go('home.stdashboard');
-			}
-			if ($rootScope.user.role == "SUPERADMIN") {
+		 console.log("user Else ------>",$rootScope.user);
+		 	if ($rootScope.user.user_role_id == 1) { //$rootScope.user.role == "SUPERADMIN"
+		 		console.log("In the superadmin");
 				$state.go('home.sadashboard');
 			}
-			if ($rootScope.user.role == "MANUFACTURERADMIN") {
+		 	if ($rootScope.user.user_role_id == 2) { //$rootScope.user.role == "SALESTEAM"
+				$state.go('home.stdashboard');
+			}
+			if ($rootScope.user.user_role_id == 3) { //$rootScope.user.role == "MANUFACTURERADMIN"
 				$state.go('home.wadashboard');
 			}
-			if ($rootScope.user.role == "RESELLERADMIN") {
+			if ($rootScope.user.user_role_id == 4) { //$rootScope.user.role == "RESELLERADMIN"
 				$state.go('home.wardashboard');
 			}
-			if ($rootScope.user.role == "TECHNICIAN") {
+			if ($rootScope.user.user_role_id == 5) { //$rootScope.user.role == "TECHNICIAN"
 				$state.go('home.tcdashboard');
 			}
 	 }

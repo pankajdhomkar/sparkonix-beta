@@ -14,12 +14,15 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.gson.JsonObject;
 
+/*
+ * This resource file for showing a all info about page. 
+ */
 @Path("/termscondition")
 public class TermsConditionResource {
-
 	JsonObject json = new JsonObject();
+	
 	private static final Logger log = Logger.getLogger(TermsConditionResource.class.getName());
-
+	
 	@GET
 	@Produces(MediaType.TEXT_HTML)
 	public InputStream getTermsAndCondition() throws IOException {

@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 
@@ -75,11 +75,24 @@ public class StringJsonUserType implements UserType
      * @param names the column names
      * @param owner the containing entity  @return Object
      */
-    @Override
+/*    @Override
     public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
         throws HibernateException, SQLException
     {
         if (rs.getString(names[0]) == null)
+        {
+            return null;
+        }
+        return rs.getString(names[0]);
+    }*/
+    
+    /* (non-Javadoc)
+     * @see org.hibernate.usertype.UserType#nullSafeGet(java.sql.ResultSet, java.lang.String[], org.hibernate.engine.spi.SharedSessionContractImplementor, java.lang.Object)
+     */
+    @Override
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner)
+	    throws HibernateException, SQLException {
+	if (rs.getString(names[0]) == null)
         {
             return null;
         }
@@ -94,7 +107,7 @@ public class StringJsonUserType implements UserType
      * @param value the object to write
      * @param index statement parameter index
      */
-    @Override
+ /*   @Override
     public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
         throws HibernateException, SQLException
     {
@@ -105,6 +118,22 @@ public class StringJsonUserType implements UserType
         }
 
         st.setObject(index, value, Types.OTHER);
+    }*/
+    
+    /* (non-Javadoc)
+     * @see org.hibernate.usertype.UserType#nullSafeSet(java.sql.PreparedStatement, java.lang.Object, int, org.hibernate.engine.spi.SharedSessionContractImplementor)
+     */
+    @Override
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session)
+	    throws HibernateException, SQLException {
+	// TODO Auto-generated method stub
+	  if (value == null)
+	        {
+	            st.setNull(index, Types.OTHER);
+	            return;
+	        }
+
+	        st.setObject(index, value, Types.OTHER);
     }
 
     /**
@@ -175,5 +204,9 @@ public class StringJsonUserType implements UserType
     {
         return original;
     }
+
+    
+
+   
 
 }

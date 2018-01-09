@@ -9,8 +9,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 	// ------------- PUBLIC VARIABLES ----------------
 	$scope.companyTypes = [ "MANUFACTURER", "RESELLER"];
 	$scope.curSubscriptionTypes = [ "BASIC", "PREMIUM" ];
-	$scope.curSubscriptionStatusData = [ "ACTIVE", "PAYMENT_DUE", "INACTIVE",
-			"EXPIRED" ];
+	$scope.curSubscriptionStatusData = [ "ACTIVE", "INACTIVE" ];
 	$scope.ManResDTO = {}
 	$scope.opened = {};
 	$scope.manufacturersList = {};
@@ -30,7 +29,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 		$scope.opened[$event.target.id] = true;
 	};
 	$scope.format = 'dd-MM-yyyy'
-		console.log("herer",$scope.mode);
+
 	if ($scope.mode == "add") {
 		if($scope.role != "MANUFACTURERADMIN"){
 			$scope.headerTitleText = "Add New Reseller";
@@ -44,6 +43,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 //		$scope.headerTitleText = "Add New Manufacturer / Reseller";
 		$scope.editMode = false;
 		$scope.disablePassword = true;
+		//---------------------------Edit start-----------------------------------
 	} else if ($scope.mode == "edit") {
 		if($scope.companyType == "MANUFACTURER"){
 			$scope.headerTitleText = "Edit Manufacturer";
@@ -59,11 +59,11 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 		if($scope.companyType == "MANUFACTURER"){
 			// get ManResDTO from db by manResId
 			console.log("1Manufacturer");
-			promise1 = restAPIService.companyDetailManResResource(
+			promise1 = restAPIService.companyDetailManufacturerResource(
 					$scope.manResId, "MANUFACTURER").get();
 		}else{
 			console.log("2Reseller");
-			promise1 = restAPIService.companyDetailManResResource(
+			promise1 = restAPIService.companyDetailResellerResource(
 					$scope.manResId, "RESELLER").get();
 			
 		}
@@ -76,7 +76,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 				$scope.ManResDTO = response;
 				$scope.newManRes = response.reseller;
 				console.log("id of Manufacturer---->"+$scope.newManRes.fld_manufid);
-				getManuList();
+				getManuDetail();// It will take the detail of manufacturer
 			}else{
 				console.log("2loggg-->Manufacturer");
 				$scope.ManResDTO = response;
@@ -115,7 +115,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 			$state.go('home.managemanres.addmanres');
 			$state.reload();
 		});
-
+//		---------------------------Edit closed-----------------------------------
 	}
 
 	// ------------- PUBLIC FUNCTIONS -------------
@@ -129,7 +129,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 	}
 	$scope.onSubmit = function() {
 		if ($scope.mode == "add") {
-
+//--------------------------------------Add
 			$scope.newManRes.onBoardedBy = $rootScope.user.id;
 
 			if ($scope.newManRes.curSubscriptionStatus == "INACTIVE") {
@@ -166,11 +166,12 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 				$scope.nres.fld_manufid = 0;
 				$scope.ManResDTO.reseller =$scope.nres;
 			}
-			console.log("Manufacturer id ------"+$scope.ManResDTO.companyType);
+			console.log("Manufacturer id ------",$scope.ManResDTO);
 			var promise1 = restAPIService.companyDetailsManResResource().save(
 					$scope.ManResDTO);
-			
+			console.log("after call of man creation ------");
 			promise1.$promise.then(function(response) {
+				console.log("after call of man creation ------",response);
 				dialogs.notify("Success", response.success, {
 					'size' : 'sm'
 				});
@@ -190,6 +191,7 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 					'size' : 'sm'
 				});
 			});
+//			----------------------Add Closed-------------------------------------------
 		} else if ($scope.mode == "edit") {
 			console.log("Edit");
 			$scope.newManRes.onBoardedBy = $rootScope.user.id;
@@ -210,12 +212,12 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 			if($scope.ManResDTO.manResDetail != null){
 				console.log("I");
 				$scope.ManResDTO.reseller = null;
-				promise2 = restAPIService.companyDetailManResResource(
+				promise2 = restAPIService.companyDetailManufacturerResource(
 						$scope.manResId, "MANUFACTURER").update($scope.ManResDTO);
 				console.log("Manufacturer response="+promise2);
 			}else if($scope.ManResDTO.reseller != null){
 				console.log("II");
-				promise2 = restAPIService.companyDetailManResResource(
+				promise2 = restAPIService.companyDetailResellerResource(
 						$scope.manResId, "RESELLER").update($scope.ManResDTO);
 				console.log("Reseller response="+promise2);
 			}
@@ -352,9 +354,12 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 	
 	
 	function getCompanyDetailListByType(companyType) {
-		var promise = restAPIService.companyDetailsByCompanyTypeResource(
-				companyType).query();
-		console.log("Manufacturer id is --",$rootScope.user.id);
+//		var promise = restAPIService.companyDetailsByCompanyTypeResource(
+//				companyType).query();
+		//Sparkonix v2
+		// It will return the all manufacturer
+		var promise = restAPIService.manufacturerDetailsList();
+		console.log("getCompanyDetailListByType");
 		// dropdwon should display all Man/Res while adding new machine
 		promise.$promise.then(function(response) {
 				$scope.manufacturersList = response;
@@ -366,9 +371,10 @@ function addManResController($scope, $state, $rootScope, restAPIService,
 		});
 	}
 	
-	function getManuList(){
-		promise1 = restAPIService.companyDetailResource(
-				$scope.newManRes.fld_manufid,"MANUFACTURER").get(); // Pass the manufacturer id 
+	//Only get the manufacturer Detail 
+	function getManuDetail(){
+		promise1 = restAPIService.companyManufacturerName(
+				$scope.newManRes.fld_manufid).get(); // Pass the manufacturer id 
 
 		promise1.$promise.then(function(response) {
 			console.log("Response print company name-->", response);

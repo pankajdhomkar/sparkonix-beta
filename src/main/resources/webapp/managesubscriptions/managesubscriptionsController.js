@@ -90,24 +90,15 @@ function managesubscriptionsController($scope, $rootScope, restAPIService,
 		if ($rootScope.user.role == "SUPERADMIN") {
 			// get all active records
 			onBoardedBy=0;
-			
 			promise1 = restAPIService.subscriptionReportResource(
 					attendmeSubEndMonth, attendmeSubEndYear,
 					warrantyExpEndMonth, warrantyExpEndYear, amcSubEndMonth,
 					amcSubEndYear,onBoardedBy).query();
 		}
-		if ($rootScope.user.role == "MANUFACTURERADMIN"
+		if ($rootScope.user.user_role_id == 3 // Manufacturer admin sparkonix v2
 				|| $rootScope.user.role == "RESELLERADMIN") {
 			onBoardedBy= Number($rootScope.user.id);
-			console.log("Check for subscription report tab manu or res-->");
-			console.log("attendmeSubEndMonth--",attendmeSubEndMonth);
-			console.log("attendmeSubEndYear--",attendmeSubEndYear);
-			console.log("warrantyExpEndMonth--",warrantyExpEndMonth);
-			console.log("warrantyExpEndYear--",warrantyExpEndYear);
-			console.log("amcSubEndMonth--",amcSubEndMonth);
-			console.log("amcSubEndYear--",amcSubEndYear);
-			console.log("onBoardedBy--",onBoardedBy);
-			
+
 			promise1 = restAPIService.subscriptionReportResource(
 					attendmeSubEndMonth, attendmeSubEndYear,
 					warrantyExpEndMonth, warrantyExpEndYear, amcSubEndMonth,
@@ -116,7 +107,7 @@ function managesubscriptionsController($scope, $rootScope, restAPIService,
 
 		promise1.$promise.then(function(response) {
 			$scope.subscriptionData = response;
-			console.log("Check for subscription report tab  \n",$scope.subscriptionData);
+			
 			if(!$scope.subscriptionData.length>0){
 				$scope.searchResultMsg="No records found.";	
 			}
@@ -129,31 +120,7 @@ function managesubscriptionsController($scope, $rootScope, restAPIService,
 
 	};
 	
-	/*$scope.onDownloadAsExcel = function() {
-
-		if ($rootScope.user.role == "MANUFACTURERADMIN"
-				|| $rootScope.user.role == "RESELLERADMIN") {
-			// companyDetailsId of logged in web admin
-			$scope.complaintSearchFilter = {};
-			$scope.complaintSearchFilter.customerId = Number($scope.searchForm.customer);
-			$scope.complaintSearchFilter.startDate = $scope.searchForm.startDate;
-			$scope.complaintSearchFilter.endDate = $scope.searchForm.endDate;
-			$scope.complaintSearchFilter.manResId = Number($rootScope.user.companyDetailsId);
-			$scope.complaintSearchFilter.manResRole = $rootScope.user.role;			 
-		}
-		
-		var fileName = "complaint_list.xlsx"; 
-		var url = $rootScope.apiUrl + "issues/listbyfilter/excel";
-		$scope.Authorization="Basic "+ btoa($rootScope.token + ":");
-		
-		$http.post(url, $scope.complaintSearchFilter, { 
-			responseType: 'arraybuffer',
-			'Authorization' : $scope.Authorization
-			}).success(function(data) { 
-				var file = new Blob([data], { type: 'application/octet-stream' }); 
-			saveAs(file, fileName); });
-
-	};*/
+	
 	// download as excel using $http post	
 	$scope.onDownloadAsExcel = function() {
 		

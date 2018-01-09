@@ -14,40 +14,35 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "machine_amc_history")
-@NamedQueries({
-		@NamedQuery(name = "com.sparkonix.entity.MachineAmcHistory.findAll", query = "SELECT m FROM MachineAmcHistory m") })
-public class MachineAmcHistory implements Serializable {
+@NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.MachineAmcHistory.findAll", query = "SELECT mah FROM MachineAmcHistory mah") })
 
-	private static final long serialVersionUID = -511611144022705026L;
+public class MachineAmcHistory implements Serializable{
 
-	public static enum AMC_STATUS {
-		EXPIRED, CANCELED
-	};
-
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3838902989510326220L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
+	
 	@Column(name = "machine_id", nullable = false)
-	private long machineId;
+	private long machine_id;
 
 	@Column(name = "amc_type")
-	private String amcType;
-
+	private String amc_type;
+	
 	@Column(name = "amc_startdate")
-	private Date amcStartDate;
-
+	private Date amc_startdate;
+	
 	@Column(name = "amc_enddate")
-	private Date amcEndDate;
-
+	private Date amc_enddate;
+	
+	@Column(name = "details")
+	private String details;
+	
 	@Column(name = "amc_status")
-	private String amcStatus;
-
-	@Column(name = "amc_document")
-	private String amcDocument;
-
-	@Column(name = "payment_metadata")
-	private String paymentMetadata;
+	private String amc_status;
 
 	public long getId() {
 		return id;
@@ -57,60 +52,53 @@ public class MachineAmcHistory implements Serializable {
 		this.id = id;
 	}
 
-	public long getMachineId() {
-		return machineId;
+	public long getMachine_id() {
+		return machine_id;
 	}
 
-	public void setMachineId(long machineId) {
-		this.machineId = machineId;
+	public void setMachine_id(long machine_id) {
+		this.machine_id = machine_id;
 	}
 
-	public String getAmcType() {
-		return amcType;
+	public String getAmc_type() {
+		return amc_type;
 	}
 
-	public void setAmcType(String amcType) {
-		this.amcType = amcType;
+	public void setAmc_type(String amc_type) {
+		this.amc_type = amc_type;
 	}
 
-	public Date getAmcStartDate() {
-		return amcStartDate;
+	public Date getAmc_startdate() {
+		return amc_startdate;
 	}
 
-	public void setAmcStartDate(Date amcStartDate) {
-		this.amcStartDate = amcStartDate;
+	public void setAmc_startdate(Date amc_startdate) {
+		this.amc_startdate = amc_startdate;
 	}
 
-	public Date getAmcEndDate() {
-		return amcEndDate;
+	public Date getAmc_enddate() {
+		return amc_enddate;
 	}
 
-	public void setAmcEndDate(Date amcEndDate) {
-		this.amcEndDate = amcEndDate;
+	public void setAmc_enddate(Date amc_enddate) {
+		this.amc_enddate = amc_enddate;
 	}
 
-	public String getAmcStatus() {
-		return amcStatus;
+	public String getDetails() {
+		return details;
 	}
 
-	public void setAmcStatus(String amcStatus) {
-		this.amcStatus = amcStatus;
+	public void setDetails(String details) {
+		this.details = details;
 	}
 
-	public String getAmcDocument() {
-		return amcDocument;
+	public String getAmc_status() {
+		return amc_status;
 	}
 
-	public void setAmcDocument(String amcDocument) {
-		this.amcDocument = amcDocument;
+	public void setAmc_status(String amc_status) {
+		this.amc_status = amc_status;
 	}
-
-	public String getPaymentMetadata() {
-		return paymentMetadata;
-	}
-
-	public void setPaymentMetadata(String paymentMetadata) {
-		this.paymentMetadata = paymentMetadata;
-	}
-
+	
+	
 }

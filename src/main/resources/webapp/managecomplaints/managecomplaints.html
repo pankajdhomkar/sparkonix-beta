@@ -3,13 +3,13 @@
 		<h1 class="page-header">
 			<img src="/assets/images/problem.png"
 				style="width: 50px; height: 50px;"></img>&nbsp; <span
-				ng-hide="user.role == 'SUPERADMIN'"> Complaints and Regular
-				Servicing</span> <span ng-hide="user.role != 'SUPERADMIN'">
+				ng-hide="user.users_role_id == 1"> Complaints and Regular
+				Servicing</span> <span ng-hide="user.users_role_id != 1">
 				Complaints and Servicing Report</span>
 
 			<button class="btn btn-primary pull-right" type="button"
 				ng-click="newServiceReq()"
-				ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'">
+				ng-if="user.users_role_id == 3 || user.users_role_id == 4">
 				<i class="fa fa-plus-circle"></i>&nbsp; Add New Service Request
 			</button>
 		</h1>
@@ -28,16 +28,17 @@
 			</div>
 			<div class="panel-body table-responsive">
 				<div class="row"
-					ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN' 
-				 || user.role == 'SUPERADMIN'">
+					ng-if="user.users_role_id == 3 || user.users_role_id == 4 
+				 || user.users_role_id == 1">
 					<div class="form-group">
 						<div class="col-lg-4 col-md-4 col-sm-4">
-							<label>Customer Company Name</label> <select class="form-control"
+							<label>Customer Company Name</label> 
+							<select class="form-control"
 								ng-model="searchForm.customer">
 								<option value="">-- Select --</option>
-								<option ng-repeat="item in complaints | unique:'customerId'"
-									ng-selected="searchForm.customer == item.customerId"
-									value="{{item.customerId}}">{{item.customerCompanyName}}</option>
+								<option ng-repeat="item in complaints.customer.id | unique:'customerId'"
+									ng-selected="searchForm.customer == item.customer.id"
+									value="{{item.customer.id}}">{{item.customer.company_name}}</option>
 							</select>
 
 						</div>
@@ -73,8 +74,8 @@
 				</div>
 				<br>
 				<div class="row"
-					ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'
-				 || user.role == 'SUPERADMIN'">
+					ng-if="user.users_role_id == 3 || user.users_role_id == 4
+				 || user.users_role_id == 1">
 					<div class="form-group text-center">
 						<div class="col-lg-12 col-md-12 col-sm-12">
 							<button type="button" class="btn btn-primary btn-sm"
@@ -86,8 +87,8 @@
 					</div>
 				</div>
 				<div class="row"
-					ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'
-				 || user.role == 'SUPERADMIN'">
+					ng-if="user.users_role_id == 3 || user.users_role_id == 4
+				 || user.users_role_id == 1">
 					<div class="col-lg-12 col-md-12 col-sm-12">
 						<hr style="border-color: rgb(221, 221, 221);">
 					</div>
@@ -100,8 +101,8 @@
 					<br>
 				</div>
 				<div class="row text-right"
-					ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'
-				 || user.role == 'SUPERADMIN'">
+					ng-if="user.users_role_id == 3 || user.users_role_id == 4
+				 || user.users_role_id == 1">
 					<div class="col-lg-12 col-md-12 col-sm-12">
 						<button type="button" class="btn btn-primary btn-sm"
 							id="btnDownloadAsExcel" ng-click="onDownloadAsExcel()"
@@ -121,15 +122,15 @@
 							<td><b>Complaint Number</b></td>
 							<td><b>Machine Model</b></td>
 							<td><b>Machine Serial</b></td>
-							<td><b>Reported Date</b></td>
+							
 							<td><b>Assigned Date</b></td>
 							<td
-								ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN' 
-							|| user.role == 'SUPERADMIN'"><b>Assigned
+								ng-if="user.users_role_id == 3 || user.users_role_id == 4 
+							|| user.users_role_id == 1"><b>Assigned
 									To</b></td>
 							<td><b>Closed Date</b></td>
 							<td><b>Status</b></td>
-							<td class="text-center" ng-hide="user.role == 'SUPERADMIN'"><b>Action</b></td>
+							<td class="text-center" ng-hide="user.users_role_id == 1"><b>Action</b></td>
 						</tr>
 					</thead>
 					<tbody>
@@ -137,41 +138,41 @@
 							class="item">
 							<td><button title="View complaint details"
 									style="text-align: left;" class="btn-link" type="button"
-									ng-click="viewDetails(complaint)">{{
+									ng-click="viewDetails(complaint.issueNumberDetail.id)">{{
 									complaint.issueNumber}}</button></td>
 							<td>{{ complaint.machineModelNumber }}</td>
 							<td>{{ complaint.machineSerialNumber }}</td>
-							<td>{{ complaint.dateReported | date:"dd-MM-yyyy" }}</td>
+							
 							<td>{{ complaint.dateAssigned | date:"dd-MM-yyyy" }}</td>
 							<td
-								ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN' 
-							|| user.role == 'SUPERADMIN'">{{
+								ng-if="user.users_role_id == 3 || user.users_role_id == 4 
+							|| user.users_role_id == 1">{{
 								complaint.technicianName }}</td>
 							<td>{{ complaint.dateClosed | date:"dd-MM-yyyy" }}</td>
 							<td>{{ complaint.status }}</td>
-							<td class="text-center" ng-hide="user.role == 'SUPERADMIN'">
+							<td class="text-center" ng-hide="user.users_role_id == 1">
 								<button class="btn btn-primary btn-xs" type="button"
 									ng-disabled="complaint.status == 'CLOSED'"
 									ng-click="onEditComplaint(complaint)">
 									<i class="fa fa-edit"></i>&nbsp;
-									<!-- <span title="Assign To Technician" ng-if="user.role == 'MANUFACTURERADMIN'
-										|| user.role == 'RESELLERADMIN' && complaint.status == 'OPEN' && complaint.status == 'CLOSED'">Assign</span> -->
+									<!-- <span title="Assign To Technician" ng-if="user.users_role_id == 'MANUFACTURERADMIN'
+										|| user.users_role_id == 'RESELLERADMIN' && complaint.status == 'OPEN' && complaint.status == 'CLOSED'">Assign</span> -->
 
 									<span title="Assign To Technician"
-										ng-if="(user.role == 'MANUFACTURERADMIN'
-										|| user.role == 'RESELLERADMIN') && (complaint.status != 'ASSIGNED') && (complaint.status != 'INPROGRESS')">Assign</span>
+										ng-if="(user.users_role_id == 3
+										|| user.users_role_id == 4) && (complaint.status != 'ASSIGNED') && (complaint.status != 'INPROGRESS')">Assign</span>
 
 									<span title="Assign To Technician"
-										ng-if="(((user.role == 'MANUFACTURERADMIN')
-										|| (user.role == 'RESELLERADMIN')) && user.role != 'TECHNICIAN') && ((complaint.status == 'ASSIGNED') || (complaint.status == 'INPROGRESS'))">Re-Assign</span>
+										ng-if="(((user.users_role_id == 3)
+										|| (user.users_role_id == 4)) && user.users_role_id != 6) && ((complaint.status == 'ASSIGNED') || (complaint.status == 'INPROGRESS'))">Re-Assign</span>
 
 									<span title="Change complaint status"
-										ng-if="(user.role == 'TECHNICIAN' && complaint.status == 'ASSIGNED')">Change
+										ng-if="(user.users_role_id == 6 && complaint.status == 'ASSIGNED')">Change
 										Status</span> <span title="Change status"
-										ng-if="(user.role == 'TECHNICIAN' && complaint.status == 'INPROGRESS') && (user.role != 'MANUFACTURERADMIN'
-										|| user.role != 'RESELLERADMIN')">INPROGRESS</span>
+										ng-if="(user.users_role_id == 6 && complaint.status == 'INPROGRESS') && (user.users_role_id != 3
+										|| user.users_role_id != 4)">INPROGRESS</span>
 									<span title="Change status"
-										ng-if="user.role == 'TECHNICIAN' && complaint.status == 'CLOSED'">Closed</span>
+										ng-if="user.users_role_id == 6 && complaint.status == 'CLOSED'">Closed</span>
 								</button>
 							</td>
 						</tr>
@@ -205,7 +206,7 @@
 							<td><b>Assigned Date</b></td>
 							<td><b>Closed Date</b></td>
 							<td><b>Status</b></td>
-							<td ng-hide="user.role == 'SUPERADMIN'" class="text-center"><b>Action</b></td>
+							<td ng-hide="user.users_role_id == 1" class="text-center"><b>Action</b></td>
 						</tr>
 					</thead>
 					<tbody>
@@ -216,12 +217,12 @@
 							<td>{{ service.servicingAssignedDate | date:"dd-MM-yyyy" }}</td>
 							<td>{{ service.servicingDoneDate | date:"dd-MM-yyyy" }}</td>
 							<td>{{ service.status }}</td>
-							<td ng-hide="user.role == 'SUPERADMIN'" class="text-center">
+							<td ng-hide="user.users_role_id == 1" class="text-center">
 								<button class="btn btn-primary btn-xs" type="button"
 									ng-click="onEditServiceRequest(service)">
 									<i class="fa fa-edit"></i>&nbsp; <span
-										ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'">Assign
-										To Technician</span> <span ng-if="user.role == 'TECHNICIAN'">Change
+										ng-if="user.users_role_id == 3 || user.users_role_id == 4">Assign
+										To Technician</span> <span ng-if="user.users_role_id == 6">Change
 										Status</span> <span ng-if="service.status == 'CLOSED'">Closed</span>
 								</button>
 							</td>
@@ -405,7 +406,7 @@
 							</td>
 						</tr>
 						<tr
-							ng-if="user.role == 'MANUFACTURERADMIN' || user.role == 'RESELLERADMIN'">
+							ng-if="user.users_role_id == 3 || user.users_role_id == 4">
 							<td><b>Assigned Technician</b></td>
 							<td>
 								<p class="view-detail-content">{{

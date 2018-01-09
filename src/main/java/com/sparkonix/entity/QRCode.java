@@ -6,6 +6,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -15,27 +17,32 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "qr_codes")
-@NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.QRCode.findAll", query = "SELECT qrc FROM QRCode qrc")
+@NamedQueries({ @NamedQuery(name = "com.sparkonix.entity.QRCode.findAll", query = "SELECT qrc FROM QRCode qrc") })
 
-})
-public class QRCode implements Serializable {
+public class QRCode implements Serializable{
 
-	private static final long serialVersionUID = -42118806087206310L;
-
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5716529679263246804L;
+	
 	public static enum QRCODE_STATUS {
 		ASSIGNED, UNASSIGNED
 	};
-
+	
 	@Id
-	@Column(name = "qr_code", nullable = false)
-	private String qrCode;
-
-	@Column(name = "batch_name", nullable = false)
-	private String batchName;
-
-	@Column(name = "status", nullable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	
+	@Column(name = "qr_code")
+	private String qr_code;
+	
+	@Column(name = "batch_name")
+	private String batch_name;
+	
+	@Column(name = "status")
 	private String status;
-
+	
 	/*
 	 * @Column(name = "created_by", nullable = false) private long createdBy;
 	 */
@@ -53,20 +60,28 @@ public class QRCode implements Serializable {
 		this.createdBy = createdBy;
 	}
 
-	public String getQrCode() {
-		return qrCode;
+	public long getId() {
+		return id;
 	}
 
-	public void setQrCode(String qrCode) {
-		this.qrCode = qrCode;
+	public void setId(long id) {
+		this.id = id;
 	}
 
-	public String getBatchName() {
-		return batchName;
+	public String getQr_code() {
+		return qr_code;
 	}
 
-	public void setBatchName(String batchName) {
-		this.batchName = batchName;
+	public void setQr_code(String qr_code) {
+		this.qr_code = qr_code;
+	}
+
+	public String getBatch_name() {
+		return batch_name;
+	}
+
+	public void setBatch_name(String batch_name) {
+		this.batch_name = batch_name;
 	}
 
 	public String getStatus() {

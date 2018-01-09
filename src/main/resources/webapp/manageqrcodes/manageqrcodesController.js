@@ -97,33 +97,4 @@ $scope.downloadBatch = function(batchName){
 		});
 	  
 	}
-
-/*$scope.downloadBatch =function(batchName){
-	var request = $http({
-		method: 'GET',		 
-		url:$rootScope.apiUrl + "qrcode/download/zip/"+batchName,
-		responseType: 'arraybuffer', 
-		headers: {
-			 'Content-Type': 'application/zip; charset=utf-8',
-    	 
-		}  
-	});
- alert('ssss');
-	request.success(function(data, status, headers, config) {
-		  var anchor = angular.element('<a/>');
-		  anchor.css({display: 'none'}); // Make sure it's not visible
-		  angular.element(document.body).append(anchor); // Attach to document
-
-		  anchor.attr({
-		      href: 'data:attachment/zip;charset=utf-8,' + encodeURI(data),
-		      target: '_blank',
-		      download: batchName+'.zip'
-		  })[0].click();
-
-		  anchor.remove(); // Clean it up afterwards
-	  }).
-	  error(function(data, status, headers, config) {
-		  dialogs.error("Error", "Error", { 'size' : 'sm' });
-	  });
-}*/
 }

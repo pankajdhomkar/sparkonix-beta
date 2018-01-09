@@ -30,8 +30,11 @@ public class JwtToken {
 
 	public static String generateToken(String email, User user) throws Exception {
 		try {
-			return Jwts.builder().setHeaderParam("authorization", email).setPayload(gson.toJson(user))
-					.signWith(SignatureAlgorithm.HS256, key).compact();
+		    System.out.println("Token generation- email"+ email);
+		    	String jwtToken = Jwts.builder().setHeaderParam("authorization", email).setPayload(gson.toJson(user))
+				.signWith(SignatureAlgorithm.HS256, key).compact();
+		    	System.out.println("Token generation-->"+ jwtToken);
+			return jwtToken;
 
 		} catch (Exception ex) {
 			throw new AuthenticationException(ex);

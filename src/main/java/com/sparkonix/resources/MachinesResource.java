@@ -15,15 +15,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.zxing.WriterException;
-import com.sparkonix.dao.CompanyDetailDAO;
 import com.sparkonix.dao.CompanyLocationDAO;
-import com.sparkonix.dao.IssueDAO;
+import com.sparkonix.dao.ComplaintDetailDAO;
+import com.sparkonix.dao.CustomerDAO;
 import com.sparkonix.dao.MachineDAO;
+import com.sparkonix.dao.ManufacturerDAO;
 import com.sparkonix.dao.QRCodeDAO;
-import com.sparkonix.entity.CompanyDetail;
+import com.sparkonix.dao.ResellerDAO;
 import com.sparkonix.entity.CompanyLocation;
 import com.sparkonix.entity.Machine;
+import com.sparkonix.entity.Manufacturer;
 import com.sparkonix.entity.QRCode;
+import com.sparkonix.entity.Reseller;
 import com.sparkonix.entity.User;
 import com.sparkonix.entity.dto.MachineDetailsDTO;
 import com.sparkonix.entity.jsonb.CompanyLocationAddress;
@@ -35,32 +38,40 @@ import io.dropwizard.hibernate.UnitOfWork;
 @Path("/machines")
 @Produces(MediaType.APPLICATION_JSON)
 public class MachinesResource {
-
 	private final MachineDAO machineDAO;
 	private final QRCodeDAO qrCodeDAO;
-
-	private final CompanyDetailDAO companyDetailDAO;
+	@SuppressWarnings("unused")
+	private final ComplaintDetailDAO complaintDetailDAO;
+	
+	
+	
+	private final ManufacturerDAO manufacturerDAO;
+	private final ResellerDAO resellerDAO;
+	@SuppressWarnings("unused")
+	private final CustomerDAO customerDAO;
 	private final CompanyLocationDAO companyLocationDAO;
-	private final IssueDAO issueDAO;
-
+	
 	private final Logger log = Logger.getLogger(MachinesResource.class.getName());
 
-	public MachinesResource(MachineDAO machineDAO, CompanyDetailDAO companyDetailDAO,
-			CompanyLocationDAO companyLocationDAO, QRCodeDAO qrCodeDAO, IssueDAO issueDAO) {
+	public MachinesResource(MachineDAO machineDAO, QRCodeDAO qrCodeDAO, ComplaintDetailDAO complaintDetailDAO,
+			ManufacturerDAO manufacturerDAO, ResellerDAO resellerDAO,
+			CustomerDAO customerDAO, CompanyLocationDAO companyLocationDAO) {
 		this.machineDAO = machineDAO;
-		this.companyDetailDAO = companyDetailDAO;
-		this.companyLocationDAO = companyLocationDAO;
 		this.qrCodeDAO = qrCodeDAO;
-		this.issueDAO = issueDAO;
+		this.complaintDetailDAO = complaintDetailDAO;
+		this.manufacturerDAO = manufacturerDAO;
+		this.resellerDAO = resellerDAO;
+		this.customerDAO = customerDAO;
+		this.companyLocationDAO = companyLocationDAO;
 	}
-
+	
 	@POST
 	@UnitOfWork
 	public Response createMachine(@Auth User authUser, Machine machine) {
 
 		try {
-			if (machine.getQrCode() != null) {
-				QRCode qrCode = qrCodeDAO.getByQRCode(machine.getQrCode());
+			if (machine.getQr_code_id() != 0) {
+				QRCode qrCode = qrCodeDAO.getById(machine.getQr_code_id());
 				if (qrCode == null) {
 					log.info("This is not valid AttendMe QR code");
 					return Response.status(Status.BAD_REQUEST)
@@ -79,24 +90,17 @@ public class MachinesResource {
 						
 						System.out.println("machine save------"+newMachine.getId());
 						System.out.println("id-1 id -----"+newMachine.getId());
-						System.out.println("id-2 customer id-----"+newMachine.getCustomerId());
-						System.out.println("id-3 manu id-----"+newMachine.getManufacturerId());
-						System.out.println("id-4 reseller id-----"+newMachine.getResellerId());
-						System.out.println("id-5 location id-----"+newMachine.getLocationId());
+						System.out.println("id-2 customer id-----"+newMachine.getCustomer_id());
+						System.out.println("id-3 manu id-----"+newMachine.getManufacturer_id());
+						System.out.println("id-4 reseller id-----"+newMachine.getReseller_id());
+						System.out.println("id-5 location id-----"+newMachine.getLocation_id());
 						
-						if (newMachine != null) {
-							log.info("QR code has been assigned to machine");
-							// update qr code as assigned
-							qrCode.setStatus(QRCode.QRCODE_STATUS.ASSIGNED.toString());
-							qrCodeDAO.save(qrCode);
-							log.info("New machine successfully added.");
-							return Response.status(Status.OK).entity(JsonUtils.getJson(newMachine)).build();
-
-						} else {
-							log.info("New machine not added.");
-							return Response.status(Status.BAD_REQUEST)
-									.entity(JsonUtils.getErrorJson("New machine not added")).build();
-						}
+						log.info("QR code has been assigned to machine");
+						// update qr code as assigned
+						qrCode.setStatus(QRCode.QRCODE_STATUS.ASSIGNED.toString());
+						qrCodeDAO.save(qrCode);
+						log.info("New machine successfully added.");
+						return Response.status(Status.OK).entity(JsonUtils.getJson(newMachine)).build();
 					}
 				}
 			} else {
@@ -107,11 +111,7 @@ public class MachinesResource {
 				Machine newMachine = machineDAO.save(machine);
 				
 				System.out.println("id-1 id -----"+machine.getId());
-				System.out.println("id-2 customer id-----"+machine.getCustomerId());
-				System.out.println("id-3 manu id-----"+machine.getManufacturerId());
-				System.out.println("id-4 reseller id-----"+machine.getResellerId());
-				System.out.println("id-5 location id-----"+machine.getLocationId());
-				
+							
 				
 				if (newMachine != null) {
 					System.out.println("2-----------------------");
@@ -128,9 +128,69 @@ public class MachinesResource {
 			log.severe("Unable to add machine. Error: " + e);
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to add machine")).build();
 		}
-
 	}
-
+	
+	/*
+	 * It will return the machine list according to manufacturer id and reseller id 
+	 */
+	@GET
+	@Path("/{companyId}")
+	@UnitOfWork
+	public Response getAllMachinesForCompany(@Auth User authUser, @PathParam("companyId") long companyId)
+			throws IOException, WriterException {
+		try {
+			long companyType;
+			log.info("In getAllMachinesForCompany");
+			if(authUser.getUser_role_id() == 3){ // For manufacturer
+				companyType = 3;
+			}else{// For Reseller
+				companyType = 4;
+			}
+			return Response.status(Status.OK).entity(JsonUtils.getJson(machineDAO.getMachinesListForCompany(companyId, companyType)))
+					.build();
+			
+		} catch (Exception e) {
+			log.severe("Unable to find Machines " + e);
+			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Machines"))
+					.build();
+		}
+	}
+	
+	
+	//It will return all the machine.
+	@GET
+	@Path("/modelnumbers")
+	@UnitOfWork
+	public Response getAllMachineModelNumbers(@Auth User authUser) {
+		try {
+			log.info("In getAllMachineModelNumbers");		 
+			
+			return Response.status(Status.OK).entity(JsonUtils.getJson(machineDAO.getAllMachineModelNumbers())).build();
+		} catch (Exception e) {
+			log.severe("Unable to find Machines model numbers " + e);
+			return Response.status(Status.BAD_REQUEST)
+					.entity(JsonUtils.getErrorJson("Unable to find Machines model numbers")).build();
+		}
+	}
+	
+	
+	//It will return the list of machine that is on specific model numbers using manufactrer id
+	@GET
+	@Path("/modelnumbers/{manufacturer_id}")
+	@UnitOfWork
+	public Response getMachineModelNumberListByManId(@Auth User authUser, @PathParam("manufacturer_id") long manufacturerId) {
+		try {
+			log.info("In getMachineModelNumberListByManId");		 
+			
+			return Response.status(Status.OK)
+					.entity(JsonUtils.getJson(machineDAO.getAllMachineModelNumbersByManufacturerId(manufacturerId))).build();
+		} catch (Exception e) {
+			log.severe("Unable to find Machines model numbers " + e);
+			return Response.status(Status.BAD_REQUEST)
+					.entity(JsonUtils.getErrorJson("Unable to find Machines model numbers")).build();
+		}
+	}
+	
 	//function machinesByCustomerId(customerId)  calls this method in back end 
 	@GET
 	@UnitOfWork
@@ -156,21 +216,21 @@ public class MachinesResource {
 				MachineDetailsDTO machineDetailsDTO = new MachineDetailsDTO();
 
 				machineDetailsDTO.setMachineId(machineList.get(i).getId());
-				machineDetailsDTO.setSerialNumber(machineList.get(i).getSerialNumber());
-				machineDetailsDTO.setModelNumber(machineList.get(i).getModelNumber());
-				machineDetailsDTO.setQrCode(machineList.get(i).getQrCode());
+				machineDetailsDTO.setSerialNumber(machineList.get(i).getSerial_number());
+				machineDetailsDTO.setModelNumber(machineList.get(i).getModel_number());
+				machineDetailsDTO.setQrCode_id(machineList.get(i).getQr_code_id());
 				machineDetailsDTO.setName(machineList.get(i).getName());
-				machineDetailsDTO.setInstallationDate(machineList.get(i).getInstallationDate());
-				CompanyDetail manufacturerObj = companyDetailDAO.getById(machineList.get(i).getManufacturerId());
+				machineDetailsDTO.setInstallationDate(machineList.get(i).getInstallation_date());
+				Manufacturer manufacturerObj = manufacturerDAO.getById(machineList.get(i).getManufacturer_id());
 				machineDetailsDTO.setManufacturer(manufacturerObj);
 
-				CompanyDetail resellerObj = companyDetailDAO.getById(machineList.get(i).getResellerId());
+				Reseller resellerObj = resellerDAO.getById(machineList.get(i).getReseller_id());
 				machineDetailsDTO.setReseller(resellerObj);
 
-				CompanyLocation locationObj = companyLocationDAO.getById(machineList.get(i).getLocationId());
+				CompanyLocation locationObj = companyLocationDAO.getById(machineList.get(i).getLocation_id());
 				String address = locationObj.getAddress();
 				locationObj.setCompanyLocationAddress(CompanyLocationAddress.fromJson(address));
-				machineDetailsDTO.setLocation(locationObj);
+				machineDetailsDTO.setCompanyLocation(locationObj);
 
 				machineDTOList.add(machineDetailsDTO);
 			}
@@ -181,212 +241,4 @@ public class MachinesResource {
 					.build();
 		}
 	}
-
-	@GET
-	@Path("/{companyId}")
-	@UnitOfWork
-	public Response getAllMachinesForCompany(@Auth User authUser, @PathParam("companyId") long companyId)
-			throws IOException, WriterException {
-		try {
-			log.info("In getAllMachinesForCompany");
-			return Response.status(Status.OK).entity(JsonUtils.getJson(machineDAO.getAllMachinesForCompany(companyId)))
-					.build();
-		} catch (Exception e) {
-			log.severe("Unable to find Machines " + e);
-			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Machines"))
-					.build();
-		}
-	}
-	
-	@GET
-	@Path("/searchmachines/{customerId}")
-	@UnitOfWork
-	public Response getAllMachinesByCustomers(@Auth User authUser, @PathParam("customerId") long customerId)
-			throws IOException, WriterException {
-		try {
-			log.info("In getAllMachinesForCustomer");
-			return Response.status(Status.OK).entity(JsonUtils.getJson(machineDAO.getAllMachinesByCustomers(customerId)))
-					.build();
-		} catch (Exception e) {
-			log.severe("Unable to find Machines " + e);
-			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Machines"))
-					.build();
-		}
-	}
-
-	@GET
-	@UnitOfWork
-	@Path("/{customerId}/{onBoardedById}")
-	public Response listMachinesByCustIdAndOnBoardedId(@Auth User authUser, @PathParam("customerId") long customerId,
-			@PathParam("onBoardedById") long onBoardedById) {
-		try {
-			log.info(" In listMachinesByCustIdAndOnBoardedId");
-
-			List<Machine> machineList = machineDAO.findAllByCustomerIdAndOnBoardedId(customerId, onBoardedById);
-
-			List<MachineDetailsDTO> machineDTOList = new ArrayList<>();
-
-			for (int i = 0; i < machineList.size(); i++) {
-				MachineDetailsDTO machineDetailsDTO = new MachineDetailsDTO();
-
-				machineDetailsDTO.setMachineId(machineList.get(i).getId());
-				machineDetailsDTO.setSerialNumber(machineList.get(i).getSerialNumber());
-				machineDetailsDTO.setModelNumber(machineList.get(i).getModelNumber());
-
-				CompanyDetail manufacturerObj = companyDetailDAO.getById(machineList.get(i).getManufacturerId());
-				machineDetailsDTO.setManufacturer(manufacturerObj);
-
-				CompanyDetail resellerObj = companyDetailDAO.getById(machineList.get(i).getResellerId());
-				machineDetailsDTO.setReseller(resellerObj);
-
-				CompanyLocation locationObj = companyLocationDAO.getById(machineList.get(i).getLocationId());
-				String address = locationObj.getAddress();
-				locationObj.setCompanyLocationAddress(CompanyLocationAddress.fromJson(address));
-				machineDetailsDTO.setLocation(locationObj);
-
-				machineDTOList.add(machineDetailsDTO);
-			}
-			return Response.status(Status.OK).entity(machineDTOList).build();
-		} catch (Exception e) {
-			log.severe("Unable to find machine list " + e);
-			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find machine list"))
-					.build();
-		}
-	}
-	
-	//For getting a complaint and machine information with this using a machine id
-	/*@GET
-	@UnitOfWork
-	@Path("/machineInfo/{machineId}")
-	public Response getMachineInfoForReseller(){
-		
-	}
-	*/
-
-	@POST
-	@UnitOfWork
-	@Path("/bulkupload")
-	public Response addBulkMachinesByExcelSheet(@Auth User authUser, List<Machine> machineList) {
-		log.info(" In addBulkMachinesByExcelSheet");
-		try {
-			if (machineList != null && machineList.size() > 0) {
-				for (Machine machine : machineList) {
-					if (machine != null) {
-						Machine newMachine = new Machine();
-						newMachine.setName(machine.getName());
-						newMachine.setQrCode(machine.getQrCode());
-						newMachine.setSerialNumber(machine.getSerialNumber());
-						newMachine.setModelNumber(machine.getModelNumber());
-						newMachine.setDescription(machine.getDescription());
-						newMachine.setMachineYear(machine.getMachineYear());
-						newMachine.setManufacturerId(machine.getManufacturerId());
-						newMachine.setResellerId(machine.getResellerId());
-						newMachine.setInstallationDate(machine.getInstallationDate());
-						newMachine.setWarrantyExpiryDate(machine.getWarrantyExpiryDate());
-						newMachine.setLocationId(machine.getLocationId());
-						newMachine.setSupportAssistance(machine.getSupportAssistance());
-						newMachine.setCurAmcType(machine.getCurAmcType());
-						newMachine.setCurAmcStatus(machine.getCurAmcStatus());
-						newMachine.setCurAmcStartDate(machine.getCurAmcStartDate());
-						newMachine.setCurAmcEndDate(machine.getCurAmcEndDate());
-						newMachine.setCurSubscriptionType(machine.getCurSubscriptionType());
-						newMachine.setCurSubscriptionStatus(machine.getCurSubscriptionStatus());
-						newMachine.setCurSubscriptionStartDate(machine.getCurSubscriptionStartDate());
-						newMachine.setCurSubscriptionEndDate(machine.getCurAmcEndDate());
-
-						newMachine.setCustomerId(machine.getCustomerId());
-						newMachine.setOnBoardedBy(machine.getOnBoardedBy());
-
-						if (newMachine.getQrCode() != null) {
-							QRCode qrCode = qrCodeDAO.getByQRCode(newMachine.getQrCode());
-							if (qrCode == null) {
-								log.info("This is not valid AttendMe QR code");
-								return Response.status(Status.BAD_REQUEST)
-										.entity(JsonUtils.getErrorJson("This is not valid AttendMe QR code")).build();
-							} else {
-								log.info("This is valid AttendMe QR code");
-								if (qrCode.getStatus().equals(QRCode.QRCODE_STATUS.ASSIGNED.toString())) {
-									log.severe("This QR code is not available.");
-									return Response.status(Status.BAD_REQUEST)
-											.entity(JsonUtils.getErrorJson("This QR code is not available")).build();
-								} else {
-									Machine dbMachine = machineDAO.save(newMachine);
-									if (dbMachine != null) {
-										log.info("QR code has been assigned to machine");
-										// update qr code as assigned
-										qrCode.setStatus(QRCode.QRCODE_STATUS.ASSIGNED.toString());
-										qrCodeDAO.save(qrCode);
-										log.info("New machine successfully added.");
-
-									} else {
-										log.info("New machine not added.");
-										return Response.status(Status.BAD_REQUEST)
-												.entity(JsonUtils.getErrorJson("New machine list not added")).build();
-
-									}
-								}
-							}
-						} else {
-							log.severe("QR code is null");
-							// add machine without QR code
-							Machine dbMachine = machineDAO.save(machine);
-							if (dbMachine != null) {
-								log.info("New machine successfully added.");
-
-							} else {
-								log.info("New machine not added.");
-								return Response.status(Status.BAD_REQUEST)
-										.entity(JsonUtils.getErrorJson("New machine list not added")).build();
-							}
-						}
-					} else {
-						return Response.ok(JsonUtils.getSuccessJson("Please provide bulk machines data")).build();
-					}
-				}
-
-				return Response.ok(JsonUtils.getSuccessJson("Bulk machine list uploaded successfully")).build();
-			} else {
-
-				return Response.ok(JsonUtils.getSuccessJson("No record found for bulk machines upload")).build();
-			}
-		} catch (Exception e) {
-			log.severe("Unable to process machines upload. Error: " + e.getMessage());
-			return Response.status(Status.BAD_REQUEST)
-					.entity(JsonUtils.getErrorJson("Unable to process bulk machines upload")).build();
-
-		}
-
-	}
-
-	@GET
-	@Path("/modelnumbers")
-	@UnitOfWork
-	public Response getAllMachineModelNumbers(@Auth User authUser) {
-		try {
-			log.info("In getAllMachineModelNumbers");		 
-			
-			return Response.status(Status.OK).entity(JsonUtils.getJson(machineDAO.getAllMachineModelNumbers())).build();
-		} catch (Exception e) {
-			log.severe("Unable to find Machines model numbers " + e);
-			return Response.status(Status.BAD_REQUEST)
-					.entity(JsonUtils.getErrorJson("Unable to find Machines model numbers")).build();
-		}
-	}
-	
-	@GET
-	@Path("/modelnumbers/{manufacturer_id}")
-	@UnitOfWork
-	public Response getMachineModelNumberListByManId(@Auth User authUser, @PathParam("manufacturer_id") long manufacturerId) {
-		try {
-			log.info("In getMachineModelNumberListByManId");		 
-			
-			return Response.status(Status.OK)
-					.entity(JsonUtils.getJson(machineDAO.getAllMachineModelNumbersByManufacturerId(manufacturerId))).build();
-		} catch (Exception e) {
-			log.severe("Unable to find Machines model numbers " + e);
-			return Response.status(Status.BAD_REQUEST)
-					.entity(JsonUtils.getErrorJson("Unable to find Machines model numbers")).build();
-		}
-	}
-
 }

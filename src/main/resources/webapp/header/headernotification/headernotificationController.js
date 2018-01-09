@@ -9,7 +9,7 @@ headernotificationController.$inject = [ '$scope', '$http', '$state',
 function headernotificationController($scope, $http, $state, $rootScope,
 		restAPIService, $cookies) {
 
-	$scope.loggedUserRole = $rootScope.user.role;
+	$scope.loggedUserRoleId = $rootScope.user.user_role_id;
 
 	$scope.logout = function() {
 		$cookies.user = "";

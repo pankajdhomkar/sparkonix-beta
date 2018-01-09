@@ -23,8 +23,21 @@ function viewManResController($scope, $state, $rootScope, restAPIService,
 		// get ManResDTO from db by manResId
 		console.log("Herer in view company type is ",$scope.companyType);
 		console.log("data from api-->");
-		var promise1 = restAPIService.companyDetailManResResource(
-				$scope.manResId, $scope.companyType).get();
+//		Sparkonix v2
+		var promise1;
+		if($scope.companyType == "MANUFACTURER"){
+			// get ManResDTO from db by manResId
+			console.log("1Manufacturer");
+			promise1 = restAPIService.companyDetailManufacturerResource(
+					$scope.manResId, "MANUFACTURER").get();
+		}else{
+			console.log("2Reseller");
+			promise1 = restAPIService.companyDetailResellerResource(
+					$scope.manResId, "RESELLER").get();
+			
+		}
+//		var promise1 = restAPIService.companyDetailManResResource(
+//				$scope.manResId, $scope.companyType).get();
 		promise1.$promise.then(function(response) {
 			// populate value of ManRes for edit form
 			
@@ -33,7 +46,7 @@ function viewManResController($scope, $state, $rootScope, restAPIService,
 			}else{
 				$scope.newManRes = response.reseller;
 				$scope.number = response.reseller.fld_manufid;
-				getManuList();
+				getManuList();// Here we call the function of manufacturer detail
 				console.log("manufacturer id-->",$scope.number);
 			}
 				
@@ -70,9 +83,10 @@ function viewManResController($scope, $state, $rootScope, restAPIService,
 		$state.reload();
 	}
 	
+	// Here we call the function of manufacturer detail
 	function getManuList(){
-		promise1 = restAPIService.companyDetailResource(
-				$scope.number,"MANUFACTURER").get();
+		promise1 = restAPIService.companyManufacturerName(
+				$scope.number).get();
 
 		promise1.$promise.then(function(response) {
 			console.log("Response print company name-->", response);

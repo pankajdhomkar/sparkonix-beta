@@ -25,14 +25,13 @@ import io.dropwizard.hibernate.UnitOfWork;
 @Path("/companylocations")
 @Produces(MediaType.APPLICATION_JSON)
 public class CompanyLocationsResource {
-
 	private final CompanyLocationDAO companyLocationDAO;
 	private final Logger log = Logger.getLogger(CompanyLocationsResource.class.getName());
-
+	
 	public CompanyLocationsResource(CompanyLocationDAO companyLocationDAO) {
 		this.companyLocationDAO = companyLocationDAO;
 	}
-
+	
 	@POST
 	@UnitOfWork
 	public CompanyLocation createCompanyLocation(@Auth User authUser, CompanyLocation companyLocation)
@@ -56,10 +55,9 @@ public class CompanyLocationsResource {
 				CompanyLocation companyLocation = new CompanyLocation();
 
 				companyLocation.setId(companyLocationList.get(i).getId());
-				companyLocation.setCompanyDetailsId(companyLocationList.get(i).getCompanyDetailsId());
+				companyLocation.setCustomer_id((companyLocationList.get(i).getCustomer_id()));
 				companyLocation.setContactPerson(companyLocationList.get(i).getContactPerson());
 				companyLocation.setContactMobile(companyLocationList.get(i).getContactMobile());
-				companyLocation.setOnBoardedBy(companyLocationList.get(i).getOnBoardedBy());
 
 				String address = companyLocationList.get(i).getAddress();
 				companyLocation.setCompanyLocationAddress(CompanyLocationAddress.fromJson(address));
@@ -74,38 +72,23 @@ public class CompanyLocationsResource {
 					.build();
 		}
 	}
-
+	
 	@GET
 	@UnitOfWork
-	@Path("/{companyId}/{onBoardedById}")
-	public Response listCompanyLocationsByCompanyAndOnBoardedId(@Auth User authUser,
-			@PathParam("companyId") long companyId, @PathParam("onBoardedById") long onBoardedById) {
-		try {
-			log.info(" In listCompanyLocationsByCompanyAndOnBoardedId");
-			return Response.status(Status.OK)
-					.entity(JsonUtils
-							.getJson(companyLocationDAO.findAllByCompanyIdAndOnBoardedId(companyId, onBoardedById)))
-					.build();
-		} catch (Exception e) {
-			log.severe("Unable to find Company Location " + e);
-			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Company Location"))
-					.build();
-		}
-	}
-
-	@GET
-	@UnitOfWork
-	@Path("/{companyId}")
-	public Response listCompanyLocationsByCompanyId(@Auth User authUser, @PathParam("companyId") long companyId) {
+	@Path("/{customerId}")
+	public Response listCompanyLocationsByCompanyId(@Auth User authUser, @PathParam("customerId") long customerId) {
 		try {
 			log.info(" In listCompanyLocationsByCompanyId");
 			return Response.status(Status.OK)
-					.entity(JsonUtils.getJson(companyLocationDAO.findAllByCompanyId(companyId))).build();
+					.entity(JsonUtils.getJson(companyLocationDAO.findAllByCompanyId(customerId))).build();
 		} catch (Exception e) {
 			log.severe("Unable to find Company Location " + e);
 			return Response.status(Status.BAD_REQUEST).entity(JsonUtils.getErrorJson("Unable to find Company Location"))
 					.build();
 		}
 	}
+	
+	
 
+	
 }
